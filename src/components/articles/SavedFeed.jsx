@@ -1,0 +1,325 @@
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Bookmark, Trash2, ExternalLink, BookOpen, Calendar, Users, Download, ChevronDown, Zap } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { base44 } from '@/api/base44Client';
+import { format } from 'date-fns';
+import ExportModal from './ExportModal';
+import AutoSaveRules from './AutoSaveRules';
+
+const RULES_KEY = 'cjf_autosave_rules';
+const defaultRules = { enabled: false, keywords: [], authors: [] };
+
+function loadRules() {
+  try { return { ...defaultRules, ...JSON.parse(localStorage.getItem(RULES_KEY) || '{}') }; }
+  catch { return defaultRules; }
+}
+
+function saveRules(rules) {
+  localStorage.setItem(RULES_KEY, JSON.stringify(rules));
+}
+
+function renderAuthors(text) {
+  if (!text) return null;
+  const parts = text.split(/,\s*/);
+  return parts.map((name, i) => {
+    const hasStar = /\*/.test(name);
+    const cleanName = name.replace(/\*/g, '').trim();
+    return (
+      <span key={i}>
+        {i > 0 && ', '}
+        {cleanName}
+        {hasStar && <span className="text-blue-500 ml-0.5" title="Corresponding author">★</span>}
+      </span>
+    );
+  });
+}
+
+function SavedCard({ saved, onUnsave, selected, onToggleSelect }) {
+  const [abstractOpen, setAbstractOpen] = useState(false);
+  const [removing, setRemoving] = useState(false);
+
+  const handleUnsave = async () => {
+    setRemoving(true);
+    await base44.entities.SavedArticle.delete(saved.id);
+    onUnsave();
+  };
+
+  const formatDate = (d) => {
+    try { return format(new Date(d), 'MMM d, yyyy'); } catch { return d; }
+  };
+
+  return (
+    <motion.article
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.97 }}
+      className={`group bg-white rounded-2xl border transition-all duration-300 overflow-hidden ${selected ? 'border-blue-400 shadow-md' : 'border-slate-200 hover:shadow-xl hover:border-slate-300'}`}
+    >
+      <div className="flex items-stretch gap-0">
+        {/* Checkbox */}
+        <div className="flex items-start pt-5 pl-4 pr-1 flex-shrink-0">
+          <input
+            type="checkbox"
+            checked={selected}
+            onChange={() => onToggleSelect(saved.id)}
+            className="w-4 h-4 rounded border-slate-300 text-blue-600 cursor-pointer accent-blue-600"
+          />
+        </div>
+
+        {/* Thumbnail */}
+        {saved.thumbnail && (
+          <div className="hidden sm:flex flex-shrink-0 w-[368px] items-center justify-center bg-slate-50 border-r border-slate-100 p-2" style={{ minHeight: '160px', maxHeight: '220px' }}>
+            <img
+              src={saved.thumbnail}
+              alt="Graphical abstract"
+              className="w-full h-full object-contain"
+              style={{ maxHeight: '210px' }}
+              onError={(e) => { e.target.style.display = 'none'; }}
+            />
+          </div>
+        )}
+
+        <div className="flex-1 min-w-0 p-5">
+          {saved.thumbnail && (
+            <div className="sm:hidden w-full mb-4 rounded-xl overflow-hidden bg-slate-50 border border-slate-100">
+              <img src={saved.thumbnail} alt="Graphical abstract" className="w-full max-h-40 object-contain" onError={(e) => { e.target.style.display = 'none'; }} />
+            </div>
+          )}
+
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-2 flex-wrap">
+                <Badge
+                  variant="secondary"
+                  className="text-xs font-medium px-2.5 py-0.5"
+                  style={{
+                    backgroundColor: `${saved.journal_color}18`,
+                    color: saved.journal_color,
+                    borderColor: `${saved.journal_color}35`
+                  }}
+                >
+                  <BookOpen className="w-3 h-3 mr-1" />
+                  {saved.journal_abbrev}
+                </Badge>
+                {saved.pub_date && (
+                  <span className="text-xs text-slate-400 flex items-center gap-1">
+                    <Calendar className="w-3 h-3" />
+                    {formatDate(saved.pub_date)}
+                  </span>
+                )}
+              </div>
+
+              <a href={saved.link} target="_blank" rel="noopener noreferrer">
+                <h3 className="text-base font-semibold text-slate-900 leading-snug mb-2 hover:text-blue-600 transition-colors line-clamp-2">
+                  {saved.title}
+                </h3>
+              </a>
+
+              {saved.authors && (
+                <p className="text-xs text-slate-500 flex items-start gap-1 mb-2">
+                  <Users className="w-3 h-3 mt-0.5 flex-shrink-0 text-slate-400" />
+                  <span>{saved.authors}</span>
+                </p>
+              )}
+
+              {saved.link && (
+                <a href={saved.link} target="_blank" rel="noopener noreferrer" className="text-xs text-slate-400 hover:text-blue-600 transition-colors block mb-3 truncate">
+                  {saved.link}
+                </a>
+              )}
+
+              <div className="flex items-center gap-4 mt-1">
+                <button
+                  onClick={handleUnsave}
+                  disabled={removing}
+                  className="flex items-center gap-1 text-xs font-semibold text-amber-500 hover:text-red-500 transition-colors"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  Remove
+                </button>
+              </div>
+            </div>
+
+            <a href={saved.link} target="_blank" rel="noopener noreferrer" className="flex-shrink-0 w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-blue-600 hover:text-white transition-all duration-200">
+              <ExternalLink className="w-4 h-4" />
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <Dialog open={abstractOpen} onOpenChange={setAbstractOpen}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-base font-semibold text-slate-900 leading-snug pr-6">{saved.title}</DialogTitle>
+            {saved.authors && <p className="text-xs text-slate-500 mt-1">{saved.authors}</p>}
+          </DialogHeader>
+          <div className="mt-3">
+            <p className="text-xs font-semibold text-blue-600 uppercase tracking-wide mb-2">Abstract</p>
+            <p className="text-sm text-slate-700 leading-relaxed whitespace-pre-line">{saved.abstract}</p>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </motion.article>
+  );
+}
+
+export default function SavedFeed({ savedArticles, onRefresh, articles = [] }) {
+  const [selectedIds, setSelectedIds] = useState(new Set());
+  const [exportOpen, setExportOpen] = useState(false);
+  const [rulesExpanded, setRulesExpanded] = useState(false);
+  const [rules, setRulesState] = useState(loadRules);
+
+  const handleRulesChange = (newRules) => {
+    setRulesState(newRules);
+    saveRules(newRules);
+  };
+
+  const toggleSelect = (id) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const allSelected = savedArticles.length > 0 && selectedIds.size === savedArticles.length;
+
+  const toggleAll = () => {
+    if (allSelected) setSelectedIds(new Set());
+    else setSelectedIds(new Set(savedArticles.map(a => a.id)));
+  };
+
+  const articlesToExport = selectedIds.size > 0
+    ? savedArticles.filter(a => selectedIds.has(a.id))
+    : savedArticles;
+
+  if (savedArticles.length === 0) {
+    return (
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+        {/* Rules toggle */}
+        <button
+          onClick={() => setRulesExpanded(!rulesExpanded)}
+          className="w-full bg-white rounded-2xl border border-slate-200 shadow-sm px-4 py-3 mb-4 flex items-center justify-between hover:shadow-md transition-shadow"
+        >
+          <div className="flex items-center gap-3 flex-1 text-left min-w-0">
+            <div className="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center flex-shrink-0">
+              <Zap className="w-4 h-4 text-amber-500" />
+            </div>
+            <div className="min-w-0">
+              <h3 className="text-sm font-semibold text-slate-700">Auto-Save Rules <span className="font-normal text-slate-500">(optional)</span></h3>
+              {rules.enabled && (
+                <p className="text-xs text-slate-400 mt-0.5">Enabled · {rules.keywords.length} keyword{rules.keywords.length !== 1 ? 's' : ''}, {rules.authors.length} author{rules.authors.length !== 1 ? 's' : ''}</p>
+              )}
+            </div>
+          </div>
+          <ChevronDown className={`w-5 h-5 text-blue-500 transition-transform flex-shrink-0 stroke-[2.5] ${rulesExpanded ? 'rotate-180' : ''}`} />
+        </button>
+
+        {rulesExpanded && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="overflow-hidden mb-4"
+          >
+            <AutoSaveRules rules={rules} onRulesChange={handleRulesChange} />
+          </motion.div>
+        )}
+
+        <div className="flex flex-col items-center justify-center py-20 text-center">
+          <div className="w-20 h-20 rounded-full bg-amber-50 flex items-center justify-center mb-6">
+            <Bookmark className="w-10 h-10 text-amber-300" />
+          </div>
+          <h3 className="text-xl font-semibold text-slate-800 mb-2">No saved articles yet</h3>
+          <p className="text-slate-500 max-w-md">Click the bookmark icon on any article to save it here for later.</p>
+        </div>
+      </motion.div>
+    );
+  }
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-3">
+          <input
+            type="checkbox"
+            checked={allSelected}
+            onChange={toggleAll}
+            className="w-4 h-4 rounded border-slate-300 accent-blue-600 cursor-pointer"
+          />
+          <div>
+            <h2 className="text-2xl font-bold text-slate-900">Saved Articles</h2>
+            <p className="text-sm text-slate-500 mt-0.5">
+              {savedArticles.length} article{savedArticles.length !== 1 ? 's' : ''}
+              {selectedIds.size > 0 && ` · ${selectedIds.size} selected`}
+            </p>
+          </div>
+        </div>
+        <Button
+          onClick={() => setExportOpen(true)}
+          className="gap-2 bg-blue-600 hover:bg-blue-700 text-white"
+          size="sm"
+        >
+          <Download className="w-4 h-4" />
+          Export{selectedIds.size > 0 ? ` (${selectedIds.size})` : ' All'}
+        </Button>
+      </div>
+
+      {/* Rules toggle */}
+      <button
+        onClick={() => setRulesExpanded(!rulesExpanded)}
+        className="w-full bg-white rounded-2xl border border-slate-200 shadow-sm px-4 py-3 mb-4 flex items-center justify-between hover:shadow-md transition-shadow"
+      >
+        <div className="flex items-center gap-3 flex-1 text-left min-w-0">
+          <div className="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center flex-shrink-0">
+            <Zap className="w-4 h-4 text-amber-500" />
+          </div>
+          <div className="min-w-0">
+            <h3 className="text-sm font-semibold text-slate-700">Auto-Save Rules <span className="font-normal text-slate-500">(optional)</span></h3>
+            {rules.enabled && (
+              <p className="text-xs text-slate-400 mt-0.5">Enabled · {rules.keywords.length} keyword{rules.keywords.length !== 1 ? 's' : ''}, {rules.authors.length} author{rules.authors.length !== 1 ? 's' : ''}</p>
+            )}
+          </div>
+        </div>
+        <ChevronDown className={`w-5 h-5 text-blue-500 transition-transform flex-shrink-0 stroke-[2.5] ${rulesExpanded ? 'rotate-180' : ''}`} />
+      </button>
+
+      {rulesExpanded && (
+        <motion.div
+          initial={{ height: 0, opacity: 0 }}
+          animate={{ height: 'auto', opacity: 1 }}
+          exit={{ height: 0, opacity: 0 }}
+          transition={{ duration: 0.2 }}
+          className="overflow-hidden mb-4"
+        >
+          <AutoSaveRules rules={rules} onRulesChange={handleRulesChange} />
+        </motion.div>
+      )}
+
+      <div className="space-y-4">
+        <AnimatePresence mode="popLayout">
+          {savedArticles.map((saved) => (
+            <SavedCard
+              key={saved.id}
+              saved={saved}
+              onUnsave={onRefresh}
+              selected={selectedIds.has(saved.id)}
+              onToggleSelect={toggleSelect}
+            />
+          ))}
+        </AnimatePresence>
+      </div>
+
+      <ExportModal
+        open={exportOpen}
+        onClose={() => setExportOpen(false)}
+        articles={articlesToExport}
+      />
+    </div>
+  );
+}
