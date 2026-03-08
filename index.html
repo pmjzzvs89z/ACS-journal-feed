@@ -5,6 +5,13 @@
     <link rel="icon" type="image/svg+xml" href="https://base44.com/logo_v2.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="manifest" href="/manifest.json" />
+    <!-- Suppress Referer on all sub-resource requests (images, etc.).
+         Publisher CDNs (ACS, RSC, Wiley) block cross-origin Referer headers.
+         This makes image requests look like direct browser access, matching
+         how native RSS readers behave. The per-element referrerpolicy attribute
+         on <img> is sometimes ignored by macOS Safari; the document-level meta
+         tag is respected universally. -->
+    <meta name="referrer" content="no-referrer" />
     <title>Base44 APP</title>
   </head>
   <body>
