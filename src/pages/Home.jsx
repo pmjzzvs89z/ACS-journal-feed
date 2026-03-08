@@ -222,7 +222,7 @@ export default function Home() {
                </div>
 
             <div className="flex items-center gap-2">
-              <div className="flex items-center gap-1 rounded-lg p-1 border-[1.5px] border-[#DCE8F6]" style={{backgroundColor: '#FFFFFF'}}>
+              <div className="flex items-center gap-1 rounded-lg p-1 border-[1.5px] border-[#6DA0D9]" style={{backgroundColor: '#FFFFFF'}}>
                 <Link to={createPageUrl('Settings')}>
                   <button className={`flex items-center gap-1.5 px-3 py-0.5 rounded-md text-sm font-medium transition-all ${isSettingsActive ? 'bg-white shadow text-blue-600' : 'text-slate-700 hover:text-slate-800'}`}>
                     <Settings className={`w-4 h-4 ${isSettingsActive ? 'text-blue-600' : ''}`} />
@@ -230,7 +230,7 @@ export default function Home() {
                   </button>
                 </Link>
               </div>
-              <div className="flex items-center gap-1 rounded-lg p-1 border-[1.5px] border-[#DCE8F6]" style={{backgroundColor: '#FFFFFF'}}>
+              <div className="flex items-center gap-1 rounded-lg p-1 border-[1.5px] border-[#6DA0D9]" style={{backgroundColor: '#FFFFFF'}}>
                 <Link to={createPageUrl('Guide')}>
                   <button className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-sm font-medium transition-all ${isGuideActive ? 'bg-white shadow text-blue-600' : 'text-slate-700 hover:text-slate-800'}`}>
                     <BookOpen className={`w-4 h-4 ${isGuideActive ? 'text-blue-600' : ''}`} />
