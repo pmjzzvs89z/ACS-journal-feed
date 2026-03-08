@@ -78,9 +78,7 @@ function decodeHtmlEntities(str) {
     .replace(/&apos;/g, "'");
 }
 
-function extractImage(article, imgError) {
-  if (imgError) return null;
-
+function extractImage(article) {
   const SKIP = ['spacer', 'pixel', 'blank', 'icon', 'logo', 'arrow', 'button', 'badge', '1x1', 'tracking', 'beacon', 'stat'];
 
   const isValidImg = (url) => {
@@ -137,7 +135,28 @@ function extractImage(article, imgError) {
   return null;
 }
 
-// Helper: manage seen articles in localStorage (articles that have been scrolled away)
+// ── Image URL cache (module-level, persisted to localStorage) ──────────────
+const IMG_CACHE_KEY = 'cjf_img_cache_v2';
+
+function loadImgCache() {
+  try { return JSON.parse(localStorage.getItem(IMG_CACHE_KEY) || '{}'); } catch { return {}; }
+}
+
+function saveImgCache(cache) {
+  try {
+    // Keep newest 300 entries
+    const keys = Object.keys(cache);
+    if (keys.length > 300) {
+      const trimmed = {};
+      keys.slice(-300).forEach(k => { trimmed[k] = cache[k]; });
+      localStorage.setItem(IMG_CACHE_KEY, JSON.stringify(trimmed));
+    } else {
+      localStorage.setItem(IMG_CACHE_KEY, JSON.stringify(cache));
+    }
+  } catch {}
+}
+
+// ── Seen articles helpers ──────────────────────────────────────────────────
 const getSeenArticles = () => {
   try {
     return new Set(JSON.parse(localStorage.getItem('seenArticles') || '[]'));
@@ -159,74 +178,104 @@ export const clearAllSeenArticles = () => {
 };
 
 export default function ArticleCard({ article, index, savedRecord, onSaveToggle, resetKey = 0 }) {
-  const [imgError, setImgError] = useState(false);
+  // Proxy / display states
+  const [imageFailed, setImageFailed] = useState(false);
   const [abstractOpen, setAbstractOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [useProxy, setUseProxy] = useState(false);
   const [proxiedImageUrl, setProxiedImageUrl] = useState(null);
   const [proxyLoading, setProxyLoading] = useState(false);
+
+  // OG-image scraping states
+  const [scrapedImageUrl, setScrapedImageUrl] = useState(() => {
+    const cache = loadImgCache();
+    return cache[article.link] || null;
+  });
+  const [hasScraped, setHasScraped] = useState(() => {
+    const cache = loadImgCache();
+    return article.link in cache;
+  });
+  const [isScraping, setIsScraping] = useState(false);
+
   const articleRef = React.useRef(null);
   const wasEverVisibleRef = React.useRef(false);
+  const scrapingInFlightRef = React.useRef(false);
 
   const abstractText = extractAbstract(article);
-  const imageUrl = extractImage(article, imgError);
+  const rssImageUrl = extractImage(article);               // URL from RSS feed data
+  const effectiveUrl = rssImageUrl || scrapedImageUrl;    // Best available URL
   const pdfUrl = buildPdfUrl(article);
   const isSaved = !!savedRecord;
 
   const [hasBeenSeen, setHasBeenSeen] = React.useState(() => isArticleSeen(article.link));
 
-  // Reset when resetKey changes
+  // Reset seen state when resetKey changes
   React.useEffect(() => {
     wasEverVisibleRef.current = false;
     setHasBeenSeen(isArticleSeen(article.link));
   }, [resetKey, article.link]);
 
-  // Publishers with hotlink protection — skip direct load, go straight to proxy
-  const HOTLINK_DOMAINS = [];
-  const needsImmediateProxy = (url) => url && HOTLINK_DOMAINS.some(d => url.includes(d));
-
+  // Reset proxy state when effective URL changes
   useEffect(() => {
     setUseProxy(false);
     setProxiedImageUrl(null);
     setProxyLoading(false);
-
-    if (imageUrl && needsImmediateProxy(imageUrl)) {
-      setUseProxy(true);
-      setProxyLoading(true);
-      base44.functions.invoke('proxyImage', { url: imageUrl })
-        .then(res => {
-          if (res?.file_url) setProxiedImageUrl(res.file_url);
-          else setImgError(true);
-        })
-        .catch(() => setImgError(true))
-        .finally(() => setProxyLoading(false));
-    }
-  }, [imageUrl]);
+    setImageFailed(false);
+  }, [effectiveUrl]);
 
   const handleImageError = () => {
-    if (!useProxy && imageUrl) {
+    if (!useProxy && effectiveUrl) {
+      // First failure: try proxy
       setUseProxy(true);
       setProxyLoading(true);
-      base44.functions.invoke('proxyImage', { url: imageUrl })
+      base44.functions.invoke('proxyImage', { url: effectiveUrl })
         .then(res => {
-          if (res?.file_url) setProxiedImageUrl(res.file_url);
-          else setImgError(true);
+          // Handle both SDK response shapes: unwrapped { file_url } or wrapped { data: { file_url } }
+          const fileUrl = res?.file_url ?? res?.data?.file_url ?? null;
+          if (fileUrl) setProxiedImageUrl(fileUrl);
+          else setImageFailed(true);
         })
-        .catch(() => setImgError(true))
+        .catch(() => setImageFailed(true))
         .finally(() => setProxyLoading(false));
     } else {
-      setImgError(true);
+      setImageFailed(true);
     }
   };
 
-  // Intersection Observer: track visibility and mark as seen when scrolled away
+  // Intersection Observer: track visibility, mark seen, and trigger OG image scraping
   useEffect(() => {
     const observer = new IntersectionObserver(([entry]) => {
       if (entry.isIntersecting) {
-        // Article is now visible: mark as "has been in viewport"
         wasEverVisibleRef.current = true;
+
+        // Lazy-load OG image when article becomes visible and RSS data has no image
+        if (!rssImageUrl && !hasScraped && !scrapingInFlightRef.current && article.link) {
+          scrapingInFlightRef.current = true;
+          setIsScraping(true);
+          base44.functions.invoke('fetchArticleImage', { url: article.link })
+            .then(res => {
+              const imgUrl = res?.image_url ?? res?.data?.image_url ?? null;
+              // Persist to cache (empty string = "scraped but nothing found")
+              const cache = loadImgCache();
+              cache[article.link] = imgUrl || '';
+              saveImgCache(cache);
+              if (imgUrl) setScrapedImageUrl(imgUrl);
+              setHasScraped(true);
+            })
+            .catch(() => {
+              // Mark as attempted so we don't retry on every scroll
+              const cache = loadImgCache();
+              cache[article.link] = '';
+              saveImgCache(cache);
+              setHasScraped(true);
+            })
+            .finally(() => {
+              setIsScraping(false);
+              scrapingInFlightRef.current = false;
+            });
+        }
       } else if (wasEverVisibleRef.current) {
-        // Article scrolled out of view and was previously visible: mark as seen
+        // Article scrolled out of view: mark as seen
         markArticleSeen(article.link);
         setHasBeenSeen(true);
       }
@@ -234,7 +283,7 @@ export default function ArticleCard({ article, index, savedRecord, onSaveToggle,
 
     if (articleRef.current) observer.observe(articleRef.current);
     return () => observer.disconnect();
-  }, [article.link, hasBeenSeen]);
+  }, [article.link, rssImageUrl, hasScraped, hasBeenSeen]);
 
   const handleSaveToggle = async (e) => {
     e.preventDefault();
@@ -252,7 +301,7 @@ export default function ArticleCard({ article, index, savedRecord, onSaveToggle,
         journal_name: article.journalName || '',
         journal_abbrev: article.journalAbbrev || '',
         journal_color: article.journalColor || '#0066b3',
-        thumbnail: imageUrl || '',
+        thumbnail: effectiveUrl || '',
         abstract: abstractText || '',
       });
     }
@@ -268,9 +317,12 @@ export default function ArticleCard({ article, index, savedRecord, onSaveToggle,
     ? article.author.join(', ')
     : article.author || article.authors || '';
 
-
-
   const authorText = rawAuthorText;
+
+  // ── Image rendering helpers ──────────────────────────────────────────────
+  const showSkeleton = proxyLoading || isScraping;
+  const showImage = !imageFailed && (proxiedImageUrl || (effectiveUrl && !useProxy));
+  const displaySrc = proxiedImageUrl || effectiveUrl;
 
   return (
     <motion.article
@@ -281,45 +333,36 @@ export default function ArticleCard({ article, index, savedRecord, onSaveToggle,
       className="group bg-white rounded-2xl border-[1.5px] border-[#DCE8F6] hover:shadow-xl hover:border-[#C2D5EA] transition-all duration-300 overflow-hidden"
     >
       <div className="flex items-stretch gap-0">
-        {/* Graphical abstract - desktop: always present */}
+        {/* Graphical abstract — desktop */}
         <div className="hidden sm:flex flex-shrink-0 w-[368px] items-center justify-center bg-slate-50 border-r border-slate-100 p-2" style={{ minHeight: '160px', maxHeight: '220px' }}>
-          {proxyLoading ? (
+          {showSkeleton ? (
             <div className="w-full rounded-lg animate-pulse bg-slate-200" style={{ minHeight: '140px' }} />
-          ) : proxiedImageUrl ? (
+          ) : showImage ? (
             <img
-              src={proxiedImageUrl}
+              src={displaySrc}
               alt="Graphical abstract"
-              className="w-full h-full object-contain"
-              style={{ maxHeight: '210px' }}
-            />
-          ) : imageUrl && !useProxy ? (
-            <img
-              src={imageUrl}
-              alt="Graphical abstract"
-              onError={handleImageError}
+              onError={!proxiedImageUrl ? handleImageError : undefined}
               className="w-full h-full object-contain"
               style={{ maxHeight: '210px' }}
             />
           ) : (
             <div className="flex flex-col items-center justify-center text-slate-300 gap-2 px-2">
               <BookOpen className="w-10 h-10" />
-              <span className="text-xs">{imageUrl ? 'Proxy failed' : 'No URL'}</span>
-              {imageUrl && <span className="text-[9px] text-slate-400 break-all text-center line-clamp-2">{imageUrl.slice(0, 60)}</span>}
             </div>
           )}
         </div>
 
         <div className="flex-1 min-w-0 p-5">
           {/* Mobile image */}
-          {(proxyLoading || proxiedImageUrl || (imageUrl && !useProxy)) && (
+          {(showSkeleton || showImage) && (
             <div className="sm:hidden w-full mb-4 rounded-xl overflow-hidden bg-slate-50 border border-slate-100">
-              {proxyLoading ? (
+              {showSkeleton ? (
                 <div className="w-full animate-pulse bg-slate-200" style={{ height: '160px' }} />
               ) : (
                 <img
-                  src={proxiedImageUrl || imageUrl}
+                  src={displaySrc}
                   alt="Graphical abstract"
-                  onError={!useProxy ? handleImageError : undefined}
+                  onError={!proxiedImageUrl ? handleImageError : undefined}
                   className="w-full max-h-40 object-contain"
                 />
               )}
@@ -371,7 +414,6 @@ export default function ArticleCard({ article, index, savedRecord, onSaveToggle,
 
               {/* DOI link */}
               {(() => {
-                // Prefer explicit doi field from feed parser, fall back to extracting from URL
                 const doi = article.doi ||
                   (article.link ? (article.link.match(/10\.\d{4,}\/[^\s?&#"'<>]+/) || [])[0] : null);
                 return doi ? (
