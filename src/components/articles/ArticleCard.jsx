@@ -182,7 +182,7 @@ export default function ArticleCard({ article, index, savedRecord, onSaveToggle,
   }, [resetKey, article.link]);
 
   // Publishers with hotlink protection — skip direct load, go straight to proxy
-  const HOTLINK_DOMAINS = ['pubs.acs.org', 'pubs.rsc.org', 'onlinelibrary.wiley.com', 'chemistry-europe.onlinelibrary.wiley.com'];
+  const HOTLINK_DOMAINS = [];
   const needsImmediateProxy = (url) => url && HOTLINK_DOMAINS.some(d => url.includes(d));
 
   useEffect(() => {
@@ -301,9 +301,10 @@ export default function ArticleCard({ article, index, savedRecord, onSaveToggle,
               style={{ maxHeight: '210px' }}
             />
           ) : (
-            <div className="flex flex-col items-center justify-center text-slate-300 gap-2">
+            <div className="flex flex-col items-center justify-center text-slate-300 gap-2 px-2">
               <BookOpen className="w-10 h-10" />
-              <span className="text-xs">No image</span>
+              <span className="text-xs">{imageUrl ? 'Proxy failed' : 'No URL'}</span>
+              {imageUrl && <span className="text-[9px] text-slate-400 break-all text-center line-clamp-2">{imageUrl.slice(0, 60)}</span>}
             </div>
           )}
         </div>
