@@ -344,6 +344,7 @@ export default function ArticleCard({ article, index, savedRecord, onSaveToggle,
               src={displaySrc}
               alt="Graphical abstract"
               onError={!proxiedImageUrl ? handleImageError : undefined}
+              referrerPolicy="no-referrer"
               className="w-full h-full object-contain"
               style={{ maxHeight: '210px' }}
             />
@@ -368,6 +369,7 @@ export default function ArticleCard({ article, index, savedRecord, onSaveToggle,
                   src={displaySrc}
                   alt="Graphical abstract"
                   onError={!proxiedImageUrl ? handleImageError : undefined}
+                  referrerPolicy="no-referrer"
                   className="w-full max-h-40 object-contain"
                 />
               )}
