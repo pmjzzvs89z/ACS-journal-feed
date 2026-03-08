@@ -276,7 +276,7 @@ export default function ArticleCard({ article, index, savedRecord, onSaveToggle,
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: Math.min(index * 0.03, 0.5), duration: 0.3 }}
-      className="group bg-white rounded-2xl border border-slate-200 hover:shadow-xl hover:border-slate-300 transition-all duration-300 overflow-hidden"
+      className="group bg-white rounded-2xl border border-[#DFE8F3] hover:shadow-xl hover:border-[#C7D5E5] transition-all duration-300 overflow-hidden"
     >
       <div className="flex items-stretch gap-0">
         {/* Graphical abstract - desktop: always present */}
