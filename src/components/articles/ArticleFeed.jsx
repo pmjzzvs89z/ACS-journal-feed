@@ -121,14 +121,18 @@ export default function ArticleFeed({ articles, isLoading, onRefresh, followedCo
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-4">
-        <div>
+      {/* 3-column row: heading | journal picker (centered) | sort + reset */}
+      <div className="flex items-center mb-4">
+        {/* Left: heading */}
+        <div className="flex-1">
           <h2 className="text-2xl font-bold text-slate-900">Latest Articles</h2>
           <p className="text-sm text-slate-500 mt-1">
             {filtered.length}{filtered.length !== articles.length ? ` of ${articles.length}` : ''} article{filtered.length !== 1 ? 's' : ''} from {followedCount} journal{followedCount !== 1 ? 's' : ''}
           </p>
         </div>
-        <div className="flex items-center gap-2 flex-wrap justify-end">
+
+        {/* Center: journal filter — horizontally aligned with Feed / Saved tabs */}
+        <div className="flex-shrink-0 mx-4">
           <select
             value={filters.journal}
             onChange={e => setFilters({ ...filters, journal: e.target.value })}
@@ -139,6 +143,10 @@ export default function ArticleFeed({ articles, isLoading, onRefresh, followedCo
               <option key={j.id} value={j.id}>{j.name}</option>
             ))}
           </select>
+        </div>
+
+        {/* Right: sort + reset */}
+        <div className="flex-1 flex items-center gap-2 justify-end">
           <select
             value={sortBy}
             onChange={e => setSortBy(e.target.value)}
