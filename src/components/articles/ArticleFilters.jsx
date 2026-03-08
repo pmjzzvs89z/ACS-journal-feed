@@ -57,7 +57,7 @@ export default function ArticleFilters({ articles, filters, onChange, quickFilte
 
   return (
     <div className="mb-6">
-      <div className="bg-white rounded-2xl border-[1.5px] border-[#6DA0D9] shadow-sm overflow-hidden">
+      <div className="bg-white rounded-2xl border-[1.5px] border-[#DCE8F6] shadow-sm overflow-hidden">
         {/* Search row */}
         <div className="flex items-center gap-2 px-4 py-3">
           <Search className="w-4 h-4 text-slate-400 flex-shrink-0" />

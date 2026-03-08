@@ -132,7 +132,7 @@ export default function ArticleFeed({ articles, isLoading, onRefresh, followedCo
           <select
             value={filters.journal}
             onChange={e => setFilters({ ...filters, journal: e.target.value })}
-            className="h-9 text-sm border-[1.5px] border-[#6DA0D9] rounded-md px-3 bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="h-9 text-sm border border-blue-100 rounded-lg px-3 bg-blue-50/60 text-slate-600 focus:outline-none focus:ring-1 focus:ring-blue-500 hover:bg-blue-100/60 transition-colors cursor-pointer"
           >
             <option value="">All Selected Journals</option>
             {journals.map(j => (
@@ -142,7 +142,7 @@ export default function ArticleFeed({ articles, isLoading, onRefresh, followedCo
           <select
             value={sortBy}
             onChange={e => setSortBy(e.target.value)}
-            className="h-9 text-sm border-[1.5px] border-[#6DA0D9] rounded-md px-3 bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="h-9 text-sm border border-blue-100 rounded-lg px-3 bg-blue-50/60 text-slate-600 focus:outline-none focus:ring-1 focus:ring-blue-500 hover:bg-blue-100/60 transition-colors cursor-pointer"
           >
             {SORT_OPTIONS.map(o => (
               <option key={o.value} value={o.value}>{o.label}</option>
@@ -152,7 +152,7 @@ export default function ArticleFeed({ articles, isLoading, onRefresh, followedCo
             onClick={handleResetArticles}
             size="sm"
             variant="outline"
-            className="text-xs border-[1.5px] border-[#6DA0D9]"
+            className="text-xs border border-blue-100 rounded-lg bg-blue-50/60 text-slate-500 hover:bg-blue-100/60 hover:text-slate-600"
             title="Reset all articles to blue"
           >
             <RotateCcw className="w-3.5 h-3.5 mr-1.5" />

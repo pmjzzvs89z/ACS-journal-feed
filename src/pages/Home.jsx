@@ -189,27 +189,23 @@ export default function Home() {
 
             {/* Tab switcher */}
              <div className="flex items-center gap-4">
-                <div className="bg-slate-100 rounded-lg p-1">
-                  <button
-                    onClick={() => setActiveTab('feed')}
-                    className={`flex items-center gap-1.5 px-4 py-1 rounded-md text-sm font-semibold transition-all ${activeTab === 'feed' ? 'bg-white shadow text-blue-600' : 'text-slate-700 hover:text-slate-800'}`}
-                 >
-                   <Rss className={`w-4 h-4 ${activeTab === 'feed' ? 'text-blue-600' : ''}`} />
-                   <span className="hidden sm:inline">Feed</span>
-                 </button>
-               </div>
-               <div className="bg-slate-100 rounded-lg p-1">
-                 <button
-                   onClick={() => setActiveTab('saved')}
-                   className={`flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-sm font-medium transition-all ${activeTab === 'saved' ? 'bg-white shadow text-blue-600' : 'text-slate-700 hover:text-slate-800'}`}
-                 >
-                   <Bookmark className={`w-4 h-4 ${activeTab === 'saved' ? 'text-blue-600' : ''}`} />
-                   <span className="hidden sm:inline">Saved</span>
-                   {savedArticles.length > 0 && (
-                     <span className="bg-amber-500 text-white text-xs rounded-full px-1.5 py-0.5 leading-none">{savedArticles.length}</span>
-                   )}
-                 </button>
-               </div>
+                <button
+                  onClick={() => setActiveTab('feed')}
+                  className={`flex items-center gap-1.5 px-4 py-1 rounded-lg border text-sm font-semibold transition-colors ${activeTab === 'feed' ? 'bg-blue-50/60 text-blue-600 border-blue-200' : 'bg-blue-50/60 text-slate-500 border-blue-100 hover:bg-blue-100/60'}`}
+               >
+                 <Rss className={`w-4 h-4 ${activeTab === 'feed' ? 'text-blue-600' : ''}`} />
+                 <span className="hidden sm:inline">Feed</span>
+               </button>
+               <button
+                 onClick={() => setActiveTab('saved')}
+                 className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-sm font-medium transition-colors ${activeTab === 'saved' ? 'bg-blue-50/60 text-blue-600 border-blue-200' : 'bg-blue-50/60 text-slate-500 border-blue-100 hover:bg-blue-100/60'}`}
+               >
+                 <Bookmark className={`w-4 h-4 ${activeTab === 'saved' ? 'text-blue-600' : ''}`} />
+                 <span className="hidden sm:inline">Saved</span>
+                 {savedArticles.length > 0 && (
+                   <span className="bg-amber-500 text-white text-xs rounded-full px-1.5 py-0.5 leading-none">{savedArticles.length}</span>
+                 )}
+               </button>
                {/* For You tab - hidden but code preserved for future use
                <button
                  onClick={() => setActiveTab('recommended')}
@@ -222,21 +218,17 @@ export default function Home() {
                </div>
 
             <div className="flex items-center gap-2">
-              <div className="flex items-center gap-1 rounded-lg p-1 border-[1.5px] border-[#6DA0D9]" style={{backgroundColor: '#FFFFFF'}}>
-                <Link to={createPageUrl('Settings')}>
-                  <button className={`flex items-center gap-1.5 px-3 py-0.5 rounded-md text-sm font-medium transition-all ${isSettingsActive ? 'bg-white shadow text-blue-600' : 'text-slate-700 hover:text-slate-800'}`}>
-                    <Settings className={`w-4 h-4 ${isSettingsActive ? 'text-blue-600' : ''}`} />
-                    <span className="hidden sm:inline">Journal Selector</span>
-                  </button>
-                </Link>
-              </div>
-              <div className="flex items-center gap-1 rounded-lg p-1 border-[1.5px] border-[#6DA0D9]" style={{backgroundColor: '#FFFFFF'}}>
-                <Link to={createPageUrl('Guide')}>
-                  <button className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-sm font-medium transition-all ${isGuideActive ? 'bg-white shadow text-blue-600' : 'text-slate-700 hover:text-slate-800'}`}>
-                    <BookOpen className={`w-4 h-4 ${isGuideActive ? 'text-blue-600' : ''}`} />
-                  </button>
-                </Link>
-              </div>
+              <Link to={createPageUrl('Settings')}>
+                <button className={`flex items-center gap-1.5 px-3 py-1 rounded-lg border text-sm font-medium transition-colors ${isSettingsActive ? 'bg-blue-50/60 text-blue-600 border-blue-200' : 'bg-blue-50/60 text-slate-500 border-blue-100 hover:bg-blue-100/60'}`}>
+                  <Settings className={`w-4 h-4 ${isSettingsActive ? 'text-blue-600' : ''}`} />
+                  <span className="hidden sm:inline">Journal Selector</span>
+                </button>
+              </Link>
+              <Link to={createPageUrl('Guide')}>
+                <button className={`flex items-center gap-1.5 px-3 py-1 rounded-lg border text-sm font-medium transition-colors ${isGuideActive ? 'bg-blue-50/60 text-blue-600 border-blue-200' : 'bg-blue-50/60 text-slate-500 border-blue-100 hover:bg-blue-100/60'}`}>
+                  <BookOpen className={`w-4 h-4 ${isGuideActive ? 'text-blue-600' : ''}`} />
+                </button>
+              </Link>
             </div>
           </div>
         </div>
