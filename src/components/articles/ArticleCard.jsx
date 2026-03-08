@@ -182,7 +182,7 @@ export default function ArticleCard({ article, index, savedRecord, onSaveToggle,
   }, [resetKey, article.link]);
 
   // Publishers with hotlink protection — skip direct load, go straight to proxy
-  const HOTLINK_DOMAINS = ['pubs.acs.org', 'pubs.rsc.org'];
+  const HOTLINK_DOMAINS = ['pubs.acs.org', 'pubs.rsc.org', 'onlinelibrary.wiley.com', 'chemistry-europe.onlinelibrary.wiley.com'];
   const needsImmediateProxy = (url) => url && HOTLINK_DOMAINS.some(d => url.includes(d));
 
   useEffect(() => {
@@ -206,12 +206,14 @@ export default function ArticleCard({ article, index, savedRecord, onSaveToggle,
   const handleImageError = () => {
     if (!useProxy && imageUrl) {
       setUseProxy(true);
+      setProxyLoading(true);
       base44.functions.invoke('proxyImage', { url: imageUrl })
         .then(res => {
           if (res.data?.file_url) setProxiedImageUrl(res.data.file_url);
           else setImgError(true);
         })
-        .catch(() => setImgError(true));
+        .catch(() => setImgError(true))
+        .finally(() => setProxyLoading(false));
     } else {
       setImgError(true);
     }
