@@ -187,7 +187,8 @@ export default function ArticleCard({ article, index, savedRecord, onSaveToggle,
   const [imageFailed, setImageFailed] = useState(false);
   const [abstractOpen, setAbstractOpen] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [useProxy, setUseProxy] = useState(false);
+  const [wsrvImageUrl, setWsrvImageUrl] = useState(null);   // wsrv.nl CDN proxy URL
+  const [useProxy, setUseProxy] = useState(false);           // Deno proxyImage function
   const [proxiedImageUrl, setProxiedImageUrl] = useState(null);
   const [proxyLoading, setProxyLoading] = useState(false);
 
@@ -219,15 +220,20 @@ export default function ArticleCard({ article, index, savedRecord, onSaveToggle,
 
   // Reset proxy state when effective URL changes
   useEffect(() => {
+    setWsrvImageUrl(null);
     setUseProxy(false);
     setProxiedImageUrl(null);
     setProxyLoading(false);
     setImageFailed(false);
   }, [effectiveUrl]);
 
+  // 3-stage fallback: direct (no-referrer) → wsrv.nl CDN proxy → Deno proxy function
   const handleImageError = () => {
-    if (!useProxy && effectiveUrl) {
-      // First failure: try proxy
+    if (!wsrvImageUrl && !useProxy && effectiveUrl) {
+      // Stage 1 failed → try wsrv.nl (dedicated image CDN, bypasses most hotlink protection)
+      setWsrvImageUrl(`https://wsrv.nl/?url=${encodeURIComponent(effectiveUrl)}`);
+    } else if (!useProxy && effectiveUrl) {
+      // Stage 2 (wsrv.nl) failed → try our Deno server-side proxy
       setUseProxy(true);
       setProxyLoading(true);
       base44.functions.invoke('proxyImage', { url: effectiveUrl })
@@ -324,7 +330,8 @@ export default function ArticleCard({ article, index, savedRecord, onSaveToggle,
   // ── Image rendering helpers ──────────────────────────────────────────────
   const showSkeleton = proxyLoading || isScraping;
   const showImage = !imageFailed && (proxiedImageUrl || (effectiveUrl && !useProxy));
-  const displaySrc = proxiedImageUrl || effectiveUrl;
+  // Priority: Deno base64 → wsrv.nl CDN URL → original URL (direct / no-referrer)
+  const displaySrc = proxiedImageUrl || wsrvImageUrl || effectiveUrl;
 
   return (
     <motion.article
@@ -352,7 +359,7 @@ export default function ArticleCard({ article, index, savedRecord, onSaveToggle,
             <div className="flex flex-col items-center justify-center text-slate-300 gap-1 px-2">
               <BookOpen className="w-10 h-10" />
               <span className="text-[7px] text-slate-300 text-center leading-tight">
-                {rssImageUrl ? 'rss✓ proxy?' : scrapedImageUrl ? 'og✓ proxy?' : 'no url'}
+                {rssImageUrl ? 'rss✓ all fail' : scrapedImageUrl ? 'og✓ all fail' : 'no url'}
               </span>
             </div>
           )}
