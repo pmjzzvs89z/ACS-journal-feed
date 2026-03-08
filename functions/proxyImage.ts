@@ -1,18 +1,25 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
-
 Deno.serve(async (req) => {
-  const base44 = createClientFromRequest(req);
-  const user = await base44.auth.me();
-  if (!user) {
-    return new Response('Unauthorized', { status: 401 });
+  // No auth check — this function only fetches publicly accessible
+  // academic journal images; auth gate was blocking anonymous users.
+
+  let body: { url?: string };
+  try {
+    body = await req.json();
+  } catch {
+    return new Response(JSON.stringify({ error: 'Invalid JSON body' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
   }
 
-  const { url } = await req.json();
+  const { url } = body;
   if (!url) {
-    return new Response('url is required', { status: 400 });
+    return new Response(JSON.stringify({ error: 'url is required' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
   }
 
-  const origin = new URL(url).origin;
+  let origin: string;
+  try {
+    origin = new URL(url).origin;
+  } catch {
+    return new Response(JSON.stringify({ error: 'Invalid URL' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
+  }
 
   // First attempt: full browser-like headers (beats most hotlink protection)
   let response = await fetch(url, {
