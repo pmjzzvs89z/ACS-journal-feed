@@ -136,7 +136,12 @@ function extractImage(article) {
 }
 
 // ── Image URL cache (module-level, persisted to localStorage) ──────────────
-const IMG_CACHE_KEY = 'cjf_img_cache_v2';
+// v3: only caches successful results; failures are retried on next page load.
+const IMG_CACHE_KEY = 'cjf_img_cache_v3';
+
+// Track which article links have already been scraped this browser session
+// (prevents duplicate in-flight requests for the same article).
+const scrapedThisSession = new Set();
 
 function loadImgCache() {
   try { return JSON.parse(localStorage.getItem(IMG_CACHE_KEY) || '{}'); } catch { return {}; }
@@ -188,12 +193,9 @@ export default function ArticleCard({ article, index, savedRecord, onSaveToggle,
 
   // OG-image scraping states
   const [scrapedImageUrl, setScrapedImageUrl] = useState(() => {
+    // Load from persistent cache (only stores successful results)
     const cache = loadImgCache();
     return cache[article.link] || null;
-  });
-  const [hasScraped, setHasScraped] = useState(() => {
-    const cache = loadImgCache();
-    return article.link in cache;
   });
   const [isScraping, setIsScraping] = useState(false);
 
@@ -248,27 +250,25 @@ export default function ArticleCard({ article, index, savedRecord, onSaveToggle,
       if (entry.isIntersecting) {
         wasEverVisibleRef.current = true;
 
-        // Lazy-load OG image when article becomes visible and RSS data has no image
-        if (!rssImageUrl && !hasScraped && !scrapingInFlightRef.current && article.link) {
+        // Lazy-load OG image when article becomes visible and RSS data has no image.
+        // scrapedThisSession prevents duplicate requests; successful URLs are also
+        // persisted to localStorage so they load instantly on future page visits.
+        if (!rssImageUrl && !scrapedThisSession.has(article.link) && !scrapingInFlightRef.current && article.link) {
+          scrapedThisSession.add(article.link);
           scrapingInFlightRef.current = true;
           setIsScraping(true);
           base44.functions.invoke('fetchArticleImage', { url: article.link })
             .then(res => {
               const imgUrl = res?.image_url ?? res?.data?.image_url ?? null;
-              // Persist to cache (empty string = "scraped but nothing found")
-              const cache = loadImgCache();
-              cache[article.link] = imgUrl || '';
-              saveImgCache(cache);
-              if (imgUrl) setScrapedImageUrl(imgUrl);
-              setHasScraped(true);
+              if (imgUrl) {
+                // Only persist successful results; failures are retried next session
+                const cache = loadImgCache();
+                cache[article.link] = imgUrl;
+                saveImgCache(cache);
+                setScrapedImageUrl(imgUrl);
+              }
             })
-            .catch(() => {
-              // Mark as attempted so we don't retry on every scroll
-              const cache = loadImgCache();
-              cache[article.link] = '';
-              saveImgCache(cache);
-              setHasScraped(true);
-            })
+            .catch(() => { /* silent — will retry next session */ })
             .finally(() => {
               setIsScraping(false);
               scrapingInFlightRef.current = false;
@@ -283,7 +283,7 @@ export default function ArticleCard({ article, index, savedRecord, onSaveToggle,
 
     if (articleRef.current) observer.observe(articleRef.current);
     return () => observer.disconnect();
-  }, [article.link, rssImageUrl, hasScraped, hasBeenSeen]);
+  }, [article.link, rssImageUrl, hasBeenSeen]);
 
   const handleSaveToggle = async (e) => {
     e.preventDefault();
