@@ -257,9 +257,11 @@ export default function ArticleCard({ article, index, savedRecord, onSaveToggle,
           scrapedThisSession.add(article.link);
           scrapingInFlightRef.current = true;
           setIsScraping(true);
+          console.log('[ImgScrape] starting for', article.link);
           base44.functions.invoke('fetchArticleImage', { url: article.link })
             .then(res => {
               const imgUrl = res?.image_url ?? res?.data?.image_url ?? null;
+              console.log('[ImgScrape] result for', article.link, '→', imgUrl);
               if (imgUrl) {
                 // Only persist successful results; failures are retried next session
                 const cache = loadImgCache();
@@ -268,7 +270,7 @@ export default function ArticleCard({ article, index, savedRecord, onSaveToggle,
                 setScrapedImageUrl(imgUrl);
               }
             })
-            .catch(() => { /* silent — will retry next session */ })
+            .catch((err) => { console.log('[ImgScrape] error for', article.link, err); })
             .finally(() => {
               setIsScraping(false);
               scrapingInFlightRef.current = false;
@@ -346,8 +348,11 @@ export default function ArticleCard({ article, index, savedRecord, onSaveToggle,
               style={{ maxHeight: '210px' }}
             />
           ) : (
-            <div className="flex flex-col items-center justify-center text-slate-300 gap-2 px-2">
+            <div className="flex flex-col items-center justify-center text-slate-300 gap-1 px-2">
               <BookOpen className="w-10 h-10" />
+              <span className="text-[7px] text-slate-300 text-center leading-tight">
+                {rssImageUrl ? 'rss✓ proxy?' : scrapedImageUrl ? 'og✓ proxy?' : 'no url'}
+              </span>
             </div>
           )}
         </div>
