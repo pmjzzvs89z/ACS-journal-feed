@@ -56,10 +56,10 @@ export default function ArticleFilters({ articles, filters, onChange, quickFilte
   const hasQuickActive = quickFilters.enabled && hasQuickItems;
 
   return (
-    <div className="mb-6 w-4/5">
+    <div className="mb-6">
       <div className="bg-white rounded-2xl border-[1.5px] border-[#DCE8F6] shadow-sm overflow-hidden">
         {/* Search row */}
-        <div className="flex items-center gap-2 px-4 py-3">
+        <div className="flex items-center gap-2 px-4 py-2.5">
           <Search className="w-4 h-4 text-slate-400 flex-shrink-0" />
           <Input
             placeholder="Search by title, keyword or author…"
