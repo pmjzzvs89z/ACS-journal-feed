@@ -132,7 +132,7 @@ export default function ArticleFeed({ articles, isLoading, onRefresh, followedCo
           <select
             value={filters.journal}
             onChange={e => setFilters({ ...filters, journal: e.target.value })}
-            className="h-9 text-sm border-[1.5px] border-[#DFE8F3] rounded-md px-3 bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="h-9 text-sm border-[1.5px] border-[#DCE8F6] rounded-md px-3 bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
           >
             <option value="">All Selected Journals</option>
             {journals.map(j => (
@@ -142,7 +142,7 @@ export default function ArticleFeed({ articles, isLoading, onRefresh, followedCo
           <select
             value={sortBy}
             onChange={e => setSortBy(e.target.value)}
-            className="h-9 text-sm border-[1.5px] border-[#DFE8F3] rounded-md px-3 bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="h-9 text-sm border-[1.5px] border-[#DCE8F6] rounded-md px-3 bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
           >
             {SORT_OPTIONS.map(o => (
               <option key={o.value} value={o.value}>{o.label}</option>
