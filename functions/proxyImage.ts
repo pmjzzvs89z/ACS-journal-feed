@@ -30,7 +30,14 @@ Deno.serve(async (req) => {
   }
 
   const arrayBuffer = await response.arrayBuffer();
-  const base64Image = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+  // Chunked base64 conversion — avoids stack overflow for large images (>65KB)
+  const bytes = new Uint8Array(arrayBuffer);
+  let binary = '';
+  const chunkSize = 8192;
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    binary += String.fromCharCode(...bytes.subarray(i, Math.min(i + chunkSize, bytes.length)));
+  }
+  const base64Image = btoa(binary);
 
   return new Response(JSON.stringify({ file_url: `data:${contentType};base64,${base64Image}` }), {
     status: 200,

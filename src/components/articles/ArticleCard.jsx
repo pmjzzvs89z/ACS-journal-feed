@@ -164,6 +164,7 @@ export default function ArticleCard({ article, index, savedRecord, onSaveToggle,
   const [saving, setSaving] = useState(false);
   const [useProxy, setUseProxy] = useState(false);
   const [proxiedImageUrl, setProxiedImageUrl] = useState(null);
+  const [proxyLoading, setProxyLoading] = useState(false);
   const articleRef = React.useRef(null);
   const wasEverVisibleRef = React.useRef(false);
 
@@ -180,10 +181,26 @@ export default function ArticleCard({ article, index, savedRecord, onSaveToggle,
     setHasBeenSeen(isArticleSeen(article.link));
   }, [resetKey, article.link]);
 
-  // Only proxy if direct image load fails
+  // Publishers with hotlink protection — skip direct load, go straight to proxy
+  const HOTLINK_DOMAINS = ['pubs.acs.org', 'pubs.rsc.org'];
+  const needsImmediateProxy = (url) => url && HOTLINK_DOMAINS.some(d => url.includes(d));
+
   useEffect(() => {
     setUseProxy(false);
     setProxiedImageUrl(null);
+    setProxyLoading(false);
+
+    if (imageUrl && needsImmediateProxy(imageUrl)) {
+      setUseProxy(true);
+      setProxyLoading(true);
+      base44.functions.invoke('proxyImage', { url: imageUrl })
+        .then(res => {
+          if (res.data?.file_url) setProxiedImageUrl(res.data.file_url);
+          else setImgError(true);
+        })
+        .catch(() => setImgError(true))
+        .finally(() => setProxyLoading(false));
+    }
   }, [imageUrl]);
 
   const handleImageError = () => {
@@ -264,9 +281,18 @@ export default function ArticleCard({ article, index, savedRecord, onSaveToggle,
       <div className="flex items-stretch gap-0">
         {/* Graphical abstract - desktop: always present */}
         <div className="hidden sm:flex flex-shrink-0 w-[368px] items-center justify-center bg-slate-50 border-r border-slate-100 p-2" style={{ minHeight: '160px', maxHeight: '220px' }}>
-          {imageUrl ? (
+          {proxyLoading ? (
+            <div className="w-full rounded-lg animate-pulse bg-slate-200" style={{ minHeight: '140px' }} />
+          ) : proxiedImageUrl ? (
             <img
-              src={proxiedImageUrl || imageUrl}
+              src={proxiedImageUrl}
+              alt="Graphical abstract"
+              className="w-full h-full object-contain"
+              style={{ maxHeight: '210px' }}
+            />
+          ) : imageUrl && !useProxy ? (
+            <img
+              src={imageUrl}
               alt="Graphical abstract"
               onError={handleImageError}
               className="w-full h-full object-contain"
@@ -282,14 +308,18 @@ export default function ArticleCard({ article, index, savedRecord, onSaveToggle,
 
         <div className="flex-1 min-w-0 p-5">
           {/* Mobile image */}
-          {imageUrl && (
+          {(proxyLoading || proxiedImageUrl || (imageUrl && !useProxy)) && (
             <div className="sm:hidden w-full mb-4 rounded-xl overflow-hidden bg-slate-50 border border-slate-100">
-              <img
-                src={proxiedImageUrl || imageUrl}
-                alt="Graphical abstract"
-                onError={handleImageError}
-                className="w-full max-h-40 object-contain"
-              />
+              {proxyLoading ? (
+                <div className="w-full animate-pulse bg-slate-200" style={{ height: '160px' }} />
+              ) : (
+                <img
+                  src={proxiedImageUrl || imageUrl}
+                  alt="Graphical abstract"
+                  onError={!useProxy ? handleImageError : undefined}
+                  className="w-full max-h-40 object-contain"
+                />
+              )}
             </div>
           )}
 
