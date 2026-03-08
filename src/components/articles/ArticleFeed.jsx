@@ -152,7 +152,7 @@ export default function ArticleFeed({ articles, isLoading, onRefresh, followedCo
             onClick={handleResetArticles}
             size="sm"
             variant="outline"
-            className="text-xs"
+            className="text-xs border-[1.5px] border-[#DCE8F6]"
             title="Reset all articles to blue"
           >
             <RotateCcw className="w-3.5 h-3.5 mr-1.5" />
