@@ -231,7 +231,8 @@ export default function ArticleCard({ article, index, savedRecord, onSaveToggle,
   const handleImageError = () => {
     if (!wsrvImageUrl && !useProxy && effectiveUrl) {
       // Stage 1 failed → try wsrv.nl (dedicated image CDN, bypasses most hotlink protection)
-      setWsrvImageUrl(`https://wsrv.nl/?url=${encodeURIComponent(effectiveUrl)}`);
+      // &output=webp&w=600 → smaller, faster; &n=-1 → follow all redirects
+      setWsrvImageUrl(`https://wsrv.nl/?url=${encodeURIComponent(effectiveUrl)}&output=webp&w=600&n=-1`);
     } else if (!useProxy && effectiveUrl) {
       // Stage 2 (wsrv.nl) failed → try our Deno server-side proxy
       setUseProxy(true);
