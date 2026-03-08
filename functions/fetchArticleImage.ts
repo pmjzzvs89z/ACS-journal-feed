@@ -25,7 +25,6 @@ Deno.serve(async (req) => {
 
   const isValidImg = (imgUrl: string | null | undefined): imgUrl is string => {
     if (!imgUrl || typeof imgUrl !== 'string') return false;
-    // Allow http, https, or protocol-relative
     if (!imgUrl.startsWith('http') && !imgUrl.startsWith('//')) return false;
     if (SKIP.some(s => imgUrl.toLowerCase().includes(s))) return false;
     return true;
@@ -76,93 +75,102 @@ Deno.serve(async (req) => {
     return null;
   };
 
-  // ── Strategy 1: allorigins.win (bypasses Cloudflare/hotlink protection) ───
-  // Same proxy used successfully in fetchRssFeed for MDPI, RSC, etc.
-  let html = '';
-  try {
-    const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
-    const resp = await fetch(proxyUrl, { signal: AbortSignal.timeout(15000) });
-    if (resp.ok) {
-      const data = await resp.json();
-      if (data.contents && data.contents.length > 200) {
-        html = data.contents;
-        console.log(`[fetchArticleImage] allorigins ok, len=${html.length}`);
-      } else {
-        console.log(`[fetchArticleImage] allorigins returned empty/short contents, http_code=${data.status?.http_code}`);
-      }
+  // ── Helper: fetch HTML, reading only the first `maxBytes` ─────────────────
+  const fetchHtml = async (fetchUrl: string, headers: Record<string, string>, maxBytes = 150_000): Promise<string> => {
+    const resp = await fetch(fetchUrl, {
+      headers,
+      signal: AbortSignal.timeout(12000),
+    });
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const reader = resp.body?.getReader();
+    if (!reader) return '';
+    const chunks: Uint8Array[] = [];
+    let totalBytes = 0;
+    while (totalBytes < maxBytes) {
+      const { done, value } = await reader.read();
+      if (done || !value) break;
+      chunks.push(value);
+      totalBytes += value.length;
     }
-  } catch (e) {
-    console.log(`[fetchArticleImage] allorigins error: ${(e as Error).message}`);
-  }
+    reader.cancel();
+    return new TextDecoder().decode(
+      chunks.reduce((acc, c) => {
+        const m = new Uint8Array(acc.length + c.length);
+        m.set(acc); m.set(c, acc.length); return m;
+      }, new Uint8Array(0))
+    );
+  };
 
-  if (html) {
-    const found = extractOgImage(html);
-    if (found) {
-      console.log(`[fetchArticleImage] found via allorigins: ${found.slice(0, 100)}`);
-      return new Response(JSON.stringify({ image_url: found }), { status: 200, headers: { 'Content-Type': 'application/json' } });
-    }
-    console.log(`[fetchArticleImage] allorigins html has no og:image`);
-  }
-
-  // ── Strategy 2: Direct fetch with browser-like headers ───────────────────
-  // Works for publishers without aggressive bot protection (MDPI, T&F, etc.)
-  if (!html) {
+  const tryExtract = async (label: string, fn: () => Promise<string>): Promise<string | null> => {
     try {
-      const resp = await fetch(url, {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-          'Accept-Language': 'en-US,en;q=0.9',
-          'Referer': origin + '/',
-          'Cache-Control': 'no-cache',
-        },
-        signal: AbortSignal.timeout(10000),
-      });
-      console.log(`[fetchArticleImage] direct status=${resp.status}`);
-      if (resp.ok) {
-        // Read first 150 KB — og:image is always in <head>
-        const reader = resp.body?.getReader();
-        if (reader) {
-          const chunks: Uint8Array[] = [];
-          let totalBytes = 0;
-          while (totalBytes < 150_000) {
-            const { done, value } = await reader.read();
-            if (done || !value) break;
-            chunks.push(value);
-            totalBytes += value.length;
-          }
-          reader.cancel();
-          html = new TextDecoder().decode(
-            chunks.reduce((acc, c) => {
-              const m = new Uint8Array(acc.length + c.length);
-              m.set(acc); m.set(c, acc.length); return m;
-            }, new Uint8Array(0))
-          );
-          console.log(`[fetchArticleImage] direct html len=${html.length}`);
+      const html = await fn();
+      if (html.length > 200) {
+        const found = extractOgImage(html);
+        if (found) {
+          console.log(`[fetchArticleImage] found via ${label}: ${found.slice(0, 100)}`);
+          return found;
         }
+        console.log(`[fetchArticleImage] ${label} ok (${html.length}B) but no og:image`);
+      } else {
+        console.log(`[fetchArticleImage] ${label} returned short/empty response`);
       }
     } catch (e) {
-      console.log(`[fetchArticleImage] direct error: ${(e as Error).message}`);
+      console.log(`[fetchArticleImage] ${label} error: ${(e as Error).message}`);
     }
-  }
+    return null;
+  };
 
-  if (html) {
-    const found = extractOgImage(html);
-    if (found) {
-      console.log(`[fetchArticleImage] found via direct: ${found.slice(0, 100)}`);
-      return new Response(JSON.stringify({ image_url: found }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+  // ── Strategy 1: Twitterbot UA ─────────────────────────────────────────────
+  // Publishers whitelist social-media crawlers in Cloudflare so that Twitter
+  // cards and Facebook link previews work. This bypasses Cloudflare's JS
+  // challenge for ACS, Wiley, Elsevier, and many other gated publishers.
+  // The returned HTML contains og:image — exactly what we need.
+  const s1 = await tryExtract('Twitterbot', () => fetchHtml(url, {
+    'User-Agent': 'Twitterbot/1.0',
+    'Accept': 'text/html,application/xhtml+xml,*/*;q=0.8',
+    'Accept-Language': 'en-US,en;q=0.9',
+  }));
+  if (s1) return new Response(JSON.stringify({ image_url: s1 }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+
+  // ── Strategy 2: facebookexternalhit UA ────────────────────────────────────
+  // Facebook's link-preview bot is also universally whitelisted.
+  const s2 = await tryExtract('facebookbot', () => fetchHtml(url, {
+    'User-Agent': 'facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)',
+    'Accept': 'text/html,application/xhtml+xml,*/*;q=0.8',
+    'Accept-Language': 'en-US,en;q=0.9',
+  }));
+  if (s2) return new Response(JSON.stringify({ image_url: s2 }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+
+  // ── Strategy 3: allorigins.win proxy ──────────────────────────────────────
+  // Works for publishers without aggressive Cloudflare (MDPI, RSC, T&F, etc.)
+  const s3 = await tryExtract('allorigins', async () => {
+    const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+    const resp = await fetch(proxyUrl, { signal: AbortSignal.timeout(15000) });
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const data = await resp.json();
+    if (!data.contents || data.contents.length < 200) {
+      throw new Error(`short contents (http_code=${data.status?.http_code})`);
     }
-    console.log(`[fetchArticleImage] direct html has no og:image`);
-  }
+    return data.contents as string;
+  });
+  if (s3) return new Response(JSON.stringify({ image_url: s3 }), { status: 200, headers: { 'Content-Type': 'application/json' } });
 
-  // ── Strategy 3: rss2json API (returns og:image for some publishers) ───────
-  // rss2json has a 'thumbnail' field that maps to og:image for article URLs
-  // Only try this for known friendly publishers
+  // ── Strategy 4: direct fetch with full browser headers ────────────────────
+  // Last resort for open publishers without bot protection.
+  const s4 = await tryExtract('direct', () => fetchHtml(url, {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+    'Accept-Language': 'en-US,en;q=0.9',
+    'Referer': origin + '/',
+    'Cache-Control': 'no-cache',
+  }));
+  if (s4) return new Response(JSON.stringify({ image_url: s4 }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+
+  // ── Strategy 5: rss2json (open-access publishers only) ────────────────────
   const canTryRss2json = url.includes('mdpi.com') || url.includes('frontiersin.org') ||
                          url.includes('plos.org') || url.includes('hindawi.com');
   if (canTryRss2json) {
     try {
-      // Use rss2json to scrape single-article metadata
       const RSS2JSON_API_KEY = Deno.env.get('RSS2JSON_API_KEY') || '';
       const apiKeyParam = RSS2JSON_API_KEY ? `&api_key=${RSS2JSON_API_KEY}` : '';
       const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(url)}&count=1${apiKeyParam}`;
