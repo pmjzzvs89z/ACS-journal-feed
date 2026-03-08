@@ -56,7 +56,7 @@ function SavedCard({ saved, onUnsave, selected, onToggleSelect }) {
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.97 }}
-      className={`group bg-white rounded-2xl border transition-all duration-300 overflow-hidden ${selected ? 'border-blue-400 shadow-md' : 'border-slate-200 hover:shadow-xl hover:border-slate-300'}`}
+      className={`group bg-white rounded-2xl border-[1.5px] transition-all duration-300 overflow-hidden ${selected ? 'border-blue-400 shadow-md' : 'border-[#DCE8F6] hover:shadow-xl hover:border-[#C2D5EA]'}`}
     >
       <div className="flex items-stretch gap-0">
         {/* Checkbox */}
@@ -203,7 +203,7 @@ export default function SavedFeed({ savedArticles, onRefresh, articles = [] }) {
         {/* Rules toggle */}
         <button
           onClick={() => setRulesExpanded(!rulesExpanded)}
-          className="w-full bg-white rounded-2xl border border-slate-200 shadow-sm px-4 py-3 mb-4 flex items-center justify-between hover:shadow-md transition-shadow"
+          className="w-full bg-white rounded-2xl border-[1.5px] border-[#DCE8F6] shadow-sm px-4 py-3 mb-4 flex items-center justify-between hover:shadow-md transition-shadow"
         >
           <div className="flex items-center gap-3 flex-1 text-left min-w-0">
             <div className="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center flex-shrink-0">
@@ -273,7 +273,7 @@ export default function SavedFeed({ savedArticles, onRefresh, articles = [] }) {
       {/* Rules toggle */}
       <button
         onClick={() => setRulesExpanded(!rulesExpanded)}
-        className="w-full bg-white rounded-2xl border border-slate-200 shadow-sm px-4 py-3 mb-4 flex items-center justify-between hover:shadow-md transition-shadow"
+        className="w-full bg-white rounded-2xl border-[1.5px] border-[#DCE8F6] shadow-sm px-4 py-3 mb-4 flex items-center justify-between hover:shadow-md transition-shadow"
       >
         <div className="flex items-center gap-3 flex-1 text-left min-w-0">
           <div className="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center flex-shrink-0">
