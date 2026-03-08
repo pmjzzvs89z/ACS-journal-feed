@@ -143,7 +143,8 @@ export default function Settings() {
         </div>
 
         {/* Suggestions section */}
-        <div className="mt-4" style={{ width: '620px' }}>
+        <div className="flex justify-center mt-4">
+          <div style={{ width: '620px' }} className="flex-shrink-0">
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-3">
             <p className="text-sm text-slate-700">
               To share your comments and suggestions about this app{' '}
@@ -154,6 +155,7 @@ export default function Settings() {
                 click here
               </a>
             </p>
+          </div>
           </div>
         </div>
 

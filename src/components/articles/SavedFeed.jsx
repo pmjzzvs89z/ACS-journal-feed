@@ -236,7 +236,7 @@ export default function SavedFeed({ savedArticles, onRefresh, articles = [] }) {
             <Bookmark className="w-10 h-10 text-amber-300" />
           </div>
           <h3 className="text-xl font-semibold text-slate-800 mb-2">No saved articles yet</h3>
-          <p className="text-slate-500 max-w-md">Click the bookmark icon on any article to save it here for later.</p>
+          <p className="text-blue-600 max-w-md">Click the bookmark icon under any of the articles in the feed to save it here for later</p>
         </div>
       </motion.div>
     );
