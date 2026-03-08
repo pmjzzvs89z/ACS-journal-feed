@@ -50,6 +50,13 @@ export default function Home() {
   const [selectedKeywords, setSelectedKeywords] = useState([]);
   const [filterEnabled, setFilterEnabled] = useState(false);
   const queryClient = useQueryClient();
+
+  // Remove ?tab= from URL immediately so refreshing always lands on Feed
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).has('tab')) {
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  }, []);
   const location = useLocation();
   const isSettingsActive = location.pathname === createPageUrl('Settings');
   const isGuideActive = location.pathname === createPageUrl('Guide');

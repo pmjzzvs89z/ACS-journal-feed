@@ -195,7 +195,7 @@ export default function ArticleCard({ article, index, savedRecord, onSaveToggle,
       setProxyLoading(true);
       base44.functions.invoke('proxyImage', { url: imageUrl })
         .then(res => {
-          if (res.data?.file_url) setProxiedImageUrl(res.data.file_url);
+          if (res?.file_url) setProxiedImageUrl(res.file_url);
           else setImgError(true);
         })
         .catch(() => setImgError(true))
@@ -209,7 +209,7 @@ export default function ArticleCard({ article, index, savedRecord, onSaveToggle,
       setProxyLoading(true);
       base44.functions.invoke('proxyImage', { url: imageUrl })
         .then(res => {
-          if (res.data?.file_url) setProxiedImageUrl(res.data.file_url);
+          if (res?.file_url) setProxiedImageUrl(res.file_url);
           else setImgError(true);
         })
         .catch(() => setImgError(true))
