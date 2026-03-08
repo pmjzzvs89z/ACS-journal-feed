@@ -35,22 +35,18 @@ export default function Guide() {
 
             {/* Tab switcher (inactive, for visual consistency) */}
             <div className="flex items-center gap-4">
-              <div className="bg-slate-100 rounded-lg p-1">
-                <Link to={createPageUrl('Home')}>
-                   <button className="flex items-center gap-1.5 px-4 py-0.5 rounded-md text-sm font-semibold transition-all text-slate-700 hover:text-slate-800">
-                    <Rss className="w-4 h-4" />
-                    <span className="hidden sm:inline">Feed</span>
-                  </button>
-                </Link>
-              </div>
-              <div className="bg-slate-100 rounded-lg p-1">
-                <Link to={createPageUrl('Home') + '?tab=saved'}>
-                  <button className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-sm font-medium transition-all text-slate-700 hover:text-slate-800">
-                    <Bookmark className="w-4 h-4" />
-                    <span className="hidden sm:inline">Saved</span>
-                  </button>
-                </Link>
-              </div>
+              <Link to={createPageUrl('Home')}>
+                <button className="flex items-center gap-1.5 px-4 py-1 rounded-lg border text-sm font-semibold transition-colors bg-blue-50/60 text-slate-500 border-blue-100 hover:bg-blue-100/60">
+                  <Rss className="w-4 h-4" />
+                  <span className="hidden sm:inline">Feed</span>
+                </button>
+              </Link>
+              <Link to={createPageUrl('Home') + '?tab=saved'}>
+                <button className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-sm font-medium transition-colors bg-blue-50/60 text-slate-500 border-blue-100 hover:bg-blue-100/60">
+                  <Bookmark className="w-4 h-4" />
+                  <span className="hidden sm:inline">Saved</span>
+                </button>
+              </Link>
               {/* For You tab - hidden but code preserved for future use
               <Link to={createPageUrl('Home') + '?tab=recommended'}>
                 <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-all text-slate-500 hover:text-slate-700">
@@ -62,21 +58,17 @@ export default function Guide() {
             </div>
 
             <div className="flex items-center gap-2">
-              <div className="flex items-center gap-1 rounded-lg p-1 border" style={{backgroundColor: '#FFFFFF', borderColor: '#E1E1E1'}}>
-                <Link to={createPageUrl('Settings')}>
-                  <button className={`flex items-center gap-1.5 px-3 py-0.5 rounded-md text-sm font-medium transition-all ${isSettingsActive ? 'bg-white shadow text-blue-600' : 'text-slate-700 hover:text-slate-800'}`}>
-                    <Settings className={`w-4 h-4 ${isSettingsActive ? 'text-blue-600' : ''}`} />
-                    <span className="hidden sm:inline">Journal Selector</span>
-                  </button>
-                </Link>
-              </div>
-              <div className="flex items-center gap-1 rounded-lg p-1 border" style={{backgroundColor: '#FFFFFF', borderColor: '#E1E1E1'}}>
-                <Link to={createPageUrl('Guide')}>
-                  <button className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-sm font-medium transition-all ${isGuideActive ? 'bg-white shadow text-blue-600' : 'text-slate-700 hover:text-slate-800'}`}>
-                    <BookOpen className={`w-4 h-4 ${isGuideActive ? 'text-blue-600' : ''}`} />
-                  </button>
-                </Link>
-              </div>
+              <Link to={createPageUrl('Settings')}>
+                <button className={`flex items-center gap-1.5 px-3 py-1 rounded-lg border text-sm font-medium transition-colors ${isSettingsActive ? 'bg-blue-50/60 text-blue-600 border-blue-200' : 'bg-blue-50/60 text-slate-500 border-blue-100 hover:bg-blue-100/60'}`}>
+                  <Settings className={`w-4 h-4 ${isSettingsActive ? 'text-blue-600' : ''}`} />
+                  <span className="hidden sm:inline">Journal Selector</span>
+                </button>
+              </Link>
+              <Link to={createPageUrl('Guide')}>
+                <button className={`flex items-center gap-1.5 px-3 py-1 rounded-lg border text-sm font-medium transition-colors ${isGuideActive ? 'bg-blue-50/60 text-blue-600 border-blue-200' : 'bg-blue-50/60 text-slate-500 border-blue-100 hover:bg-blue-100/60'}`}>
+                  <BookOpen className={`w-4 h-4 ${isGuideActive ? 'text-blue-600' : ''}`} />
+                </button>
+              </Link>
             </div>
           </div>
         </div>
@@ -84,7 +76,7 @@ export default function Guide() {
 
       {/* Guide content */}
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-8">
+        <div className="bg-white rounded-2xl border-[1.5px] border-[#DCE8F6] shadow-sm p-8">
           <h1 className="text-2xl font-bold text-slate-900 mb-2">User Guide</h1>
           <p className="text-slate-500 text-sm mb-8">Everything you need to know to get started with Literature Tracker.</p>
 
@@ -142,7 +134,7 @@ export default function Guide() {
 
         {/* Suggestions section */}
         <div className="mt-4">
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-3">
+          <div className="bg-white rounded-2xl border-[1.5px] border-[#DCE8F6] shadow-sm p-3">
             <p className="text-sm text-slate-700">
               To share your comments and suggestions about this app{' '}
               <a
