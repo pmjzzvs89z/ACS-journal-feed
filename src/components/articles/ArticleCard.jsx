@@ -194,7 +194,7 @@ const ArticleCard = React.forwardRef(function ArticleCard({ article, index, save
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: Math.min(index * 0.03, 0.5), duration: 0.3 }}
-      className="group bg-white rounded-2xl border-[1.5px] border-[#DCE8F6] hover:shadow-xl hover:border-[#C2D5EA] transition-all duration-300 overflow-hidden"
+      className="group bg-sky-50 rounded-2xl border-[1.5px] border-[#DCE8F6] hover:shadow-xl hover:border-[#C2D5EA] transition-all duration-300 overflow-hidden"
     >
       <div className="flex items-stretch gap-0">
         {/* Graphical abstract — desktop */}
@@ -256,7 +256,7 @@ const ArticleCard = React.forwardRef(function ArticleCard({ article, index, save
               {/* Title */}
               <a href={article.link} target="_blank" rel="noopener noreferrer">
                 <h3 className={`text-base font-semibold leading-snug mb-2 hover:transition-colors line-clamp-2 ${
-                  hasBeenSeen ? 'text-slate-600 hover:text-slate-700' : 'text-blue-600 hover:text-blue-700'
+                  hasBeenSeen ? 'text-slate-400 hover:text-slate-500' : 'text-blue-600 hover:text-blue-700'
                 }`}>
                   {article.title}
                 </h3>
