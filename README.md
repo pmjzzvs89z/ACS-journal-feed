@@ -1,39 +1,29 @@
-**Welcome to your Base44 project** 
+# Literature Tracker
 
-**About**
+A React app for following and tracking journal articles across ACS, Wiley, RSC, Elsevier, Springer, MDPI, and more.
 
-View and Edit  your app on [Base44.com](http://Base44.com) 
+## Stack
 
-This project contains everything you need to run your app locally.
+- **Frontend**: React + Vite + Tailwind CSS
+- **Backend**: Supabase (auth, database, edge functions)
+- **Edge functions**: `fetch-rss` (RSS proxy), `proxy-image` (image proxy)
 
-**Edit the code in your local development environment**
+## Getting started
 
-Any change pushed to the repo will also be reflected in the Base44 Builder.
-
-**Prerequisites:** 
-
-1. Clone the repository using the project's Git URL 
-2. Navigate to the project directory
-3. Install dependencies: `npm install`
-4. Create an `.env.local` file and set the right environment variables
-
-```
-VITE_BASE44_APP_ID=your_app_id
-VITE_BASE44_APP_BASE_URL=your_backend_url
-
-e.g.
-VITE_BASE44_APP_ID=cbef744a8545c389ef439ea6
-VITE_BASE44_APP_BASE_URL=https://my-to-do-list-81bfaad7.base44.app
+```bash
+npm install
+npm run dev
 ```
 
-Run the app: `npm run dev`
+## Environment
 
-**Publish your changes**
+Create a `.env` file:
 
-Open [Base44.com](http://Base44.com) and click on Publish.
+```
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_KEY=your_publishable_key
+```
 
-**Docs & Support**
+## Deployment
 
-Documentation: [https://docs.base44.com/Integrations/Using-GitHub](https://docs.base44.com/Integrations/Using-GitHub)
-
-Support: [https://app.base44.com/support](https://app.base44.com/support)
+Push to GitHub. Deploy frontend via Vercel or Netlify (set the env vars above in the platform settings). Edge functions are deployed to Supabase via the Supabase MCP or CLI.
