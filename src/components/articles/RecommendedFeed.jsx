@@ -5,11 +5,10 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import ToggleSwitch from '@/components/ui/ToggleSwitch';
-import { base44 } from '@/api/base44Client';
+import { entities } from '@/api/entities';
 import { format } from 'date-fns';
 import { ALL_JOURNALS } from '@/components/journals/JournalList';
-
-const RSS_PROXY = 'https://api.rss2json.com/v1/api.json';
+import { fetchRssFeed } from '@/utils/fetchRss';
 
 function extractKeywords(savedArticles) {
   const text = savedArticles.map(a => `${a.title} ${a.abstract || ''}`).join(' ');
@@ -100,11 +99,10 @@ export default function RecommendedFeed({ followedJournals, savedArticles, onSav
     const allArticles = [];
     await Promise.all(
       discoveryJournals.map(async (journal) => {
-        const rssUrl = journal.rss_url || journal.rss_url;
+        const rssUrl = journal.rss_url;
         const journalInfo = ALL_JOURNALS.find(j => j.id === (journal.journal_id || journal.id));
         try {
-          const response = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`);
-          const data = await response.json();
+          const data = await fetchRssFeed(rssUrl);
           if (data.status === 'ok' && data.items) {
             data.items.forEach(item => {
               allArticles.push({
@@ -142,9 +140,9 @@ export default function RecommendedFeed({ followedJournals, savedArticles, onSav
     setSavingIds(prev => new Set(prev).add(id));
     const savedRecord = savedArticles.find(s => s.article_id === article.link);
     if (savedRecord) {
-      await base44.entities.SavedArticle.delete(savedRecord.id);
+      await entities.SavedArticle.delete(savedRecord.id);
     } else {
-      await base44.entities.SavedArticle.create({
+      await entities.SavedArticle.create({
         article_id: article.link,
         title: article.title,
         link: article.link,

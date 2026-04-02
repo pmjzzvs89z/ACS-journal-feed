@@ -22,7 +22,11 @@ export default function Guide() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-3.5">
-              <img src="https://media.base44.com/images/public/6999e9b080715094c0e4fdd7/c11d32ff5_Screenshot2026-03-07at95434PM.png" alt="Logo" className="w-11 h-11 object-contain" />
+              <img
+                src="/logo.svg"
+                alt="Literature Tracker"
+                className="w-12 h-12 object-contain"
+              />
               <div>
                 <h1 className="text-xl font-bold text-slate-900">Literature Tracker</h1>
                 <p className="text-xs text-slate-500 hidden sm:block">Follow your favorite journals</p>

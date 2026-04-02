@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Plus, Loader2 } from 'lucide-react';
-import { base44 } from '@/api/base44Client';
+import { entities } from '@/api/entities';
 import { Button } from '@/components/ui/button';
 
 export default function AddCustomJournal({ onJournalAdded }) {
@@ -23,7 +23,7 @@ export default function AddCustomJournal({ onJournalAdded }) {
     try {
       const customId = `custom_${Date.now()}`;
       
-      await base44.entities.FollowedJournal.create({
+      await entities.FollowedJournal.create({
         journal_id: customId,
         journal_name: journalName.trim(),
         rss_url: rssUrl.trim(),

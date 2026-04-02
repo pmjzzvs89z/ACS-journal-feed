@@ -4,7 +4,7 @@ import { Bookmark, Trash2, ExternalLink, BookOpen, Calendar, Users, Download, Ch
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { base44 } from '@/api/base44Client';
+import { entities } from '@/api/entities';
 import { format } from 'date-fns';
 import ExportModal from './ExportModal';
 import AutoSaveRules from './AutoSaveRules';
@@ -43,7 +43,7 @@ function SavedCard({ saved, onUnsave, selected, onToggleSelect }) {
 
   const handleUnsave = async () => {
     setRemoving(true);
-    await base44.entities.SavedArticle.delete(saved.id);
+    await entities.SavedArticle.delete(saved.id);
     onUnsave();
   };
 

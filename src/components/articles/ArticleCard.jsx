@@ -4,14 +4,13 @@ import { ExternalLink, Calendar, BookOpen, Users, Bookmark, BookmarkCheck } from
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { format } from 'date-fns';
-import { base44 } from '@/api/base44Client';
+import { entities } from '@/api/entities';
 import { renderAuthors } from './AuthorRenderer';
 
 function extractAbstract(article) {
   const sources = [article.content, article.description];
   for (const src of sources) {
     if (!src) continue;
-    // Try to extract text between <p> tags that looks like an abstract
     const pMatches = src.match(/<p[^>]*>([\s\S]*?)<\/p>/gi);
     if (pMatches) {
       for (const p of pMatches) {
@@ -19,7 +18,6 @@ function extractAbstract(article) {
         if (text.length > 60) return text;
       }
     }
-    // Fall back to stripping all HTML
     const plain = src.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
     if (plain.length > 60) return plain;
   }
@@ -28,79 +26,51 @@ function extractAbstract(article) {
 
 function buildPdfUrl(article) {
   const link = article.link || '';
-  // ACS: https://pubs.acs.org/doi/10.1021/... → https://pubs.acs.org/doi/pdf/10.1021/...
-  if (link.includes('pubs.acs.org/doi/')) {
-    return link.replace('/doi/', '/doi/pdf/');
-  }
-  // RSC: https://pubs.rsc.org/en/content/articlehtml/... → replace html with pdf
-  if (link.includes('pubs.rsc.org')) {
-    return link.replace('/articlehtml/', '/articlepdf/').replace('/articlelanding/', '/articlepdf/');
-  }
-  // Wiley: https://onlinelibrary.wiley.com/doi/10.1002/... → /doi/pdf/...
-  if (link.includes('onlinelibrary.wiley.com/doi/')) {
-    return link.replace('/doi/abs/', '/doi/pdf/').replace('/doi/full/', '/doi/pdf/').replace(/\/doi\/(?!pdf\/)/, '/doi/pdf/');
-  }
-  // Elsevier ScienceDirect: https://www.sciencedirect.com/science/article/pii/... → /pii/.../pdfft
-  if (link.includes('sciencedirect.com/science/article/pii/')) {
-    return link + '/pdfft?isDTMRedir=true';
-  }
-  // Springer: https://link.springer.com/article/... → /content/pdf/...
-  if (link.includes('link.springer.com/article/')) {
-    return link.replace('/article/', '/content/pdf/') + '.pdf';
-  }
-  // Nature: https://www.nature.com/articles/... → .pdf
-  if (link.includes('nature.com/articles/')) {
-    return link + '.pdf';
-  }
-  // MDPI: https://www.mdpi.com/XXXX/htm → /pdf
-  if (link.includes('mdpi.com') && link.endsWith('/htm')) {
-    return link.replace('/htm', '/pdf');
-  }
-  if (link.includes('mdpi.com') && !link.endsWith('/pdf')) {
-    return link + '/pdf';
-  }
-  // Taylor & Francis: https://www.tandfonline.com/doi/full/... → /doi/pdf/...
-  if (link.includes('tandfonline.com/doi/')) {
-    return link.replace('/doi/full/', '/doi/pdf/').replace('/doi/abs/', '/doi/pdf/').replace(/\/doi\/(?!pdf\/)/, '/doi/pdf/');
-  }
-  // Fallback: return original link
+  if (link.includes('pubs.acs.org/doi/')) return link.replace('/doi/', '/doi/pdf/');
+  if (link.includes('pubs.rsc.org')) return link.replace('/articlehtml/', '/articlepdf/').replace('/articlelanding/', '/articlepdf/');
+  if (link.includes('onlinelibrary.wiley.com/doi/')) return link.replace('/doi/abs/', '/doi/pdf/').replace('/doi/full/', '/doi/pdf/').replace(/\/doi\/(?!pdf\/)/, '/doi/pdf/');
+  if (link.includes('sciencedirect.com/science/article/pii/')) return link + '/pdfft?isDTMRedir=true';
+  if (link.includes('link.springer.com/article/')) return link.replace('/article/', '/content/pdf/') + '.pdf';
+  if (link.includes('nature.com/articles/')) return link + '.pdf';
+  if (link.includes('mdpi.com') && link.endsWith('/htm')) return link.replace('/htm', '/pdf');
+  if (link.includes('mdpi.com') && !link.endsWith('/pdf')) return link + '/pdf';
+  if (link.includes('tandfonline.com/doi/')) return link.replace('/doi/full/', '/doi/pdf/').replace('/doi/abs/', '/doi/pdf/').replace(/\/doi\/(?!pdf\/)/, '/doi/pdf/');
   return link;
 }
 
 function decodeHtmlEntities(str) {
   if (!str) return str;
   return str
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&amp;/g, '&')
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&apos;/g, "'");
+    .replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&')
+    .replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&apos;/g, "'");
 }
 
 function extractImage(article) {
-  const SKIP = ['spacer', 'pixel', 'blank', 'icon', 'logo', 'arrow', 'button', 'badge', '1x1', 'tracking', 'beacon', 'stat'];
-
+  const SKIP = [
+    'spacer', 'pixel', 'blank', 'icon', 'logo', 'arrow', 'button', 'badge',
+    '1x1', 'tracking', 'beacon', 'stat',
+    // RSC badge images (open-access badge, CC license icons served from their CDN)
+    'rsc-cdn.org', 'newimages', 'open_access',
+    // Generic license / ORCID badges that appear in description HTML
+    'orcid.org/assets', 'creativecommons.org', 'licens',
+  ];
   const isValidImg = (url) => {
     if (!url || typeof url !== 'string') return false;
     if (SKIP.some(s => url.toLowerCase().includes(s))) return false;
     return true;
   };
 
-  // 1. enclosure (ACS, RSC, Wiley often send graphical abstract here)
+  // 1. enclosure
   if (isValidImg(article.enclosure?.link)) return article.enclosure.link;
   if (isValidImg(article.enclosure?.url)) return article.enclosure.url;
 
-  // 2. thumbnail field from rss2json (maps media:thumbnail and media:content)
+  // 2. thumbnail / media fields
   if (isValidImg(article.thumbnail)) return article.thumbnail;
-
-  // 3. media_content – rss2json sometimes puts it here
   if (isValidImg(article.media_content?.url)) return article.media_content.url;
   if (isValidImg(article.media?.content?.url)) return article.media.content.url;
 
-  // 4. <img> tags inside content or description — also decode HTML entities (e.g. ACS sends &lt;img src=...&gt;)
-  const rawSources = [article.content, article.description];
-  const htmlSources = rawSources.map(s => decodeHtmlEntities(s));
+  // 3. <img> tags inside content or description (ACS encodes these as HTML entities)
+  const htmlSources = [article.content, article.description].map(s => decodeHtmlEntities(s));
 
   for (const src of htmlSources) {
     if (!src) continue;
@@ -108,13 +78,11 @@ function extractImage(article) {
     let match;
     while ((match = imgRegex.exec(src)) !== null) {
       const url = match[1];
-      if (isValidImg(url) && /\.(png|jpg|jpeg|gif|webp|svg)(\?|$)/i.test(url)) {
-        return url;
-      }
+      if (isValidImg(url) && /\.(png|jpg|jpeg|gif|webp|svg)(\?|$)/i.test(url)) return url;
     }
   }
 
-  // 5. Wider scan: any http image URL in src attribute
+  // 4. any http src
   for (const src of htmlSources) {
     if (!src) continue;
     const imgRegex = /\bsrc=["']([^"']+)["']/gi;
@@ -125,7 +93,7 @@ function extractImage(article) {
     }
   }
 
-  // 6. Bare URLs ending in image extension
+  // 5. bare image URL in text
   for (const src of htmlSources) {
     if (!src) continue;
     const urlMatch = src.match(/https?:\/\/[^\s"'<>]+\.(?:png|jpg|jpeg|gif|webp)(\?[^\s"'<>]*)?/i);
@@ -135,173 +103,65 @@ function extractImage(article) {
   return null;
 }
 
-// ── Image URL cache (module-level, persisted to localStorage) ──────────────
-// v3: only caches successful results; failures are retried on next page load.
-const IMG_CACHE_KEY = 'cjf_img_cache_v3';
-
-// Track which article links have already been scraped this browser session
-// (prevents duplicate in-flight requests for the same article).
-const scrapedThisSession = new Set();
-
-function loadImgCache() {
-  try { return JSON.parse(localStorage.getItem(IMG_CACHE_KEY) || '{}'); } catch { return {}; }
-}
-
-function saveImgCache(cache) {
-  try {
-    // Keep newest 300 entries
-    const keys = Object.keys(cache);
-    if (keys.length > 300) {
-      const trimmed = {};
-      keys.slice(-300).forEach(k => { trimmed[k] = cache[k]; });
-      localStorage.setItem(IMG_CACHE_KEY, JSON.stringify(trimmed));
-    } else {
-      localStorage.setItem(IMG_CACHE_KEY, JSON.stringify(cache));
-    }
-  } catch {}
-}
-
 // ── Seen articles helpers ──────────────────────────────────────────────────
 const getSeenArticles = () => {
-  try {
-    return new Set(JSON.parse(localStorage.getItem('seenArticles') || '[]'));
-  } catch {
-    return new Set();
-  }
+  try { return new Set(JSON.parse(localStorage.getItem('seenArticles') || '[]')); }
+  catch { return new Set(); }
 };
-
 const markArticleSeen = (articleId) => {
   const seen = getSeenArticles();
   seen.add(articleId);
   localStorage.setItem('seenArticles', JSON.stringify([...seen]));
 };
-
 const isArticleSeen = (articleId) => getSeenArticles().has(articleId);
+export const clearAllSeenArticles = () => localStorage.removeItem('seenArticles');
 
-export const clearAllSeenArticles = () => {
-  localStorage.removeItem('seenArticles');
-};
-
-export default function ArticleCard({ article, index, savedRecord, onSaveToggle, resetKey = 0 }) {
-  // Proxy / display states
+const ArticleCard = React.forwardRef(function ArticleCard({ article, index, savedRecord, onSaveToggle, resetKey = 0 }, _ref) {
   const [imageFailed, setImageFailed] = useState(false);
   const [abstractOpen, setAbstractOpen] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [wsrvImageUrl, setWsrvImageUrl] = useState(null);   // wsrv.nl CDN proxy URL
-  const [useProxy, setUseProxy] = useState(false);           // Deno proxyImage function
-  const [proxiedImageUrl, setProxiedImageUrl] = useState(null);
-  const [proxyLoading, setProxyLoading] = useState(false);
-
-  // OG-image scraping states
-  const [scrapedImageUrl, setScrapedImageUrl] = useState(() => {
-    // Load from persistent cache (only stores successful results)
-    const cache = loadImgCache();
-    return cache[article.link] || null;
-  });
-  const [isScraping, setIsScraping] = useState(false);
+  const [hasBeenSeen, setHasBeenSeen] = React.useState(() => isArticleSeen(article.link));
 
   const articleRef = React.useRef(null);
   const wasEverVisibleRef = React.useRef(false);
-  const scrapingInFlightRef = React.useRef(false);
 
   const abstractText = extractAbstract(article);
-  const rssImageUrl = extractImage(article);               // URL from RSS feed data
-  const effectiveUrl = rssImageUrl || scrapedImageUrl;    // Best available URL
+  const imageUrl = extractImage(article);
   const pdfUrl = buildPdfUrl(article);
   const isSaved = !!savedRecord;
 
-  const [hasBeenSeen, setHasBeenSeen] = React.useState(() => isArticleSeen(article.link));
+  // Reset state when article changes
+  useEffect(() => {
+    setImageFailed(false);
+  }, [imageUrl]);
 
-  // Reset seen state when resetKey changes
   React.useEffect(() => {
     wasEverVisibleRef.current = false;
     setHasBeenSeen(isArticleSeen(article.link));
   }, [resetKey, article.link]);
 
-  // Reset proxy state when effective URL changes
-  useEffect(() => {
-    setWsrvImageUrl(null);
-    setUseProxy(false);
-    setProxiedImageUrl(null);
-    setProxyLoading(false);
-    setImageFailed(false);
-  }, [effectiveUrl]);
-
-  // 3-stage fallback: direct (no-referrer) → wsrv.nl CDN proxy → Deno proxy function
-  const handleImageError = () => {
-    if (!wsrvImageUrl && !useProxy && effectiveUrl) {
-      // Stage 1 failed → try wsrv.nl (dedicated image CDN, bypasses most hotlink protection)
-      // &output=webp&w=600 → smaller, faster; &n=-1 → follow all redirects
-      setWsrvImageUrl(`https://wsrv.nl/?url=${encodeURIComponent(effectiveUrl)}&output=webp&w=600&n=-1`);
-    } else if (!useProxy && effectiveUrl) {
-      // Stage 2 (wsrv.nl) failed → try our Deno server-side proxy
-      setUseProxy(true);
-      setProxyLoading(true);
-      base44.functions.invoke('proxyImage', { url: effectiveUrl })
-        .then(res => {
-          // Handle both SDK response shapes: unwrapped { file_url } or wrapped { data: { file_url } }
-          const fileUrl = res?.file_url ?? res?.data?.file_url ?? null;
-          if (fileUrl) setProxiedImageUrl(fileUrl);
-          else setImageFailed(true);
-        })
-        .catch(() => setImageFailed(true))
-        .finally(() => setProxyLoading(false));
-    } else {
-      setImageFailed(true);
-    }
-  };
-
-  // Intersection Observer: track visibility, mark seen, and trigger OG image scraping
+  // Track visibility to mark articles as seen
   useEffect(() => {
     const observer = new IntersectionObserver(([entry]) => {
       if (entry.isIntersecting) {
         wasEverVisibleRef.current = true;
-
-        // Lazy-load OG image when article becomes visible and RSS data has no image.
-        // scrapedThisSession prevents duplicate requests; successful URLs are also
-        // persisted to localStorage so they load instantly on future page visits.
-        if (!rssImageUrl && !scrapedThisSession.has(article.link) && !scrapingInFlightRef.current && article.link) {
-          scrapedThisSession.add(article.link);
-          scrapingInFlightRef.current = true;
-          setIsScraping(true);
-          console.log('[ImgScrape] starting for', article.link);
-          base44.functions.invoke('fetchArticleImage', { url: article.link })
-            .then(res => {
-              const imgUrl = res?.image_url ?? res?.data?.image_url ?? null;
-              console.log('[ImgScrape] result for', article.link, '→', imgUrl);
-              if (imgUrl) {
-                // Only persist successful results; failures are retried next session
-                const cache = loadImgCache();
-                cache[article.link] = imgUrl;
-                saveImgCache(cache);
-                setScrapedImageUrl(imgUrl);
-              }
-            })
-            .catch((err) => { console.log('[ImgScrape] error for', article.link, err); })
-            .finally(() => {
-              setIsScraping(false);
-              scrapingInFlightRef.current = false;
-            });
-        }
       } else if (wasEverVisibleRef.current) {
-        // Article scrolled out of view: mark as seen
         markArticleSeen(article.link);
         setHasBeenSeen(true);
       }
     }, { threshold: 0.1 });
-
     if (articleRef.current) observer.observe(articleRef.current);
     return () => observer.disconnect();
-  }, [article.link, rssImageUrl, hasBeenSeen]);
+  }, [article.link]);
 
   const handleSaveToggle = async (e) => {
     e.preventDefault();
     e.stopPropagation();
     setSaving(true);
     if (isSaved) {
-      await base44.entities.SavedArticle.delete(savedRecord.id);
+      await entities.SavedArticle.delete(savedRecord.id);
     } else {
-      await base44.entities.SavedArticle.create({
+      await entities.SavedArticle.create({
         article_id: article.link,
         title: article.title,
         link: article.link,
@@ -310,7 +170,7 @@ export default function ArticleCard({ article, index, savedRecord, onSaveToggle,
         journal_name: article.journalName || '',
         journal_abbrev: article.journalAbbrev || '',
         journal_color: article.journalColor || '#0066b3',
-        thumbnail: effectiveUrl || '',
+        thumbnail: imageUrl || '',
         abstract: abstractText || '',
       });
     }
@@ -326,13 +186,7 @@ export default function ArticleCard({ article, index, savedRecord, onSaveToggle,
     ? article.author.join(', ')
     : article.author || article.authors || '';
 
-  const authorText = rawAuthorText;
-
-  // ── Image rendering helpers ──────────────────────────────────────────────
-  const showSkeleton = proxyLoading || isScraping;
-  const showImage = !imageFailed && (proxiedImageUrl || (effectiveUrl && !useProxy));
-  // Priority: Deno base64 → wsrv.nl CDN URL → original URL (direct / no-referrer)
-  const displaySrc = proxiedImageUrl || wsrvImageUrl || effectiveUrl;
+  const showImage = !imageFailed && !!imageUrl;
 
   return (
     <motion.article
@@ -345,42 +199,33 @@ export default function ArticleCard({ article, index, savedRecord, onSaveToggle,
       <div className="flex items-stretch gap-0">
         {/* Graphical abstract — desktop */}
         <div className="hidden sm:flex flex-shrink-0 w-[368px] items-center justify-center bg-slate-50 border-r border-slate-100 p-2" style={{ minHeight: '160px', maxHeight: '220px' }}>
-          {showSkeleton ? (
-            <div className="w-full rounded-lg animate-pulse bg-slate-200" style={{ minHeight: '140px' }} />
-          ) : showImage ? (
+          {showImage ? (
             <img
-              src={displaySrc}
+              src={imageUrl}
               alt="Graphical abstract"
-              onError={!proxiedImageUrl ? handleImageError : undefined}
+              onError={() => setImageFailed(true)}
               referrerPolicy="no-referrer"
               className="w-full h-full object-contain"
               style={{ maxHeight: '210px' }}
             />
           ) : (
-            <div className="flex flex-col items-center justify-center text-slate-300 gap-1 px-2">
+            <div className="flex items-center justify-center text-slate-200">
               <BookOpen className="w-10 h-10" />
-              <span className="text-[7px] text-slate-300 text-center leading-tight">
-                {rssImageUrl ? 'rss✓ all fail' : scrapedImageUrl ? 'og✓ all fail' : 'no url'}
-              </span>
             </div>
           )}
         </div>
 
-        <div className="flex-1 min-w-0 p-5">
+        <div className="flex-1 min-w-0 py-5 pr-5 pl-10">
           {/* Mobile image */}
-          {(showSkeleton || showImage) && (
+          {showImage && (
             <div className="sm:hidden w-full mb-4 rounded-xl overflow-hidden bg-slate-50 border border-slate-100">
-              {showSkeleton ? (
-                <div className="w-full animate-pulse bg-slate-200" style={{ height: '160px' }} />
-              ) : (
-                <img
-                  src={displaySrc}
-                  alt="Graphical abstract"
-                  onError={!proxiedImageUrl ? handleImageError : undefined}
-                  referrerPolicy="no-referrer"
-                  className="w-full max-h-40 object-contain"
-                />
-              )}
+              <img
+                src={imageUrl}
+                alt="Graphical abstract"
+                onError={() => setImageFailed(true)}
+                referrerPolicy="no-referrer"
+                className="w-full max-h-40 object-contain"
+              />
             </div>
           )}
 
@@ -411,9 +256,7 @@ export default function ArticleCard({ article, index, savedRecord, onSaveToggle,
               {/* Title */}
               <a href={article.link} target="_blank" rel="noopener noreferrer">
                 <h3 className={`text-base font-semibold leading-snug mb-2 hover:transition-colors line-clamp-2 ${
-                  hasBeenSeen
-                    ? 'text-slate-600 hover:text-slate-700'
-                    : 'text-blue-600 hover:text-blue-700'
+                  hasBeenSeen ? 'text-slate-600 hover:text-slate-700' : 'text-blue-600 hover:text-blue-700'
                 }`}>
                   {article.title}
                 </h3>
@@ -427,23 +270,19 @@ export default function ArticleCard({ article, index, savedRecord, onSaveToggle,
                 </p>
               )}
 
-              {/* DOI link */}
+              {/* DOI */}
               {(() => {
                 const doi = article.doi ||
                   (article.link ? (article.link.match(/10\.\d{4,}\/[^\s?&#"'<>]+/) || [])[0] : null);
                 return doi ? (
                   <p className="text-xs text-slate-400 mb-3">
-                    DOI: <a
-                      href={`https://doi.org/${doi}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="hover:text-blue-600 transition-colors"
-                    >{doi}</a>
+                    DOI: <a href={`https://doi.org/${doi}`} target="_blank" rel="noopener noreferrer"
+                      className="hover:text-blue-600 transition-colors">{doi}</a>
                   </p>
                 ) : null;
               })()}
 
-              {/* Action buttons */}
+              {/* Save button */}
               <div className="flex items-center gap-4 mt-1">
                 <button
                   onClick={handleSaveToggle}
@@ -451,20 +290,14 @@ export default function ArticleCard({ article, index, savedRecord, onSaveToggle,
                   className={`flex items-center gap-1 text-xs font-semibold transition-colors ${isSaved ? 'text-amber-500 hover:text-amber-700' : 'text-slate-400 hover:text-amber-500'}`}
                   title={isSaved ? 'Unsave article' : 'Save article'}
                 >
-                  {isSaved
-                    ? <BookmarkCheck className="w-3.5 h-3.5" />
-                    : <Bookmark className="w-3.5 h-3.5" />}
+                  {isSaved ? <BookmarkCheck className="w-3.5 h-3.5" /> : <Bookmark className="w-3.5 h-3.5" />}
                   {isSaved ? 'Saved' : 'Save'}
                 </button>
               </div>
             </div>
 
-            <a
-              href={article.link}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex-shrink-0 w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-blue-600 hover:text-white transition-all duration-200"
-            >
+            <a href={article.link} target="_blank" rel="noopener noreferrer"
+              className="flex-shrink-0 w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-blue-600 hover:text-white transition-all duration-200">
               <ExternalLink className="w-4 h-4" />
             </a>
           </div>
@@ -478,18 +311,16 @@ export default function ArticleCard({ article, index, savedRecord, onSaveToggle,
             <DialogTitle className="text-base font-semibold text-slate-900 leading-snug pr-6">
               {article.title}
             </DialogTitle>
-            {authorText && (
-              <p className="text-xs text-slate-500 mt-1">{authorText}</p>
-            )}
+            {rawAuthorText && <p className="text-xs text-slate-500 mt-1">{rawAuthorText}</p>}
           </DialogHeader>
           <div className="mt-3">
             <p className="text-xs font-semibold text-blue-600 uppercase tracking-wide mb-2">Abstract</p>
-            <p className="text-sm text-slate-700 leading-relaxed whitespace-pre-line">
-              {abstractText}
-            </p>
+            <p className="text-sm text-slate-700 leading-relaxed whitespace-pre-line">{abstractText}</p>
           </div>
         </DialogContent>
       </Dialog>
     </motion.article>
   );
-}
+});
+
+export default ArticleCard;

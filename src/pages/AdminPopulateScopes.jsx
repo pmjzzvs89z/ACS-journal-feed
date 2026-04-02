@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { base44 } from '@/api/base44Client';
+import { entities } from '@/api/entities';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
@@ -17,19 +17,15 @@ export default function AdminPopulateScopes() {
   const addLog = (msg) => setLog(prev => [`[${new Date().toLocaleTimeString()}] ${msg}`, ...prev].slice(0, 200));
 
   const loadScopeCount = async () => {
-    const scopes = await base44.entities.JournalScope.list('-created_date', 500);
+    const scopes = await entities.JournalScope.list();
     setScopeCount(scopes.length);
   };
 
   useEffect(() => { loadScopeCount(); }, []);
 
   const runBatch = async (currentOffset) => {
-    const res = await base44.functions.invoke('populateJournalScopes', {
-      skip_existing: false,
-      batch_size: BATCH_SIZE,
-      offset: currentOffset,
-    });
-    return res.data;
+    // AI keyword generation requires a dedicated serverless function — not yet implemented.
+    throw new Error('AI keyword generation is not yet available.');
   };
 
   const startRun = async () => {

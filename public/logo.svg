@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Orbit 1: horizontal -->
+  <ellipse cx="50" cy="50" rx="43" ry="14" fill="none" stroke="#2373b8" stroke-width="4" stroke-linecap="round"/>
+  <!-- Orbit 2: rotated 60° -->
+  <ellipse cx="50" cy="50" rx="43" ry="14" fill="none" stroke="#2373b8" stroke-width="4" stroke-linecap="round" transform="rotate(60 50 50)"/>
+  <!-- Orbit 3: rotated -60° -->
+  <ellipse cx="50" cy="50" rx="43" ry="14" fill="none" stroke="#2373b8" stroke-width="4" stroke-linecap="round" transform="rotate(-60 50 50)"/>
+
+  <!-- Nucleus -->
+  <circle cx="50" cy="50" r="10" fill="#d03020"/>
+
+  <!-- Electrons — one at each orbit tip, forming a balanced triangle -->
+  <!-- Orbit 1 right tip -->
+  <circle cx="93" cy="50" r="6.5" fill="#e89a20"/>
+  <!-- Orbit 2 upper-left tip -->
+  <circle cx="29" cy="13" r="6.5" fill="#e89a20"/>
+  <!-- Orbit 3 lower-left tip -->
+  <circle cx="29" cy="87" r="6.5" fill="#e89a20"/>
+</svg>

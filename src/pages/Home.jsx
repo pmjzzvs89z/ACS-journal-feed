@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { base44 } from '@/api/base44Client';
+import { entities } from '@/api/entities';
+import { fetchRssFeed } from '@/utils/fetchRss';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Settings, Bookmark, Rss, Sparkles, BookOpen } from 'lucide-react';
 import ArticleFeed from '@/components/articles/ArticleFeed';
@@ -64,13 +65,13 @@ export default function Home() {
   // Fetch followed journals
   const { data: followedJournals = [], isLoading: isLoadingJournals } = useQuery({
     queryKey: ['followedJournals'],
-    queryFn: () => base44.entities.FollowedJournal.list(),
+    queryFn: () => entities.FollowedJournal.list(),
   });
 
   // Fetch saved articles
   const { data: savedArticles = [], refetch: refetchSaved } = useQuery({
     queryKey: ['savedArticles'],
-    queryFn: () => base44.entities.SavedArticle.list(),
+    queryFn: () => entities.SavedArticle.list(),
   });
 
 
@@ -96,8 +97,7 @@ export default function Home() {
           const journalInfo = ALL_JOURNALS.find(j => j.id === journal.journal_id);
           try {
             let items = [];
-            const response = await base44.functions.invoke('fetchRssFeed', { rss_url: journal.rss_url });
-            const data = response.data;
+            const data = await fetchRssFeed(journal.rss_url);
             if (data.status === 'ok' && data.items) {
               items = data.items;
             }
@@ -123,7 +123,7 @@ export default function Home() {
     // Auto-save matching articles
     const rules = getAutoSaveRules();
     if (rules.enabled) {
-      const currentSaved = await base44.entities.SavedArticle.list();
+      const currentSaved = await entities.SavedArticle.list();
       const savedIds = new Set(currentSaved.map(s => s.article_id));
       const toSave = allArticles.filter(a => !savedIds.has(a.link) && articleMatchesRules(a, rules));
       if (toSave.length > 0) {
@@ -148,7 +148,7 @@ export default function Home() {
             }
             return '';
           })();
-          return base44.entities.SavedArticle.create({
+          return entities.SavedArticle.create({
             article_id: a.link,
             title: a.title,
             link: a.link,
@@ -183,7 +183,11 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-3.5">
-              <img src="https://media.base44.com/images/public/6999e9b080715094c0e4fdd7/c11d32ff5_Screenshot2026-03-07at95434PM.png" alt="Logo" className="w-11 h-11 object-contain" />
+              <img
+                src="/logo.svg"
+                alt="Literature Tracker"
+                className="w-12 h-12 object-contain"
+              />
               <div>
                 <h1 className="text-xl font-bold text-slate-900">Literature Tracker</h1>
                 <p className="text-xs text-slate-500 hidden sm:block">Follow your favorite journals</p>

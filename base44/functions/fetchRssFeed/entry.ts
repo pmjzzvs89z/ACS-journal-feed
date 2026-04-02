@@ -1,5 +1,3 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
-
 function parseRSS(xmlText) {
   const items = [];
 
@@ -53,6 +51,12 @@ function parseRSS(xmlText) {
       const doiInLink = (link || '').match(/10\.\d{4,}\/[^\s?&#"'<>]+/);
       if (doiInLink) doi = doiInLink[0];
     }
+    // DOI labelled in description HTML — RSC pattern: "<b>DOI</b>: 10.1039/..."
+    const descriptionForDoi = get('description') || get('summary') || '';
+    if (!doi && descriptionForDoi) {
+      const doiInDesc = descriptionForDoi.match(/\bDOI\b[^:]*:\s*(10\.\d{4,}\/[^\s<,]+)/i);
+      if (doiInDesc) doi = doiInDesc[1].trim();
+    }
 
     const allCreators = getAllCreators();
     let author = allCreators.length > 1
@@ -62,6 +66,7 @@ function parseRSS(xmlText) {
     const description = get('description') || get('summary') || get('dc:description');
     const content = get('content:encoded') || get('content') || description;
 
+    // Elsevier: author and pubDate from description HTML
     if (!author && description) {
       const elsevierAuthorMatch = description.match(/Author\(s\):\s*([^<]+)/i);
       if (elsevierAuthorMatch) {
@@ -70,7 +75,6 @@ function parseRSS(xmlText) {
         author = parts.length > 1 ? parts : authorList;
       }
     }
-
     if (!pubDate && description) {
       const elsevierDateMatch = description.match(/Publication date:\s*([^<\n]+)/i);
       if (elsevierDateMatch) {
@@ -102,32 +106,76 @@ function parseRSS(xmlText) {
 function mapRss2JsonItems(items) {
   return items.map(item => {
     const link = item.link || '';
+    const description = item.description || '';
+
+    // DOI: from link, then from description HTML (RSC pattern)
+    let doi = '';
     const doiInLink = link.match(/10\.\d{4,}\/[^\s?&#"'<>]+/);
-    const doi = doiInLink ? doiInLink[0] : '';
+    if (doiInLink) doi = doiInLink[0];
+    if (!doi && description) {
+      const doiInDesc = description.match(/\bDOI\b[^:]*:\s*(10\.\d{4,}\/[^\s<,]+)/i);
+      if (doiInDesc) doi = doiInDesc[1].trim();
+    }
+
+    // Author: rss2json gives a comma-separated string; fall back to Elsevier HTML
+    let author = '';
+    if (item.author) {
+      const parts = item.author.split(/,\s*/).filter(Boolean);
+      author = parts.length > 1 ? parts : item.author;
+    } else if (description) {
+      const m = description.match(/Author\(s\):\s*([^<]+)/i);
+      if (m) {
+        const parts = m[1].trim().split(/,\s*/).filter(Boolean);
+        author = parts.length > 1 ? parts : m[1].trim();
+      }
+    }
+
+    // pubDate: rss2json often returns null for Elsevier; fall back to description HTML
+    let pubDate = item.pubDate || '';
+    if (!pubDate && description) {
+      const m = description.match(/Publication date:\s*([^<\n]+)/i);
+      if (m) {
+        const parsed = new Date(m[1].trim());
+        pubDate = !isNaN(parsed.getTime()) ? parsed.toISOString() : m[1].trim();
+      }
+    }
+
     return {
       title: item.title || '',
       link,
-      pubDate: item.pubDate || '',
-      author: item.author ? item.author.split(/,\s*/).filter(Boolean) : '',
+      pubDate,
+      author,
       doi,
-      description: item.description || '',
-      content: item.content || item.description || '',
+      description,
+      content: item.content || description,
       enclosure: item.enclosure?.link ? { link: item.enclosure.link } : (item.thumbnail ? { link: item.thumbnail } : null),
     };
   });
 }
 
+const CORS_HEADERS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+};
+
 Deno.serve(async (req) => {
-  const base44 = createClientFromRequest(req);
-  const user = await base44.auth.me();
-  if (!user) {
-    return Response.json({ error: 'Unauthorized' }, { status: 401 });
+  // CORS preflight
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { status: 204, headers: CORS_HEADERS });
   }
 
   const { rss_url } = await req.json();
   if (!rss_url) {
-    return Response.json({ error: 'rss_url is required' }, { status: 400 });
+    return new Response(JSON.stringify({ error: 'rss_url is required' }), {
+      status: 400,
+      headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
+    });
   }
+
+  const jsonResponse = (data) => new Response(JSON.stringify(data), {
+    headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
+  });
 
   const RSS2JSON_API_KEY = Deno.env.get('RSS2JSON_API_KEY') || '';
 
@@ -147,17 +195,12 @@ Deno.serve(async (req) => {
         },
         signal: AbortSignal.timeout(8000),
       });
-      console.log(`[Strategy 1] status=${resp.status} ok=${resp.ok}`);
       if (resp.ok) {
         const xml = await resp.text();
-        console.log(`[Strategy 1] xml length=${xml.length}`);
         const items = parseRSS(xml);
-        console.log(`[Strategy 1] items parsed=${items.length}`);
-        if (items.length > 0) {
-          return Response.json({ status: 'ok', items });
-        }
+        if (items.length > 0) return jsonResponse({ status: 'ok', items });
       }
-    } catch (e) { console.log(`[Strategy 1] error: ${e.message}`); }
+    } catch (_e) {}
 
     // Strategy 2: rss2json API
     try {
@@ -165,33 +208,41 @@ Deno.serve(async (req) => {
       const proxyUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(normalized_url)}&count=100${apiKeyParam}`;
       const proxyResp = await fetch(proxyUrl, { signal: AbortSignal.timeout(10000) });
       const data = await proxyResp.json();
-      console.log(`[Strategy 2] rss2json status=${data.status} items=${data.items?.length} message=${data.message}`);
       if (data.items && data.items.length > 0) {
-        return Response.json({ status: 'ok', items: mapRss2JsonItems(data.items) });
+        return jsonResponse({ status: 'ok', items: mapRss2JsonItems(data.items) });
       }
-    } catch (e) { console.log(`[Strategy 2] error: ${e.message}`); }
+    } catch (_e) {}
 
     // Strategy 3: allorigins proxy
     try {
       const allOriginsUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(normalized_url)}`;
       const resp = await fetch(allOriginsUrl, { signal: AbortSignal.timeout(10000) });
       const data = await resp.json();
-      console.log(`[Strategy 3] allorigins contents length=${data.contents?.length} status=${data.status?.http_code}`);
       if (data.contents) {
         const items = parseRSS(data.contents);
-        console.log(`[Strategy 3] items parsed=${items.length}`);
-        if (items.length > 0) {
-          return Response.json({ status: 'ok', items });
-        }
+        if (items.length > 0) return jsonResponse({ status: 'ok', items });
       }
-    } catch (e) { console.log(`[Strategy 3] error: ${e.message}`); }
+    } catch (_e) {}
 
-    return Response.json({ status: 'ok', items: [] });
+    // Strategy 4: corsproxy.io (works well for RSC and MDPI)
+    try {
+      const corsproxyUrl = `https://corsproxy.io/?${encodeURIComponent(normalized_url)}`;
+      const resp = await fetch(corsproxyUrl, {
+        headers: { 'Accept': 'application/rss+xml, application/xml, text/xml, */*' },
+        signal: AbortSignal.timeout(12000),
+      });
+      if (resp.ok) {
+        const xml = await resp.text();
+        const items = parseRSS(xml);
+        if (items.length > 0) return jsonResponse({ status: 'ok', items });
+      }
+    } catch (_e) {}
+
+    return jsonResponse({ status: 'ok', items: [] });
   }
 
-  // Other publishers known to block direct server-side requests
+  // Publishers known to block direct server-side requests
   const forceProxy = rss_url.includes('asmedigitalcollection.asme.org');
-
   if (forceProxy) {
     const apiKeyParam = RSS2JSON_API_KEY ? `&api_key=${RSS2JSON_API_KEY}` : '';
     const proxyUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(normalized_url)}&count=100${apiKeyParam}`;
@@ -199,13 +250,13 @@ Deno.serve(async (req) => {
       const proxyResp = await fetch(proxyUrl);
       const data = await proxyResp.json();
       if (data.items && data.items.length > 0) {
-        return Response.json({ status: 'ok', items: mapRss2JsonItems(data.items) });
+        return jsonResponse({ status: 'ok', items: mapRss2JsonItems(data.items) });
       }
     } catch (_e) {}
-    return Response.json({ status: 'ok', items: [] });
+    return jsonResponse({ status: 'ok', items: [] });
   }
 
-  // Try direct fetch first
+  // Default: try direct fetch first
   const headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
     'Accept': 'application/rss+xml, application/xml, text/xml, */*',
@@ -215,19 +266,15 @@ Deno.serve(async (req) => {
   let xmlText = '';
   try {
     const directResponse = await fetch(normalized_url, { headers });
-    if (directResponse.ok) {
-      xmlText = await directResponse.text();
-    }
-  } catch (_err) {
-    // fall through to proxy
-  }
+    if (directResponse.ok) xmlText = await directResponse.text();
+  } catch (_err) {}
 
   let items = [];
   if (xmlText) {
     try { items = parseRSS(xmlText); } catch (_e) {}
   }
 
-  // If direct fetch failed or returned no items, fall back to rss2json
+  // Fall back to rss2json if no items from direct fetch
   if (items.length === 0) {
     try {
       const apiKeyParam = RSS2JSON_API_KEY ? `&api_key=${RSS2JSON_API_KEY}` : '';
@@ -235,10 +282,10 @@ Deno.serve(async (req) => {
       const proxyResp = await fetch(proxyUrl);
       const data = await proxyResp.json();
       if (data.items && data.items.length > 0) {
-        return Response.json({ status: 'ok', items: mapRss2JsonItems(data.items) });
+        return jsonResponse({ status: 'ok', items: mapRss2JsonItems(data.items) });
       }
     } catch (_e) {}
   }
 
-  return Response.json({ status: 'ok', items });
+  return jsonResponse({ status: 'ok', items });
 });

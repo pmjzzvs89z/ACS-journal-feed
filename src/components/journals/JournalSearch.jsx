@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Search, X, BookOpen } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { base44 } from '@/api/base44Client';
+import { entities } from '@/api/entities';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 // Broad category-level fallback keywords so journals without indexed scopes still appear
@@ -45,7 +45,7 @@ function fuzzyMatch(query, keyword) {
 function useJournalScopes() {
   return useQuery({
     queryKey: ['journalScopes'],
-    queryFn: () => base44.entities.JournalScope.list('-created_date', 500),
+    queryFn: () => entities.JournalScope.list(),
     initialData: [],
     staleTime: 1000 * 60 * 5,
   });
@@ -97,9 +97,6 @@ export default function JournalSearch({ allJournals, publishers, isFollowed, onT
     if (missing.length === 0) return;
     missing.forEach(j => {
       generatingRef.current.add(j.id);
-      base44.functions.invoke('generateJournalKeywords', { journal_id: j.id, journal_name: j.name })
-        .then(() => queryClient.invalidateQueries({ queryKey: ['journalScopes'] }))
-        .catch(() => {});
     });
   }, [results.map(j => j.id).join(','), query]);
 

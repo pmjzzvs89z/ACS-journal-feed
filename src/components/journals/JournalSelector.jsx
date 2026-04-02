@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { BookOpen, ChevronRight, ChevronDown, X, FlaskConical, Cog, Layers, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { base44 } from '@/api/base44Client';
+import { entities } from '@/api/entities';
 import JournalDiscover from './JournalDiscover';
 import JournalSearch from './JournalSearch';
 const CATEGORY_KEYWORDS = {
@@ -471,7 +471,7 @@ export default function JournalSelector({ followedJournals, onToggleJournal, onC
                               <button
                                 onClick={async () => {
                                   if (window.confirm(`Delete "${j.journal_name}"?`)) {
-                                    await base44.entities.FollowedJournal.delete(j.id);
+                                    await entities.FollowedJournal.delete(j.id);
                                     if (onCustomJournalAdded) onCustomJournalAdded();
                                   }
                                 }}
