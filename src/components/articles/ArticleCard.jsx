@@ -121,23 +121,6 @@ function extractImage(article) {
   return null;
 }
 
-// ── Image proxy for cross-origin protected publishers (ACS, Wiley, etc.) ─
-const IMAGE_PROXY = 'https://fvjvcxvgxoloyfvchfof.supabase.co/functions/v1/fetch-image';
-
-function needsProxy(url) {
-  if (!url) return false;
-  try {
-    const { hostname } = new URL(url);
-    // ACS uses Cloudflare challenges that block server-side proxying;
-    // browser <img> tags load them directly without issue.
-    return hostname.endsWith('wiley.com');
-  } catch { return false; }
-}
-
-function proxyUrl(url) {
-  return `${IMAGE_PROXY}?url=${encodeURIComponent(url)}`;
-}
-
 // ── Seen articles helpers ──────────────────────────────────────────────────
 const getSeenArticles = () => {
   try { return new Set(JSON.parse(localStorage.getItem('seenArticles') || '[]')); }
@@ -153,7 +136,6 @@ export const clearAllSeenArticles = () => localStorage.removeItem('seenArticles'
 
 const ArticleCard = React.forwardRef(function ArticleCard({ article, index, savedRecord, onSaveToggle, resetKey = 0 }, _ref) {
   const [imageFailed, setImageFailed] = useState(false);
-  const [useProxy, setUseProxy] = useState(() => needsProxy(extractImage(article)));
   const [abstractOpen, setAbstractOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [hasBeenSeen, setHasBeenSeen] = React.useState(() => isArticleSeen(article.link));
@@ -167,7 +149,6 @@ const ArticleCard = React.forwardRef(function ArticleCard({ article, index, save
 
   useEffect(() => {
     setImageFailed(false);
-    setUseProxy(needsProxy(imageUrl));
   }, [imageUrl]);
 
   React.useEffect(() => {
@@ -235,15 +216,9 @@ const ArticleCard = React.forwardRef(function ArticleCard({ article, index, save
         <div className="hidden sm:flex flex-shrink-0 w-[368px] items-center justify-center bg-slate-50 dark:bg-slate-900 border-r border-slate-100 dark:border-slate-700 p-2" style={{ minHeight: '160px', maxHeight: '220px' }}>
           {showImage ? (
             <img
-              src={useProxy ? proxyUrl(imageUrl) : imageUrl}
+              src={imageUrl}
               alt="Graphical abstract"
-              onError={() => {
-                if (!useProxy && needsProxy(imageUrl)) {
-                  setUseProxy(true);
-                } else {
-                  setImageFailed(true);
-                }
-              }}
+              onError={() => setImageFailed(true)}
               referrerPolicy="no-referrer"
               className="w-full h-full object-contain"
               style={{ maxHeight: '210px' }}
