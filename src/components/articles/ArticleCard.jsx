@@ -81,6 +81,15 @@ function extractImage(article) {
     if (acsMatch && isValidImg(acsMatch[0])) return acsMatch[0];
   }
 
+  // Elsevier graphical abstract: construct from PII in article link
+  const link = article.link || '';
+  const piiMatch = link.match(/\/pii\/(S[0-9Xx]+)/i);
+  if (piiMatch) return `https://ars.els-cdn.com/content/image/1-s2.0-${piiMatch[1]}-fx1_lrg.jpg`;
+
+  // RSC graphical abstract: construct from article ID at end of link URL
+  const rscMatch = link.match(/pubs\.rsc\.org\/.*\/([a-z0-9]+)$/i);
+  if (rscMatch) return `https://pubs.rsc.org/services/images/RSCpubs.ePlatform.Service.FreeContent.ImageService.svc/ImageService/image/GA?id=${rscMatch[1]}`;
+
   for (const src of htmlSources) {
     if (!src) continue;
     const imgRegex = /\bsrc=["']([^"']+)["']/gi;
