@@ -194,7 +194,7 @@ const ArticleCard = React.forwardRef(function ArticleCard({ article, index, save
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: Math.min(index * 0.03, 0.5), duration: 0.3 }}
-      className="group bg-sky-50 rounded-2xl border-[1.5px] border-[#DCE8F6] hover:shadow-xl hover:border-[#C2D5EA] transition-all duration-300 overflow-hidden"
+      className="group bg-sky-50/35 rounded-2xl border-[1.5px] border-[#DCE8F6] hover:shadow-xl hover:border-[#C2D5EA] transition-all duration-300 overflow-hidden"
     >
       <div className="flex items-stretch gap-0">
         {/* Graphical abstract — desktop */}
