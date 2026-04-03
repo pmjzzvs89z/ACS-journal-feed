@@ -244,15 +244,9 @@ const ArticleCard = React.forwardRef(function ArticleCard({ article, index, save
           {showImage && (
             <div className="sm:hidden w-full mb-4 rounded-xl overflow-hidden bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-700">
               <img
-                src={useProxy ? proxyUrl(imageUrl) : imageUrl}
+                src={imageUrl}
                 alt="Graphical abstract"
-                onError={() => {
-                  if (!useProxy && needsProxy(imageUrl)) {
-                    setUseProxy(true);
-                  } else {
-                    setImageFailed(true);
-                  }
-                }}
+                onError={() => setImageFailed(true)}
                 referrerPolicy="no-referrer"
                 className="w-full max-h-40 object-contain"
               />
