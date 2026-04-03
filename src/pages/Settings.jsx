@@ -2,18 +2,18 @@ import React, { useState } from 'react';
 import { entities } from '@/api/entities';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { BookOpen, Check, Rss, Bookmark, Sparkles, Settings as SettingsIcon } from 'lucide-react';
+import { BookOpen, Rss, Bookmark, Settings as SettingsIcon, Moon, Sun } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
 import JournalSelector from '@/components/journals/JournalSelector';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
+import { useDarkMode } from '@/hooks/useDarkMode';
 
 export default function Settings() {
   const queryClient = useQueryClient();
-  const [saved, setSaved] = useState(false);
   const location = useLocation();
   const isGuideActive = location.pathname === createPageUrl('Guide');
+  const [isDark, toggleDark] = useDarkMode();
 
   const { data: followedJournals = [], isLoading } = useQuery({
     queryKey: ['followedJournals'],
@@ -37,18 +37,12 @@ export default function Settings() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['followedJournals'] }),
   });
 
-  const handleSave = async () => {
-    // Settings auto-save on toggle, so this just gives user feedback
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
-  };
-
   const activeCount = followedJournals.filter(j => j.is_active).length;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900">
       {/* Header */}
-      <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-slate-200">
+      <header className="sticky top-0 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-3.5">
@@ -58,45 +52,44 @@ export default function Settings() {
                 className="w-12 h-12 object-contain"
               />
               <div>
-                <h1 className="text-xl font-bold text-slate-900">Literature Tracker</h1>
-                <p className="text-xs text-slate-500 hidden sm:block">Follow your favorite journals</p>
+                <h1 className="text-xl font-bold text-slate-900 dark:text-white">Literature Tracker</h1>
+                <p className="text-xs text-slate-500 dark:text-slate-400 hidden sm:block">Follow your favorite journals</p>
               </div>
             </div>
 
-            {/* Tab nav — matches Home page exactly */}
-             <div className="flex items-center gap-4">
-               <Link to={createPageUrl('Home') + '?tab=feed'}>
-                 <button className="flex items-center gap-1.5 px-4 py-1 rounded-lg border text-sm font-semibold transition-colors bg-blue-50/60 text-slate-500 border-blue-100 hover:bg-blue-100/60">
-                   <Rss className="w-4 h-4" />
-                   <span className="hidden sm:inline">Feed</span>
-                 </button>
-               </Link>
-               <Link to={createPageUrl('Home') + '?tab=saved'}>
-                 <button className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-sm font-medium transition-colors bg-blue-50/60 text-slate-500 border-blue-100 hover:bg-blue-100/60">
-                   <Bookmark className="w-4 h-4" />
-                   <span className="hidden sm:inline">Saved</span>
-                 </button>
-               </Link>
-              {/* For You tab - hidden but code preserved for future use
-              <Link to={createPageUrl('Home') + '?tab=recommended'}>
-                <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-all text-slate-500 hover:text-slate-700">
-                  <Sparkles className="w-4 h-4" />
-                  <span className="hidden sm:inline">For You</span>
+            {/* Tab nav */}
+            <div className="flex items-center gap-4">
+              <Link to={createPageUrl('Home') + '?tab=feed'}>
+                <button className="flex items-center gap-1.5 px-4 py-1 rounded-lg border text-sm font-semibold transition-colors bg-blue-50/60 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-blue-100 dark:border-slate-700 hover:bg-blue-100/60 dark:hover:bg-slate-700">
+                  <Rss className="w-4 h-4" />
+                  <span className="hidden sm:inline">Feed</span>
                 </button>
               </Link>
-              */}
+              <Link to={createPageUrl('Home') + '?tab=saved'}>
+                <button className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-sm font-medium transition-colors bg-blue-50/60 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-blue-100 dark:border-slate-700 hover:bg-blue-100/60 dark:hover:bg-slate-700">
+                  <Bookmark className="w-4 h-4" />
+                  <span className="hidden sm:inline">Saved</span>
+                </button>
+              </Link>
             </div>
 
             <div className="flex items-center gap-2">
-              <button className="flex items-center gap-1.5 px-3 py-1 rounded-lg border text-sm font-medium transition-colors bg-blue-50/60 text-blue-600 border-blue-200">
-                <SettingsIcon className="w-4 h-4 text-blue-600" />
+              <button className="flex items-center gap-1.5 px-3 py-1 rounded-lg border text-sm font-medium transition-colors bg-blue-50/60 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-700">
+                <SettingsIcon className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                 <span className="hidden sm:inline">Journal Selector</span>
               </button>
               <Link to={createPageUrl('Guide')}>
-                <button className={`flex items-center gap-1.5 px-3 py-1 rounded-lg border text-sm font-medium transition-colors ${isGuideActive ? 'bg-blue-50/60 text-blue-600 border-blue-200' : 'bg-blue-50/60 text-slate-500 border-blue-100 hover:bg-blue-100/60'}`}>
-                  <BookOpen className={`w-4 h-4 ${isGuideActive ? 'text-blue-600' : ''}`} />
+                <button className={`flex items-center gap-1.5 px-3 py-1 rounded-lg border text-sm font-medium transition-colors ${isGuideActive ? 'bg-blue-50/60 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-700' : 'bg-blue-50/60 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-blue-100 dark:border-slate-700 hover:bg-blue-100/60 dark:hover:bg-slate-700'}`}>
+                  <BookOpen className={`w-4 h-4 ${isGuideActive ? 'text-blue-600 dark:text-blue-400' : ''}`} />
                 </button>
               </Link>
+              <button
+                onClick={toggleDark}
+                className="flex items-center justify-center w-8 h-8 rounded-lg border transition-colors bg-blue-50/60 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-blue-100 dark:border-slate-700 hover:bg-blue-100/60 dark:hover:bg-slate-700"
+                title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+              >
+                {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+              </button>
             </div>
           </div>
         </div>
@@ -105,20 +98,18 @@ export default function Settings() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex justify-center">
           <div style={{ width: '620px' }} className="flex-shrink-0">
-            {/* Box with header and Save button */}
-            <div className="bg-white rounded-2xl border-[1.5px] border-[#DCE8F6] shadow-sm overflow-hidden">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border-[1.5px] border-[#DCE8F6] dark:border-slate-700 shadow-sm overflow-hidden">
               {/* Box header */}
-              <div className="flex items-center gap-3 px-4 py-3 border-b border-slate-100 bg-slate-50">
-                <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
-                  <BookOpen className="w-4 h-4 text-blue-600" />
+              <div className="flex items-center gap-3 px-4 py-3 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
+                <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center">
+                  <BookOpen className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h2 className="text-sm font-bold text-slate-900">Journals Selector</h2>
-                  <p className="text-xs text-slate-500">
+                  <h2 className="text-sm font-bold text-slate-900 dark:text-white">Journals Selector</h2>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
                     {isLoading ? 'Loading…' : `${activeCount} journal${activeCount !== 1 ? 's' : ''} selected`}
                   </p>
                 </div>
-
               </div>
 
               <ScrollArea className="h-[calc(100vh-160px)]">
@@ -137,20 +128,19 @@ export default function Settings() {
         {/* Suggestions section */}
         <div className="flex justify-center mt-4">
           <div style={{ width: '620px' }} className="flex-shrink-0">
-          <div className="bg-white rounded-2xl border-[1.5px] border-[#DCE8F6] shadow-sm p-3">
-            <p className="text-sm text-slate-700">
-              To share your comments and suggestions about this app{' '}
-              <a
-                href="mailto:jklosin@dow.com?subject=Suggestion%20to%20improve%20Literature%20Tracker%20app"
-                className="text-blue-600 hover:underline font-medium"
-              >
-                click here
-              </a>
-            </p>
-          </div>
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border-[1.5px] border-[#DCE8F6] dark:border-slate-700 shadow-sm p-3">
+              <p className="text-sm text-slate-700 dark:text-slate-300">
+                To share your comments and suggestions about this app{' '}
+                <a
+                  href="mailto:jklosin@dow.com?subject=Suggestion%20to%20improve%20Literature%20Tracker%20app"
+                  className="text-blue-600 dark:text-blue-400 hover:underline font-medium"
+                >
+                  click here
+                </a>
+              </p>
+            </div>
           </div>
         </div>
-
       </div>
     </div>
   );

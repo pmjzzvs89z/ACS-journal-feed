@@ -28,3 +28,9 @@ dist-ssr
 *.sw?
 
 .env
+
+# Claude Code
+.claude/
+
+# Supabase temp
+supabase/.temp/

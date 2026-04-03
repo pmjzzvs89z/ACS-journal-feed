@@ -1,15 +1,15 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { entities } from '@/api/entities';
 import { fetchRssFeed } from '@/utils/fetchRss';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Settings, Bookmark, Rss, Sparkles, BookOpen } from 'lucide-react';
+import { Settings, Bookmark, Rss, BookOpen, RefreshCw, Moon, Sun } from 'lucide-react';
 import ArticleFeed from '@/components/articles/ArticleFeed';
 import SavedFeed from '@/components/articles/SavedFeed';
 import RecommendedFeed from '@/components/articles/RecommendedFeed';
 import { ALL_JOURNALS } from '@/components/journals/JournalList';
 import { Link, useLocation } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-
+import { useDarkMode } from '@/hooks/useDarkMode';
 
 const RULES_KEY = 'cjf_autosave_rules';
 
@@ -36,20 +36,24 @@ function articleMatchesRules(article, rules) {
   const kwMatch = keywords.length === 0 || keywords.some(kw => haystack.includes(kw.toLowerCase()));
   const auMatch = authors.length === 0 || authors.some(au => authorStr.includes(au.toLowerCase()));
 
-  // Must satisfy at least one keyword (if any set) AND at least one author (if any set)
   if (keywords.length > 0 && authors.length > 0) return kwMatch && auMatch;
   return kwMatch || auMatch;
 }
 
 export default function Home() {
-  const [articles, setArticles] = useState([]);
-  const [isLoadingArticles, setIsLoadingArticles] = useState(false);
+  const [loadingProgress, setLoadingProgress] = useState({ done: 0, total: 0 });
+  const progressSetterRef = useRef(setLoadingProgress);
+  progressSetterRef.current = setLoadingProgress;
+
   const urlParams = new URLSearchParams(window.location.search);
   const initialTab = urlParams.get('tab') || 'feed';
   const [activeTab, setActiveTab] = useState(initialTab);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [showRefreshBanner, setShowRefreshBanner] = useState(false);
   const [userKeywords, setUserKeywords] = useState('');
   const [selectedKeywords, setSelectedKeywords] = useState([]);
   const [filterEnabled, setFilterEnabled] = useState(false);
+  const [isDark, toggleDark] = useDarkMode();
   const queryClient = useQueryClient();
 
   // Remove ?tab= from URL immediately so refreshing always lands on Feed
@@ -58,6 +62,7 @@ export default function Home() {
       window.history.replaceState({}, '', window.location.pathname);
     }
   }, []);
+
   const location = useLocation();
   const isSettingsActive = location.pathname === createPageUrl('Settings');
   const isGuideActive = location.pathname === createPageUrl('Guide');
@@ -74,112 +79,159 @@ export default function Home() {
     queryFn: () => entities.SavedArticle.list(),
   });
 
+  // Stable query key based on sorted active journal IDs
+  const journalQueryKey = useMemo(() => {
+    const ids = followedJournals
+      .filter(j => j.is_active)
+      .map(j => j.journal_id)
+      .sort()
+      .join(',');
+    return ['articles', ids || 'none'];
+  }, [followedJournals]);
 
-
-  // Fetch RSS feeds
-  const fetchArticles = useCallback(async () => {
+  // RSS fetch function for TanStack Query
+  const fetchArticlesQuery = useCallback(async () => {
     const activeJournals = followedJournals.filter(j => j.is_active);
-    if (activeJournals.length === 0) {
-      setArticles([]);
-      return;
-    }
+    if (activeJournals.length === 0) return [];
 
-    setIsLoadingArticles(true);
+    progressSetterRef.current({ done: 0, total: activeJournals.length });
     const allArticles = [];
 
-    // Process journals sequentially to avoid rate limiting
-    const BATCH_SIZE = 2;
+    const BATCH_SIZE = 3;
     for (let i = 0; i < activeJournals.length; i += BATCH_SIZE) {
       const batch = activeJournals.slice(i, i + BATCH_SIZE);
-      if (i > 0) await new Promise(r => setTimeout(r, 2000));
+      if (i > 0) await new Promise(r => setTimeout(r, 1200));
       await Promise.all(
         batch.map(async (journal) => {
           const journalInfo = ALL_JOURNALS.find(j => j.id === journal.journal_id);
           try {
-            let items = [];
             const data = await fetchRssFeed(journal.rss_url);
             if (data.status === 'ok' && data.items) {
-              items = data.items;
+              const journalArticles = data.items.map(item => ({
+                ...item,
+                journalId: journal.journal_id,
+                journalName: journal.journal_name,
+                journalAbbrev: journalInfo?.abbrev || journal.journal_name,
+                journalColor: journalInfo?.color || '#0066b3',
+              }));
+              allArticles.push(...journalArticles);
             }
-            const journalArticles = items.map(item => ({
-              ...item,
-              journalId: journal.journal_id,
-              journalName: journal.journal_name,
-              journalAbbrev: journalInfo?.abbrev || journal.journal_name,
-              journalColor: journalInfo?.color || '#0066b3',
-            }));
-            allArticles.push(...journalArticles);
           } catch (error) {
             console.error(`Error fetching ${journal.journal_name}:`, error);
           }
         })
       );
+      progressSetterRef.current({ done: Math.min(i + BATCH_SIZE, activeJournals.length), total: activeJournals.length });
     }
 
-    // Sort by date, newest first
     allArticles.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
-    setArticles(allArticles);
+    return allArticles;
+  }, [followedJournals]);
 
-    // Auto-save matching articles
-    const rules = getAutoSaveRules();
-    if (rules.enabled) {
-      const currentSaved = await entities.SavedArticle.list();
-      const savedIds = new Set(currentSaved.map(s => s.article_id));
-      const toSave = allArticles.filter(a => !savedIds.has(a.link) && articleMatchesRules(a, rules));
-      if (toSave.length > 0) {
-        await Promise.all(toSave.map(a => {
-          const abstract = (() => {
-            const sources = [a.content, a.description];
-            for (const src of sources) {
-              if (!src) continue;
-              const pMatches = src.match(/<p[^>]*>([\s\S]*?)<\/p>/gi);
-              if (pMatches) { for (const p of pMatches) { const t = p.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim(); if (t.length > 60) return t; } }
-              const plain = src.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
-              if (plain.length > 60) return plain;
-            }
-            return '';
-          })();
-          const thumbnail = (() => {
-            const sources = [a.content, a.description, a.enclosure?.link];
-            for (const src of sources) {
-              if (!src) continue;
-              const m = typeof src === 'string' && src.match(/<img[^>]+src=["']([^"']+)["']/i);
-              if (m) return m[1];
-            }
-            return '';
-          })();
-          return entities.SavedArticle.create({
-            article_id: a.link,
-            title: a.title,
-            link: a.link,
-            authors: Array.isArray(a.author) ? a.author.join(', ') : (a.author || ''),
-            pub_date: a.pubDate,
-            journal_name: a.journalName,
-            journal_abbrev: a.journalAbbrev,
-            journal_color: a.journalColor,
-            thumbnail,
-            abstract,
-          });
-        }));
-        queryClient.invalidateQueries({ queryKey: ['savedArticles'] });
-      }
-    }
+  // Cached RSS query — stays fresh for 20 minutes
+  const {
+    data: articles = [],
+    isLoading: isLoadingArticles,
+    dataUpdatedAt,
+    refetch: refetchArticles,
+  } = useQuery({
+    queryKey: journalQueryKey,
+    queryFn: fetchArticlesQuery,
+    staleTime: 20 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+    enabled: !isLoadingJournals,
+  });
 
-    setIsLoadingArticles(false);
-  }, [followedJournals, queryClient]);
-
+  // Auto-save side effect — runs whenever articles change
   useEffect(() => {
-    if (!isLoadingJournals) {
-      fetchArticles();
-    }
-  }, [followedJournals, isLoadingJournals, fetchArticles]);
+    if (!articles.length) return;
+    const rules = getAutoSaveRules();
+    if (!rules.enabled) return;
+
+    (async () => {
+      try {
+        const currentSaved = await entities.SavedArticle.list();
+        const savedIds = new Set(currentSaved.map(s => s.article_id));
+        const toSave = articles.filter(a => !savedIds.has(a.link) && articleMatchesRules(a, rules));
+        if (toSave.length > 0) {
+          await Promise.all(toSave.map(a => {
+            const abstract = (() => {
+              const sources = [a.content, a.description];
+              for (const src of sources) {
+                if (!src) continue;
+                const pMatches = src.match(/<p[^>]*>([\s\S]*?)<\/p>/gi);
+                if (pMatches) { for (const p of pMatches) { const t = p.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim(); if (t.length > 60) return t; } }
+                const plain = src.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
+                if (plain.length > 60) return plain;
+              }
+              return '';
+            })();
+            const thumbnail = (() => {
+              if (a.enclosure?.link) return a.enclosure.link;
+              if (a.enclosure?.url) return a.enclosure.url;
+              if (a.thumbnail) return a.thumbnail;
+              const sources = [a.content, a.description];
+              for (const src of sources) {
+                if (!src) continue;
+                // Decode HTML entities before searching (edge function returns HTML-encoded content)
+                const el = document.createElement('textarea');
+                el.innerHTML = src;
+                const decoded = el.value;
+                const m = decoded.match(/\bsrc=["']([^"']+\.(?:png|jpg|jpeg|gif|webp))["']/i);
+                if (m) return m[1];
+              }
+              return '';
+            })();
+            return entities.SavedArticle.create({
+              article_id: a.link,
+              title: a.title,
+              link: a.link,
+              authors: Array.isArray(a.author) ? a.author.join(', ') : (a.author || ''),
+              pub_date: a.pubDate,
+              journal_name: a.journalName,
+              journal_abbrev: a.journalAbbrev,
+              journal_color: a.journalColor,
+              thumbnail,
+              abstract,
+            });
+          }));
+          queryClient.invalidateQueries({ queryKey: ['savedArticles'] });
+        }
+      } catch (e) {
+        console.error('Auto-save error:', e);
+      }
+    })();
+  }, [articles]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Unread badge count
+  useEffect(() => {
+    if (!articles.length) { setUnreadCount(0); return; }
+    try {
+      const seen = new Set(JSON.parse(localStorage.getItem('seenArticles') || '[]'));
+      setUnreadCount(articles.filter(a => !seen.has(a.link)).length);
+    } catch {}
+  }, [articles]);
+
+  // "New articles available" banner — show after 30 min since last fetch
+  useEffect(() => {
+    if (!dataUpdatedAt) { setShowRefreshBanner(false); return; }
+    const check = () => setShowRefreshBanner(Date.now() - dataUpdatedAt > 30 * 60 * 1000);
+    check();
+    const interval = setInterval(check, 60 * 1000);
+    return () => clearInterval(interval);
+  }, [dataUpdatedAt]);
+
+  const handleRefresh = () => {
+    setShowRefreshBanner(false);
+    refetchArticles();
+  };
 
   const activeJournalCount = followedJournals.filter(j => j.is_active).length;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900">
       {/* Header */}
-      <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-slate-200">
+      <header className="sticky top-0 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-3.5">
@@ -189,67 +241,99 @@ export default function Home() {
                 className="w-12 h-12 object-contain"
               />
               <div>
-                <h1 className="text-xl font-bold text-slate-900">Literature Tracker</h1>
-                <p className="text-xs text-slate-500 hidden sm:block">Follow your favorite journals</p>
+                <h1 className="text-xl font-bold text-slate-900 dark:text-white">Literature Tracker</h1>
+                <p className="text-xs text-slate-500 dark:text-slate-400 hidden sm:block">Follow your favorite journals</p>
               </div>
             </div>
 
             {/* Tab switcher */}
-             <div className="flex items-center gap-4">
-                <button
-                  onClick={() => setActiveTab('feed')}
-                  className={`flex items-center gap-1.5 px-4 py-1 rounded-lg border text-sm font-semibold transition-colors ${activeTab === 'feed' ? 'bg-blue-50/60 text-blue-600 border-blue-200' : 'bg-blue-50/60 text-slate-500 border-blue-100 hover:bg-blue-100/60'}`}
-               >
-                 <Rss className={`w-4 h-4 ${activeTab === 'feed' ? 'text-blue-600' : ''}`} />
-                 <span className="hidden sm:inline">Feed</span>
-               </button>
-               <button
-                 onClick={() => setActiveTab('saved')}
-                 className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-sm font-medium transition-colors ${activeTab === 'saved' ? 'bg-blue-50/60 text-blue-600 border-blue-200' : 'bg-blue-50/60 text-slate-500 border-blue-100 hover:bg-blue-100/60'}`}
-               >
-                 <Bookmark className={`w-4 h-4 ${activeTab === 'saved' ? 'text-blue-600' : ''}`} />
-                 <span className="hidden sm:inline">Saved</span>
-                 {savedArticles.length > 0 && (
-                   <span className="bg-amber-500 text-white text-xs rounded-full px-1.5 py-0.5 leading-none">{savedArticles.length}</span>
-                 )}
-               </button>
-               {/* For You tab - hidden but code preserved for future use
-               <button
-                 onClick={() => setActiveTab('recommended')}
-                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${activeTab === 'recommended' ? 'bg-white shadow text-blue-600' : 'text-slate-500 hover:text-slate-700'}`}
-               >
-                 <Sparkles className={`w-4 h-4 ${activeTab === 'recommended' ? 'text-blue-600' : ''}`} />
-                 <span className="hidden sm:inline">For You</span>
-               </button>
-               */}
-               </div>
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => setActiveTab('feed')}
+                className={`flex items-center gap-1.5 px-4 py-1 rounded-lg border text-sm font-semibold transition-colors ${
+                  activeTab === 'feed'
+                    ? 'bg-blue-50/60 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-700'
+                    : 'bg-blue-50/60 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-blue-100 dark:border-slate-700 hover:bg-blue-100/60 dark:hover:bg-slate-700'
+                }`}
+              >
+                <Rss className={`w-4 h-4 ${activeTab === 'feed' ? 'text-blue-600 dark:text-blue-400' : ''}`} />
+                <span className="hidden sm:inline">Feed</span>
+                {unreadCount > 0 && activeTab !== 'feed' && (
+                  <span className="bg-blue-500 text-white text-xs rounded-full px-1.5 py-0.5 leading-none">{unreadCount > 99 ? '99+' : unreadCount}</span>
+                )}
+              </button>
+              <button
+                onClick={() => setActiveTab('saved')}
+                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-sm font-medium transition-colors ${
+                  activeTab === 'saved'
+                    ? 'bg-blue-50/60 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-700'
+                    : 'bg-blue-50/60 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-blue-100 dark:border-slate-700 hover:bg-blue-100/60 dark:hover:bg-slate-700'
+                }`}
+              >
+                <Bookmark className={`w-4 h-4 ${activeTab === 'saved' ? 'text-blue-600 dark:text-blue-400' : ''}`} />
+                <span className="hidden sm:inline">Saved</span>
+                {savedArticles.length > 0 && (
+                  <span className="bg-amber-500 text-white text-xs rounded-full px-1.5 py-0.5 leading-none">{savedArticles.length}</span>
+                )}
+              </button>
+            </div>
 
             <div className="flex items-center gap-2">
               <Link to={createPageUrl('Settings')}>
-                <button className={`flex items-center gap-1.5 px-3 py-1 rounded-lg border text-sm font-medium transition-colors ${isSettingsActive ? 'bg-blue-50/60 text-blue-600 border-blue-200' : 'bg-blue-50/60 text-slate-500 border-blue-100 hover:bg-blue-100/60'}`}>
-                  <Settings className={`w-4 h-4 ${isSettingsActive ? 'text-blue-600' : ''}`} />
+                <button className={`flex items-center gap-1.5 px-3 py-1 rounded-lg border text-sm font-medium transition-colors ${
+                  isSettingsActive
+                    ? 'bg-blue-50/60 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-700'
+                    : 'bg-blue-50/60 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-blue-100 dark:border-slate-700 hover:bg-blue-100/60 dark:hover:bg-slate-700'
+                }`}>
+                  <Settings className={`w-4 h-4 ${isSettingsActive ? 'text-blue-600 dark:text-blue-400' : ''}`} />
                   <span className="hidden sm:inline">Journal Selector</span>
                 </button>
               </Link>
               <Link to={createPageUrl('Guide')}>
-                <button className={`flex items-center gap-1.5 px-3 py-1 rounded-lg border text-sm font-medium transition-colors ${isGuideActive ? 'bg-blue-50/60 text-blue-600 border-blue-200' : 'bg-blue-50/60 text-slate-500 border-blue-100 hover:bg-blue-100/60'}`}>
-                  <BookOpen className={`w-4 h-4 ${isGuideActive ? 'text-blue-600' : ''}`} />
+                <button className={`flex items-center gap-1.5 px-3 py-1 rounded-lg border text-sm font-medium transition-colors ${
+                  isGuideActive
+                    ? 'bg-blue-50/60 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-700'
+                    : 'bg-blue-50/60 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-blue-100 dark:border-slate-700 hover:bg-blue-100/60 dark:hover:bg-slate-700'
+                }`}>
+                  <BookOpen className={`w-4 h-4 ${isGuideActive ? 'text-blue-600 dark:text-blue-400' : ''}`} />
                 </button>
               </Link>
+              <button
+                onClick={toggleDark}
+                className="flex items-center justify-center w-8 h-8 rounded-lg border transition-colors bg-blue-50/60 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-blue-100 dark:border-slate-700 hover:bg-blue-100/60 dark:hover:bg-slate-700"
+                title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+              >
+                {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+              </button>
             </div>
           </div>
         </div>
       </header>
 
+      {/* New articles available banner */}
+      {showRefreshBanner && activeTab === 'feed' && (
+        <div className="bg-blue-600 dark:bg-blue-700 text-white text-sm py-2 px-4 flex items-center justify-center gap-3">
+          <span>New articles may be available.</span>
+          <button
+            onClick={handleRefresh}
+            className="flex items-center gap-1.5 bg-white/20 hover:bg-white/30 rounded-lg px-3 py-1 text-xs font-semibold transition-colors"
+          >
+            <RefreshCw className="w-3.5 h-3.5" />
+            Refresh now
+          </button>
+          <button onClick={() => setShowRefreshBanner(false)} className="ml-2 text-white/70 hover:text-white text-lg leading-none">×</button>
+        </div>
+      )}
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex">
-          {/* Main content */}
           <main className="flex-1 min-w-0">
             {activeTab === 'feed' ? (
               <ArticleFeed
                 articles={articles}
                 isLoading={isLoadingArticles || isLoadingJournals}
-                onRefresh={fetchArticles}
+                loadingProgress={loadingProgress}
+                onRefresh={handleRefresh}
                 followedCount={activeJournalCount}
                 savedArticles={savedArticles}
                 onSaveToggle={refetchSaved}
@@ -275,8 +359,6 @@ export default function Home() {
               />
             )}
           </main>
-
-
         </div>
       </div>
     </div>

@@ -44,6 +44,7 @@ export const entities = {
       if (error) throw error;
     }
   },
+
   SavedArticle: {
     list: async () => {
       const { data, error } = await supabase
@@ -71,6 +72,7 @@ export const entities = {
       if (error) throw error;
     }
   },
+
   JournalScope: {
     list: async () => {
       const { data, error } = await supabase
@@ -79,5 +81,23 @@ export const entities = {
       if (error) return [];
       return data || [];
     }
+  },
+
+  // Admin queries — return cross-user data if RLS permits; fall back to current user's data.
+  Admin: {
+    getAllFollowedJournals: async () => {
+      const { data, error } = await supabase
+        .from('followed_journals')
+        .select('user_id, journal_id, journal_name, is_active, created_at');
+      if (error) return [];
+      return data || [];
+    },
+    getAllSavedArticles: async () => {
+      const { data, error } = await supabase
+        .from('saved_articles')
+        .select('user_id, journal_name, journal_abbrev, journal_color, created_at, title, link');
+      if (error) return [];
+      return data || [];
+    },
   }
 };
