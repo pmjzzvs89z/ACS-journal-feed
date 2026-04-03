@@ -74,6 +74,13 @@ function extractImage(article) {
 
   const htmlSources = [article.content, article.description].map(s => decodeHtmlEntities(s));
 
+  // ACS graphical abstract: pubs.acs.org/cms/.../asset/images/medium/...
+  for (const src of htmlSources) {
+    if (!src) continue;
+    const acsMatch = src.match(/https?:\/\/pubs\.acs\.org\/cms\/[^\s"'<>]+\/asset\/images\/medium\/[^\s"'<>]+/i);
+    if (acsMatch && isValidImg(acsMatch[0])) return acsMatch[0];
+  }
+
   for (const src of htmlSources) {
     if (!src) continue;
     const imgRegex = /\bsrc=["']([^"']+)["']/gi;
@@ -81,6 +88,17 @@ function extractImage(article) {
     while ((match = imgRegex.exec(src)) !== null) {
       const url = match[1];
       if (isValidImg(url) && /\.(png|jpg|jpeg|gif|webp|svg)(\?|$)/i.test(url)) return url;
+    }
+  }
+
+  // href links pointing directly to image files (e.g. ACS GA links)
+  for (const src of htmlSources) {
+    if (!src) continue;
+    const hrefRegex = /\bhref=["']([^"']+\.(?:png|jpg|jpeg|gif|webp))["']/gi;
+    let match;
+    while ((match = hrefRegex.exec(src)) !== null) {
+      const url = match[1];
+      if (isValidImg(url)) return url;
     }
   }
 
@@ -133,7 +151,7 @@ export const clearAllSeenArticles = () => localStorage.removeItem('seenArticles'
 
 const ArticleCard = React.forwardRef(function ArticleCard({ article, index, savedRecord, onSaveToggle, resetKey = 0 }, _ref) {
   const [imageFailed, setImageFailed] = useState(false);
-  const [useProxy, setUseProxy] = useState(false);
+  const [useProxy, setUseProxy] = useState(() => needsProxy(extractImage(article)));
   const [abstractOpen, setAbstractOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [hasBeenSeen, setHasBeenSeen] = React.useState(() => isArticleSeen(article.link));
@@ -147,7 +165,7 @@ const ArticleCard = React.forwardRef(function ArticleCard({ article, index, save
 
   useEffect(() => {
     setImageFailed(false);
-    setUseProxy(false);
+    setUseProxy(needsProxy(imageUrl));
   }, [imageUrl]);
 
   React.useEffect(() => {
