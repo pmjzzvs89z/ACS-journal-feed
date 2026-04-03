@@ -128,7 +128,9 @@ function needsProxy(url) {
   if (!url) return false;
   try {
     const { hostname } = new URL(url);
-    return hostname === 'pubs.acs.org' || hostname.endsWith('wiley.com');
+    // ACS uses Cloudflare challenges that block server-side proxying;
+    // browser <img> tags load them directly without issue.
+    return hostname.endsWith('wiley.com');
   } catch { return false; }
 }
 
