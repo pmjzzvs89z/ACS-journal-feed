@@ -1,6 +1,6 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Loader2, Inbox, RotateCcw, Settings } from 'lucide-react';
+import { Loader2, Inbox, RotateCcw, Settings, ArrowUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import ArticleCard, { clearAllSeenArticles } from './ArticleCard';
 import ArticleFilters from './ArticleFilters';
@@ -32,6 +32,13 @@ export default function ArticleFeed({ articles, isLoading, onRefresh, followedCo
   const [quickFilters, setQuickFilters] = useState(loadQuickFilters);
   const [sortBy, setSortBy] = useState('date_desc');
   const [resetKey, setResetKey] = useState(0);
+  const [showBackToTop, setShowBackToTop] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setShowBackToTop(window.scrollY > 400);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   const handleResetArticles = () => {
     clearAllSeenArticles();
@@ -207,6 +214,24 @@ export default function ArticleFeed({ articles, isLoading, onRefresh, followedCo
           </p>
         </motion.div>
       )}
+
+      {/* Back to Top button */}
+      <AnimatePresence>
+        {showBackToTop && (
+          <motion.button
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 16 }}
+            transition={{ duration: 0.2 }}
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            className="fixed bottom-8 right-8 z-50 flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-xl shadow-lg hover:shadow-xl transition-colors"
+            aria-label="Back to top"
+          >
+            <ArrowUp className="w-4 h-4" />
+            Top
+          </motion.button>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
