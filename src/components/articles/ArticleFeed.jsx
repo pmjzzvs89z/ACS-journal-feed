@@ -224,7 +224,7 @@ export default function ArticleFeed({ articles, isLoading, onRefresh, followedCo
             exit={{ opacity: 0, y: 16 }}
             transition={{ duration: 0.2 }}
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            className="fixed bottom-8 right-8 z-50 flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-xl shadow-lg hover:shadow-xl transition-colors"
+            className="fixed bottom-8 right-8 z-50 flex items-center gap-2 px-4 py-2.5 bg-slate-50 hover:bg-slate-100 text-slate-700 text-sm font-semibold rounded-xl shadow-lg hover:shadow-xl border border-slate-200 transition-colors"
             aria-label="Back to top"
           >
             <ArrowUp className="w-4 h-4" />
