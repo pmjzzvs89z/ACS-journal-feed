@@ -2,11 +2,16 @@
 
 A React app for following and tracking journal articles across ACS, Wiley, RSC, Elsevier, Springer, MDPI, and more.
 
+## Features
+
+- Graphical abstracts (GA) for RSC, Elsevier journals
+- ACS and Wiley GA not supported due to Cross-Origin Resource Policy (CORP) restrictions
+
 ## Stack
 
 - **Frontend**: React + Vite + Tailwind CSS
 - **Backend**: Supabase (auth, database, edge functions)
-- **Edge functions**: `fetch-rss` (RSS proxy), `proxy-image` (image proxy)
+- **Edge functions**: `fetch-rss` (RSS proxy)
 
 ## Getting started
 

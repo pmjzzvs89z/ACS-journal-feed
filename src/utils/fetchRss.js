@@ -125,7 +125,15 @@ function parseRssXml(xml) {
 
       const description = getText('description') || getText('summary');
 
-      // ── DOI ─────────────────────────────────────────────────────────────────
+      // Also get the raw HTML/XML content of description for image extraction
+      const descriptionHtml = (() => {
+        const descEl = item.getElementsByTagName('description')[0] || item.getElementsByTagName('summary')[0];
+        if (descEl) {
+          const serializer = new XMLSerializer();
+          return serializer.serializeToString(descEl).replace(/^<description[^>]*>/, '').replace(/<\/description>$/, '').replace(/^<summary[^>]*>/, '').replace(/<\/summary>$/, '');
+        }
+        return description;
+      })();
       // 1. dc:identifier (RSC, many publishers)
       let doi = '';
       const rawDcId = getTextNS(DC_NS, 'identifier') || getText('dc:identifier') || '';
@@ -174,6 +182,7 @@ function parseRssXml(xml) {
         title: getText('title'),
         link,
         description,
+        descriptionHtml,
         content,
         pubDate,
         author,

@@ -72,13 +72,28 @@ function extractImage(article) {
   if (isValidImg(article.media_content?.url)) return article.media_content.url;
   if (isValidImg(article.media?.content?.url)) return article.media.content.url;
 
-  const htmlSources = [article.content, article.description].map(s => decodeHtmlEntities(s));
+  const htmlSources = [article.content, article.descriptionHtml || article.description].map(s => decodeHtmlEntities(s));
 
   // ACS graphical abstract: pubs.acs.org/cms/.../asset/images/medium/...
+  // Note: ACS blocks cross-origin embedding due to CORP, so GA not displayed
   for (const src of htmlSources) {
     if (!src) continue;
     const acsMatch = src.match(/https?:\/\/pubs\.acs\.org\/cms\/[^\s"'<>]+\/asset\/images\/medium\/[^\s"'<>]+/i);
-    if (acsMatch && isValidImg(acsMatch[0])) return acsMatch[0];
+    if (acsMatch && isValidImg(acsMatch[0])) {
+      // CORP blocks loading, so skip
+      return null;
+    }
+  }
+
+  // Wiley graphical abstract: onlinelibrary.wiley.com/cms/asset/.../-gra-0001-m.png
+  // Note: Wiley blocks cross-origin embedding due to CORP, so GA not displayed
+  for (const src of htmlSources) {
+    if (!src) continue;
+    const wileyMatch = src.match(/https?:\/\/onlinelibrary\.wiley\.com\/cms\/asset\/[^\s"'<>]+\/[^\s"'<>]+-gra-0001-m\.(?:png|jpg|jpeg|gif|webp)/i);
+    if (wileyMatch && isValidImg(wileyMatch[0])) {
+      // CORP blocks loading, so skip
+      return null;
+    }
   }
 
   // Elsevier graphical abstract: construct from PII in article link
