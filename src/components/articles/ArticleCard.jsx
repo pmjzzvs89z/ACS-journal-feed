@@ -227,6 +227,16 @@ const ArticleCard = React.forwardRef(function ArticleCard({ article, index, save
     ? article.author.join(', ')
     : article.author || article.authors || '';
 
+  // Route ACS/Wiley images through /api/image-proxy to bypass CORP
+  const imgSrc = imageUrl && (() => {
+    try {
+      const h = new URL(imageUrl).hostname;
+      if (h === 'pubs.acs.org' || h.endsWith('onlinelibrary.wiley.com')) {
+        return `/api/image-proxy?url=${encodeURIComponent(imageUrl)}`;
+      }
+    } catch {}
+    return imageUrl;
+  })();
   const showImage = !imageFailed && !!imageUrl;
 
   return (
@@ -242,7 +252,7 @@ const ArticleCard = React.forwardRef(function ArticleCard({ article, index, save
         <div className="hidden sm:flex flex-shrink-0 w-[368px] items-center justify-center bg-slate-50 dark:bg-slate-900 border-r border-slate-100 dark:border-slate-700 p-2" style={{ minHeight: '160px', maxHeight: '220px' }}>
           {showImage ? (
             <img
-              src={imageUrl}
+              src={imgSrc}
               alt="Graphical abstract"
               onError={() => setImageFailed(true)}
               referrerPolicy="no-referrer"
@@ -261,7 +271,7 @@ const ArticleCard = React.forwardRef(function ArticleCard({ article, index, save
           {showImage && (
             <div className="sm:hidden w-full mb-4 rounded-xl overflow-hidden bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-700">
               <img
-                src={imageUrl}
+                src={imgSrc}
                 alt="Graphical abstract"
                 onError={() => setImageFailed(true)}
                 referrerPolicy="no-referrer"
