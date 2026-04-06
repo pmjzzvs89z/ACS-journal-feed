@@ -25,22 +25,8 @@ export async function fetchRssFeed(rssUrl) {
     if (response.ok) {
       const data = await response.json();
       if (data.items?.length > 0) {
-        // Extract feedImage from description HTML for items from Supabase proxy
-        const items = data.items.map(item => {
-          if (item.feedImage) return item;
-          const raw = item.description || item.content || '';
-          if (!raw) return item;
-          // Decode HTML entities first (Supabase returns &lt; &gt; encoded)
-          const textarea = document.createElement('textarea');
-          textarea.innerHTML = raw;
-          const decoded = textarea.value;
-          const tempDiv = document.createElement('div');
-          tempDiv.innerHTML = decoded;
-          const imgEl = tempDiv.querySelector('img');
-          return { ...item, feedImage: imgEl ? imgEl.getAttribute('src') : null };
-        });
-        console.log(`[fetchRss] Supabase proxy ok: ${items.length} items for ${rssUrl.slice(0, 60)}`);
-        return { status: 'ok', items };
+        console.log(`[fetchRss] Supabase proxy ok: ${data.items.length} items for ${rssUrl.slice(0, 60)}`);
+        return { status: 'ok', items: data.items };
       }
     } else {
       console.warn(`[fetchRss] Supabase proxy HTTP ${response.status} for ${rssUrl.slice(0, 60)}`);
@@ -139,15 +125,7 @@ function parseRssXml(xml) {
 
       const description = getText('description') || getText('summary');
 
-      // Also get the raw HTML/XML content of description for image extraction
-      const descriptionHtml = (() => {
-        const descEl = item.getElementsByTagName('description')[0] || item.getElementsByTagName('summary')[0];
-        if (descEl) {
-          const serializer = new XMLSerializer();
-          return serializer.serializeToString(descEl).replace(/^<description[^>]*>/, '').replace(/<\/description>$/, '').replace(/^<summary[^>]*>/, '').replace(/<\/summary>$/, '');
-        }
-        return description;
-      })();
+      // ── DOI ─────────────────────────────────────────────────────────────────
       // 1. dc:identifier (RSC, many publishers)
       let doi = '';
       const rawDcId = getTextNS(DC_NS, 'identifier') || getText('dc:identifier') || '';
@@ -192,26 +170,14 @@ function parseRssXml(xml) {
         }
       }
 
-      // Extract image from description HTML using DOM parsing
-      const descRaw = item.querySelector('description')?.textContent || '';
-      let feedImage = null;
-      if (descRaw) {
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = descRaw;
-        const imgEl = tempDiv.querySelector('img');
-        feedImage = imgEl ? imgEl.getAttribute('src') : null;
-      }
-
       items.push({
         title: getText('title'),
         link,
         description,
-        descriptionHtml,
         content,
         pubDate,
         author,
         doi,
-        feedImage,
         thumbnail: enclosureUrl,
         enclosure: enclosureUrl ? { link: enclosureUrl, url: enclosureUrl } : null,
       });

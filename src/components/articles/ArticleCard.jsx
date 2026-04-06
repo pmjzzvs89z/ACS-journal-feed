@@ -66,16 +66,20 @@ function extractImage(article) {
     return true;
   };
 
-  // Image extracted from feed description HTML via DOM parsing (ACS, Wiley, etc.)
-  if (isValidImg(article.feedImage)) return article.feedImage;
-
   if (isValidImg(article.enclosure?.link)) return article.enclosure.link;
   if (isValidImg(article.enclosure?.url)) return article.enclosure.url;
   if (isValidImg(article.thumbnail)) return article.thumbnail;
   if (isValidImg(article.media_content?.url)) return article.media_content.url;
   if (isValidImg(article.media?.content?.url)) return article.media.content.url;
 
-  const htmlSources = [article.content, article.descriptionHtml || article.description].map(s => decodeHtmlEntities(s));
+  const htmlSources = [article.content, article.description].map(s => decodeHtmlEntities(s));
+
+  // ACS graphical abstract: pubs.acs.org/cms/.../asset/images/medium/...
+  for (const src of htmlSources) {
+    if (!src) continue;
+    const acsMatch = src.match(/https?:\/\/pubs\.acs\.org\/cms\/[^\s"'<>]+\/asset\/images\/medium\/[^\s"'<>]+/i);
+    if (acsMatch && isValidImg(acsMatch[0])) return acsMatch[0];
+  }
 
   // Elsevier graphical abstract: construct from PII in article link
   const link = article.link || '';
@@ -85,27 +89,6 @@ function extractImage(article) {
   // RSC graphical abstract: construct from article ID at end of link URL
   const rscMatch = link.match(/pubs\.rsc\.org\/.*\/([a-z0-9]+)$/i);
   if (rscMatch) return `https://pubs.rsc.org/services/images/RSCpubs.ePlatform.Service.FreeContent.ImageService.svc/ImageService/image/GA?id=${rscMatch[1]}`;
-
-  // Springer Nature graphical abstract: construct from DOI in article link
-  // e.g. nature.com/articles/s41557-026-02113-w → DOI 10.1038/s41557-026-02113-w
-  // article_id = numeric portions: 41557_2026_2113
-  const springerDoiMatch = link.match(/(?:nature\.com|link\.springer\.com)\/articles?\/(.+)/i);
-  if (springerDoiMatch) {
-    const doi = article.doi || decodeURIComponent(springerDoiMatch[1]);
-    const fullDoi = doi.startsWith('10.') ? doi : `10.1038/${doi}`;
-    const encodedDoi = encodeURIComponent(fullDoi);
-    // Extract suffix after the slash: e.g. "s41557-026-02113-w"
-    const suffix = fullDoi.replace(/^10\.\d+\//, '');
-    // Extract numeric segments, strip leading zeros, handle 3-digit year → 4-digit
-    const nums = suffix.match(/\d+/g) || [];
-    const articleId = nums.map((n, i) => {
-      const stripped = n.replace(/^0+/, '') || '0';
-      // Second segment is often a 3-digit year (e.g. 026 → 2026)
-      if (i === 1 && n.length === 3) return '2' + n;
-      return stripped;
-    }).join('_');
-    return `https://media.springernature.com/lw685/springer-static/image/art%3A${encodedDoi}/MediaObjects/${articleId}_Figa_HTML.png`;
-  }
 
   for (const src of htmlSources) {
     if (!src) continue;
@@ -227,16 +210,6 @@ const ArticleCard = React.forwardRef(function ArticleCard({ article, index, save
     ? article.author.join(', ')
     : article.author || article.authors || '';
 
-  // Route ACS/Wiley images through /api/image-proxy to bypass CORP
-  const imgSrc = imageUrl && (() => {
-    try {
-      const h = new URL(imageUrl).hostname;
-      if (h === 'pubs.acs.org' || h.endsWith('onlinelibrary.wiley.com')) {
-        return `/api/image-proxy?url=${encodeURIComponent(imageUrl)}`;
-      }
-    } catch {}
-    return imageUrl;
-  })();
   const showImage = !imageFailed && !!imageUrl;
 
   return (
@@ -252,7 +225,7 @@ const ArticleCard = React.forwardRef(function ArticleCard({ article, index, save
         <div className="hidden sm:flex flex-shrink-0 w-[368px] items-center justify-center bg-slate-50 dark:bg-slate-900 border-r border-slate-100 dark:border-slate-700 p-2" style={{ minHeight: '160px', maxHeight: '220px' }}>
           {showImage ? (
             <img
-              src={imgSrc}
+              src={imageUrl}
               alt="Graphical abstract"
               onError={() => setImageFailed(true)}
               referrerPolicy="no-referrer"
@@ -271,7 +244,7 @@ const ArticleCard = React.forwardRef(function ArticleCard({ article, index, save
           {showImage && (
             <div className="sm:hidden w-full mb-4 rounded-xl overflow-hidden bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-700">
               <img
-                src={imgSrc}
+                src={imageUrl}
                 alt="Graphical abstract"
                 onError={() => setImageFailed(true)}
                 referrerPolicy="no-referrer"
