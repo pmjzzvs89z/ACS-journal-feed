@@ -16,15 +16,15 @@ function StatCard({ icon: Icon, label, value, sub, color = 'blue' }) {
     purple: 'bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400',
   };
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-2xl border-[1.5px] border-[#DCE8F6] dark:border-slate-700 p-5 shadow-sm">
+    <div className="bg-card rounded-2xl border-[1.5px] border-border p-5 shadow-sm">
       <div className="flex items-center gap-3 mb-3">
         <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${colorMap[color]}`}>
           <Icon className="w-5 h-5" />
         </div>
-        <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">{label}</span>
+        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">{label}</span>
       </div>
-      <p className="text-3xl font-bold text-slate-900 dark:text-white">{value}</p>
-      {sub && <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">{sub}</p>}
+      <p className="text-3xl font-bold text-foreground">{value}</p>
+      {sub && <p className="text-xs text-muted-foreground mt-1">{sub}</p>}
     </div>
   );
 }
@@ -33,11 +33,11 @@ function MiniBar({ label, value, max, color }) {
   const pct = max > 0 ? Math.round((value / max) * 100) : 0;
   return (
     <div className="flex items-center gap-3 py-1.5">
-      <span className="text-xs text-slate-600 dark:text-slate-400 w-36 truncate flex-shrink-0">{label}</span>
-      <div className="flex-1 h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+      <span className="text-xs text-muted-foreground w-36 truncate flex-shrink-0">{label}</span>
+      <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
         <div className="h-full rounded-full transition-all duration-500" style={{ width: `${pct}%`, backgroundColor: color || '#3b82f6' }} />
       </div>
-      <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 w-6 text-right">{value}</span>
+      <span className="text-xs font-semibold text-foreground w-6 text-right">{value}</span>
     </div>
   );
 }
@@ -117,33 +117,33 @@ export default function AdminDashboard() {
   const isOwnDataOnly = stats.totalUsers <= 1;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-background via-card to-muted dark:from-slate-950 dark:via-slate-900 dark:to-slate-900">
       {/* Header */}
-      <header className="sticky top-0 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800">
+      <header className="sticky top-0 z-40 bg-card/80 backdrop-blur-xl border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-3.5">
               <img src="/logo.svg" alt="Literature Tracker" className="w-12 h-12 object-contain" />
               <div>
-                <h1 className="text-xl font-bold text-slate-900 dark:text-white">Admin Dashboard</h1>
-                <p className="text-xs text-slate-500 dark:text-slate-400 hidden sm:block">Usage analytics</p>
+                <h1 className="text-xl font-bold text-foreground">Admin Dashboard</h1>
+                <p className="text-xs text-muted-foreground hidden sm:block">Usage analytics</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
               <Link to={createPageUrl('Home')}>
-                <button className="flex items-center gap-1.5 px-4 py-1 rounded-lg border text-sm font-semibold transition-colors bg-blue-50/60 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-blue-100 dark:border-slate-700 hover:bg-blue-100/60 dark:hover:bg-slate-700">
+                <button className="flex items-center gap-1.5 px-4 py-1 rounded-lg border text-sm font-semibold transition-colors bg-blue-50/60 dark:bg-slate-800 text-muted-foreground border-blue-100 dark:border-slate-700 hover:bg-blue-100/60 dark:hover:bg-slate-700">
                   <Rss className="w-4 h-4" />
                   <span className="hidden sm:inline">Feed</span>
                 </button>
               </Link>
               <Link to={createPageUrl('Settings')}>
-                <button className="flex items-center gap-1.5 px-3 py-1 rounded-lg border text-sm font-medium transition-colors bg-blue-50/60 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-blue-100 dark:border-slate-700 hover:bg-blue-100/60 dark:hover:bg-slate-700">
+                <button className="flex items-center gap-1.5 px-3 py-1 rounded-lg border text-sm font-medium transition-colors bg-blue-50/60 dark:bg-slate-800 text-muted-foreground border-blue-100 dark:border-slate-700 hover:bg-blue-100/60 dark:hover:bg-slate-700">
                   <Settings className="w-4 h-4" />
                 </button>
               </Link>
               <button
                 onClick={toggleDark}
-                className="flex items-center justify-center w-8 h-8 rounded-lg border transition-colors bg-blue-50/60 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-blue-100 dark:border-slate-700 hover:bg-blue-100/60 dark:hover:bg-slate-700"
+                className="flex items-center justify-center w-8 h-8 rounded-lg border transition-colors bg-blue-50/60 dark:bg-slate-800 text-muted-foreground border-blue-100 dark:border-slate-700 hover:bg-blue-100/60 dark:hover:bg-slate-700"
                 title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
               >
                 {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
@@ -173,15 +173,15 @@ export default function AdminDashboard() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Most followed journals */}
-          <div className="bg-white dark:bg-slate-900 rounded-2xl border-[1.5px] border-[#DCE8F6] dark:border-slate-700 shadow-sm p-5">
+          <div className="bg-card rounded-2xl border-[1.5px] border-border shadow-sm p-5">
             <div className="flex items-center gap-2 mb-4">
               <BarChart2 className="w-4 h-4 text-blue-500" />
-              <h3 className="text-sm font-bold text-slate-900 dark:text-white">Most Followed Journals</h3>
+              <h3 className="text-sm font-bold text-foreground">Most Followed Journals</h3>
             </div>
             {isLoading ? (
-              <div className="space-y-2">{Array.from({ length: 5 }).map((_, i) => <div key={i} className="h-4 bg-slate-100 dark:bg-slate-700 rounded animate-pulse" />)}</div>
+              <div className="space-y-2">{Array.from({ length: 5 }).map((_, i) => <div key={i} className="h-4 bg-muted rounded animate-pulse" />)}</div>
             ) : stats.topJournals.length === 0 ? (
-              <p className="text-sm text-slate-400 dark:text-slate-500">No data yet.</p>
+              <p className="text-sm text-muted-foreground">No data yet.</p>
             ) : (
               <div>
                 {stats.topJournals.map(([name, count]) => (
@@ -192,15 +192,15 @@ export default function AdminDashboard() {
           </div>
 
           {/* Most saved journals */}
-          <div className="bg-white dark:bg-slate-900 rounded-2xl border-[1.5px] border-[#DCE8F6] dark:border-slate-700 shadow-sm p-5">
+          <div className="bg-card rounded-2xl border-[1.5px] border-border shadow-sm p-5">
             <div className="flex items-center gap-2 mb-4">
               <Bookmark className="w-4 h-4 text-amber-500" />
-              <h3 className="text-sm font-bold text-slate-900 dark:text-white">Most Saved Journals</h3>
+              <h3 className="text-sm font-bold text-foreground">Most Saved Journals</h3>
             </div>
             {isLoading ? (
-              <div className="space-y-2">{Array.from({ length: 5 }).map((_, i) => <div key={i} className="h-4 bg-slate-100 dark:bg-slate-700 rounded animate-pulse" />)}</div>
+              <div className="space-y-2">{Array.from({ length: 5 }).map((_, i) => <div key={i} className="h-4 bg-muted rounded animate-pulse" />)}</div>
             ) : stats.topSaved.length === 0 ? (
-              <p className="text-sm text-slate-400 dark:text-slate-500">No saved articles yet.</p>
+              <p className="text-sm text-muted-foreground">No saved articles yet.</p>
             ) : (
               <div>
                 {stats.topSaved.map(([name, { count, color }]) => (
@@ -212,13 +212,13 @@ export default function AdminDashboard() {
         </div>
 
         {/* Activity chart — saves per day */}
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border-[1.5px] border-[#DCE8F6] dark:border-slate-700 shadow-sm p-5">
+        <div className="bg-card rounded-2xl border-[1.5px] border-border shadow-sm p-5">
           <div className="flex items-center gap-2 mb-4">
             <TrendingUp className="w-4 h-4 text-green-500" />
-            <h3 className="text-sm font-bold text-slate-900 dark:text-white">Saves per Day (last 14 days)</h3>
+            <h3 className="text-sm font-bold text-foreground">Saves per Day (last 14 days)</h3>
           </div>
           {isLoading ? (
-            <div className="h-16 bg-slate-100 dark:bg-slate-700 rounded animate-pulse" />
+            <div className="h-16 bg-muted rounded animate-pulse" />
           ) : (
             <div className="flex items-end gap-1 h-16">
               {stats.activityChart.map(([day, count]) => {
@@ -230,7 +230,7 @@ export default function AdminDashboard() {
                       className="w-full rounded-sm bg-green-400 dark:bg-green-500 transition-all duration-500"
                       style={{ height: `${Math.round(pct * 56)}px`, minHeight: count > 0 ? '4px' : '0' }}
                     />
-                    <span className="text-[9px] text-slate-400 dark:text-slate-500 rotate-45 origin-left hidden sm:block">
+                    <span className="text-[9px] text-muted-foreground rotate-45 origin-left hidden sm:block">
                       {day.slice(5)}
                     </span>
                   </div>
@@ -241,25 +241,25 @@ export default function AdminDashboard() {
         </div>
 
         {/* Recent saves */}
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border-[1.5px] border-[#DCE8F6] dark:border-slate-700 shadow-sm p-5">
-          <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-4">Recent Saves</h3>
+        <div className="bg-card rounded-2xl border-[1.5px] border-border shadow-sm p-5">
+          <h3 className="text-sm font-bold text-foreground mb-4">Recent Saves</h3>
           {isLoading ? (
-            <div className="space-y-3">{Array.from({ length: 4 }).map((_, i) => <div key={i} className="h-10 bg-slate-100 dark:bg-slate-700 rounded animate-pulse" />)}</div>
+            <div className="space-y-3">{Array.from({ length: 4 }).map((_, i) => <div key={i} className="h-10 bg-muted rounded animate-pulse" />)}</div>
           ) : stats.recentSaves.length === 0 ? (
-            <p className="text-sm text-slate-400 dark:text-slate-500">No saved articles yet.</p>
+            <p className="text-sm text-muted-foreground">No saved articles yet.</p>
           ) : (
             <div className="space-y-2">
               {stats.recentSaves.map((s, i) => (
-                <div key={i} className="flex items-start gap-3 py-2 border-b border-slate-50 dark:border-slate-800 last:border-0">
+                <div key={i} className="flex items-start gap-3 py-2 border-b border-border last:border-0">
                   <div
                     className="w-2 h-2 rounded-full mt-1.5 flex-shrink-0"
                     style={{ backgroundColor: s.journal_color || '#3b82f6' }}
                   />
                   <div className="flex-1 min-w-0">
-                    <a href={s.link} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-slate-800 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-400 line-clamp-1 transition-colors">
+                    <a href={s.link} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-foreground hover:text-blue-600 dark:hover:text-blue-400 line-clamp-1 transition-colors">
                       {s.title}
                     </a>
-                    <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
+                    <p className="text-xs text-muted-foreground mt-0.5">
                       {s.journal_abbrev || s.journal_name}
                       {s.created_at && ` · ${format(new Date(s.created_at), 'MMM d, yyyy')}`}
                     </p>

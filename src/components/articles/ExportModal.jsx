@@ -87,7 +87,7 @@ export default function ExportModal({ open, onClose, articles }) {
                 key={fmt.id}
                 onClick={() => setSelected(fmt.id)}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl border-2 transition-all text-left ${
-                  active ? 'border-blue-500 bg-blue-50' : 'border-slate-200 hover:border-slate-300 bg-white'
+                  active ? 'border-blue-500 bg-blue-50' : 'border-border hover:border-border bg-card'
                 }`}
               >
                 <Icon className={`w-5 h-5 flex-shrink-0 ${active ? 'text-blue-600' : 'text-slate-400'}`} />

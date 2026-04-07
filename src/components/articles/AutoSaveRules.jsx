@@ -36,9 +36,9 @@ export default function AutoSaveRules({ rules, onRulesChange }) {
   };
 
   return (
-    <div className="bg-white rounded-2xl border-[1.5px] border-[#DCE8F6] shadow-sm mb-4 overflow-hidden">
+    <div className="bg-card rounded-2xl border-[1.5px] border-border shadow-sm mb-4 overflow-hidden">
       {/* Header row with toggle */}
-      <div className="flex items-center gap-3 px-4 py-3 border-b border-slate-100">
+      <div className="flex items-center gap-3 px-4 py-3 border-b border-border">
         <div className="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center flex-shrink-0">
           <Zap className="w-4 h-4 text-amber-500" />
         </div>

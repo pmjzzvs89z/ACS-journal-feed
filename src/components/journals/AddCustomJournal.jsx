@@ -55,39 +55,39 @@ export default function AddCustomJournal({ onJournalAdded }) {
   };
 
   return (
-    <div className="rounded-xl border border-slate-200 overflow-hidden">
+    <div className="rounded-xl border border-border overflow-hidden">
       <button
         onClick={() => setIsExpanded(!isExpanded)}
         className="w-full flex items-center gap-3 px-4 py-2 bg-green-50 hover:bg-green-100 transition-colors"
       >
         <div className="w-3 h-3 rounded-full flex-shrink-0 bg-green-500" />
-        <span className="font-semibold text-slate-800 text-sm">Add Journal Manually</span>
-        <span className="text-sm text-slate-400 font-normal ml-1">Add RSS</span>
+        <span className="font-semibold text-foreground text-sm">Add Journal Manually</span>
+        <span className="text-sm text-muted-foreground font-normal ml-1">Add RSS</span>
       </button>
 
       {isExpanded && (
-        <div className="border-t border-slate-100 p-4 bg-white">
+        <div className="border-t border-border p-4 bg-card">
           <form onSubmit={handleAddJournal} className="space-y-3">
             <div>
-              <label className="text-xs font-semibold text-slate-600 block mb-1">Journal Name</label>
+              <label className="text-xs font-semibold text-muted-foreground block mb-1">Journal Name</label>
               <input
                 type="text"
                 value={journalName}
                 onChange={e => setJournalName(e.target.value)}
                 placeholder="e.g. My Research Journal"
-                className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 disabled={isLoading}
               />
             </div>
 
             <div>
-              <label className="text-xs font-semibold text-slate-600 block mb-1">RSS Feed URL</label>
+              <label className="text-xs font-semibold text-muted-foreground block mb-1">RSS Feed URL</label>
               <input
                 type="url"
                 value={rssUrl}
                 onChange={e => setRssUrl(e.target.value)}
                 placeholder="https://example.com/feed.rss"
-                className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 disabled={isLoading}
               />
             </div>

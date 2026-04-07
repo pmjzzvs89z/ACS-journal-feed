@@ -21,7 +21,7 @@ const SORT_OPTIONS = [
 
 function SkeletonCard() {
   return (
-    <div className="bg-sky-50/35 dark:bg-slate-800/60 rounded-2xl border-[1.5px] border-[#DCE8F6] dark:border-slate-700 overflow-hidden animate-pulse">
+    <div className="bg-card rounded-2xl border-[1.5px] border-border overflow-hidden animate-pulse">
       <div className="flex items-stretch gap-0">
         <div className="hidden sm:flex flex-shrink-0 w-[368px] bg-slate-200 dark:bg-slate-700" style={{ minHeight: '160px' }} />
         <div className="flex-1 py-5 pr-5 pl-10 space-y-3">
@@ -256,7 +256,7 @@ export default function ArticleFeed({ articles, isLoading, loadingProgress, onRe
             exit={{ opacity: 0, y: 16 }}
             transition={{ duration: 0.2 }}
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-4 py-2.5 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-sm font-semibold rounded-xl shadow-lg hover:shadow-xl border border-slate-200 dark:border-slate-600 transition-colors"
+            className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-4 py-2.5 bg-muted hover:bg-accent text-foreground text-sm font-semibold rounded-xl shadow-lg hover:shadow-xl border border-border transition-colors"
             aria-label="Back to top"
           >
             <ArrowUp className="w-4 h-4" />

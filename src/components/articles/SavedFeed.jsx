@@ -55,7 +55,7 @@ function SavedCard({ saved, onUnsave, selected, onToggleSelect }) {
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.97 }}
-      className={`group bg-white dark:bg-slate-900 rounded-2xl border-[1.5px] transition-all duration-300 overflow-hidden ${selected ? 'border-blue-400 dark:border-blue-500 shadow-md' : 'border-[#DCE8F6] dark:border-slate-700 hover:shadow-xl hover:border-[#C2D5EA] dark:hover:border-slate-500'}`}
+      className={`group bg-card rounded-2xl border-[1.5px] transition-all duration-300 overflow-hidden ${selected ? 'border-blue-400 dark:border-blue-500 shadow-md' : 'border-border hover:shadow-xl hover:border-border'}`}
     >
       <div className="flex items-stretch gap-0">
         {/* Checkbox */}
@@ -64,13 +64,13 @@ function SavedCard({ saved, onUnsave, selected, onToggleSelect }) {
             type="checkbox"
             checked={selected}
             onChange={() => onToggleSelect(saved.id)}
-            className="w-4 h-4 rounded border-slate-300 dark:border-slate-600 text-blue-600 cursor-pointer accent-blue-600"
+            className="w-4 h-4 rounded border-border text-blue-600 cursor-pointer accent-blue-600"
           />
         </div>
 
         {/* Thumbnail */}
         {saved.thumbnail && (
-          <div className="hidden sm:flex flex-shrink-0 w-[368px] items-center justify-center bg-slate-50 dark:bg-slate-800 border-r border-slate-100 dark:border-slate-700 p-2" style={{ minHeight: '160px', maxHeight: '220px' }}>
+          <div className="hidden sm:flex flex-shrink-0 w-[368px] items-center justify-center bg-muted border-r border-border p-2" style={{ minHeight: '160px', maxHeight: '220px' }}>
             <img
               src={saved.thumbnail}
               alt="Graphical abstract"
@@ -83,7 +83,7 @@ function SavedCard({ saved, onUnsave, selected, onToggleSelect }) {
 
         <div className="flex-1 min-w-0 p-5">
           {saved.thumbnail && (
-            <div className="sm:hidden w-full mb-4 rounded-xl overflow-hidden bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700">
+            <div className="sm:hidden w-full mb-4 rounded-xl overflow-hidden bg-muted border border-border">
               <img src={saved.thumbnail} alt="Graphical abstract" className="w-full max-h-40 object-contain" onError={(e) => { e.target.style.display = 'none'; }} />
             </div>
           )}
@@ -104,7 +104,7 @@ function SavedCard({ saved, onUnsave, selected, onToggleSelect }) {
                   {saved.journal_abbrev}
                 </Badge>
                 {saved.pub_date && (
-                  <span className="text-xs text-slate-400 dark:text-slate-500 flex items-center gap-1">
+                  <span className="text-xs text-muted-foreground flex items-center gap-1">
                     <Calendar className="w-3 h-3" />
                     {formatDate(saved.pub_date)}
                   </span>
@@ -118,14 +118,14 @@ function SavedCard({ saved, onUnsave, selected, onToggleSelect }) {
               </a>
 
               {saved.authors && (
-                <p className="text-xs text-slate-500 dark:text-slate-400 flex items-start gap-1 mb-2">
-                  <Users className="w-3 h-3 mt-0.5 flex-shrink-0 text-slate-400 dark:text-slate-500" />
+                <p className="text-xs text-muted-foreground flex items-start gap-1 mb-2">
+                  <Users className="w-3 h-3 mt-0.5 flex-shrink-0 text-muted-foreground" />
                   <span>{saved.authors}</span>
                 </p>
               )}
 
               {saved.link && (
-                <a href={saved.link} target="_blank" rel="noopener noreferrer" className="text-xs text-slate-400 dark:text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors block mb-3 truncate">
+                <a href={saved.link} target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground hover:text-blue-600 dark:hover:text-blue-400 transition-colors block mb-3 truncate">
                   {saved.link}
                 </a>
               )}
@@ -142,7 +142,7 @@ function SavedCard({ saved, onUnsave, selected, onToggleSelect }) {
               </div>
             </div>
 
-            <a href={saved.link} target="_blank" rel="noopener noreferrer" className="flex-shrink-0 w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:bg-blue-600 hover:text-white dark:hover:bg-blue-600 dark:hover:text-white transition-all duration-200">
+            <a href={saved.link} target="_blank" rel="noopener noreferrer" className="flex-shrink-0 w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-muted-foreground hover:bg-blue-600 hover:text-white dark:hover:bg-blue-600 dark:hover:text-white transition-all duration-200">
               <ExternalLink className="w-4 h-4" />
             </a>
           </div>
@@ -186,16 +186,16 @@ export default function SavedFeed({ savedArticles, onRefresh, articles = [] }) {
   const RulesToggle = () => (
     <button
       onClick={() => setRulesExpanded(!rulesExpanded)}
-      className="w-full bg-white dark:bg-slate-900 rounded-2xl border-[1.5px] border-[#DCE8F6] dark:border-slate-700 shadow-sm px-4 py-2 mb-4 flex items-center justify-between hover:shadow-md transition-shadow"
+      className="w-full bg-card rounded-2xl border-[1.5px] border-border shadow-sm px-4 py-2 mb-4 flex items-center justify-between hover:shadow-md transition-shadow"
     >
       <div className="flex items-center gap-3 flex-1 text-left min-w-0">
         <div className="w-8 h-8 rounded-lg bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center flex-shrink-0">
           <Zap className="w-4 h-4 text-amber-500" />
         </div>
         <div className="min-w-0">
-          <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300">Auto-Save Rules <span className="font-normal text-slate-500 dark:text-slate-400">(optional)</span></h3>
+          <h3 className="text-sm font-semibold text-foreground">Auto-Save Rules <span className="font-normal text-muted-foreground">(optional)</span></h3>
           {rules.enabled && (
-            <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">Enabled · {rules.keywords.length} keyword{rules.keywords.length !== 1 ? 's' : ''}, {rules.authors.length} author{rules.authors.length !== 1 ? 's' : ''}</p>
+            <p className="text-xs text-muted-foreground mt-0.5">Enabled · {rules.keywords.length} keyword{rules.keywords.length !== 1 ? 's' : ''}, {rules.authors.length} author{rules.authors.length !== 1 ? 's' : ''}</p>
           )}
         </div>
       </div>
@@ -237,11 +237,11 @@ export default function SavedFeed({ savedArticles, onRefresh, articles = [] }) {
             type="checkbox"
             checked={allSelected}
             onChange={toggleAll}
-            className="w-4 h-4 rounded border-slate-300 dark:border-slate-600 accent-blue-600 cursor-pointer"
+            className="w-4 h-4 rounded border-border accent-blue-600 cursor-pointer"
           />
           <div>
             <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Saved Articles</h2>
-            <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+            <p className="text-sm text-muted-foreground mt-0.5">
               {savedArticles.length} article{savedArticles.length !== 1 ? 's' : ''}
               {selectedIds.size > 0 && ` · ${selectedIds.size} selected`}
             </p>

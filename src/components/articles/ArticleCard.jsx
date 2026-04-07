@@ -218,11 +218,11 @@ const ArticleCard = React.forwardRef(function ArticleCard({ article, index, save
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: Math.min(index * 0.03, 0.5), duration: 0.3 }}
-      className="group bg-sky-50/35 dark:bg-slate-800/60 rounded-2xl border-[1.5px] border-[#DCE8F6] dark:border-slate-700 hover:shadow-xl hover:border-[#C2D5EA] dark:hover:border-slate-500 transition-all duration-300 overflow-hidden"
+      className="group bg-card rounded-2xl border-[1.5px] border-border hover:shadow-xl hover:border-border transition-all duration-300 overflow-hidden"
     >
       <div className="flex items-stretch gap-0">
         {/* Graphical abstract — desktop */}
-        <div className="hidden sm:flex flex-shrink-0 w-[368px] items-center justify-center bg-slate-50 dark:bg-slate-900 border-r border-slate-100 dark:border-slate-700 p-2" style={{ minHeight: '160px', maxHeight: '220px' }}>
+        <div className="hidden sm:flex flex-shrink-0 w-[368px] items-center justify-center bg-muted border-r border-border p-2" style={{ minHeight: '160px', maxHeight: '220px' }}>
           {showImage ? (
             <img
               src={imageUrl}
@@ -242,7 +242,7 @@ const ArticleCard = React.forwardRef(function ArticleCard({ article, index, save
         <div className="flex-1 min-w-0 py-5 pr-5 pl-10">
           {/* Mobile image */}
           {showImage && (
-            <div className="sm:hidden w-full mb-4 rounded-xl overflow-hidden bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-700">
+            <div className="sm:hidden w-full mb-4 rounded-xl overflow-hidden bg-muted border border-border">
               <img
                 src={imageUrl}
                 alt="Graphical abstract"
@@ -270,7 +270,7 @@ const ArticleCard = React.forwardRef(function ArticleCard({ article, index, save
                   {article.journalAbbrev}
                 </Badge>
                 {article.pubDate && (
-                  <span className="text-xs text-slate-400 dark:text-slate-500 flex items-center gap-1">
+                  <span className="text-xs text-muted-foreground flex items-center gap-1">
                     <Calendar className="w-3 h-3" />
                     {formatDate(article.pubDate)}
                   </span>
@@ -290,8 +290,8 @@ const ArticleCard = React.forwardRef(function ArticleCard({ article, index, save
 
               {/* Authors */}
               {rawAuthorText && (
-                <p className="text-xs text-slate-500 dark:text-slate-400 flex items-start gap-1 mb-2">
-                  <Users className="w-3 h-3 mt-0.5 flex-shrink-0 text-slate-400 dark:text-slate-500" />
+                <p className="text-xs text-muted-foreground flex items-start gap-1 mb-2">
+                  <Users className="w-3 h-3 mt-0.5 flex-shrink-0 text-muted-foreground" />
                   <span>{renderAuthors(rawAuthorText)}</span>
                 </p>
               )}
@@ -301,7 +301,7 @@ const ArticleCard = React.forwardRef(function ArticleCard({ article, index, save
                 const doi = article.doi ||
                   (article.link ? (article.link.match(/10\.\d{4,}\/[^\s?&#"'<>]+/) || [])[0] : null);
                 return doi ? (
-                  <p className="text-xs text-slate-400 dark:text-slate-500 mb-3">
+                  <p className="text-xs text-muted-foreground mb-3">
                     DOI: <a href={`https://doi.org/${doi}`} target="_blank" rel="noopener noreferrer"
                       className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">{doi}</a>
                   </p>
@@ -323,7 +323,7 @@ const ArticleCard = React.forwardRef(function ArticleCard({ article, index, save
             </div>
 
             <a href={article.link} target="_blank" rel="noopener noreferrer"
-              className="flex-shrink-0 w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:bg-blue-600 hover:text-white dark:hover:bg-blue-600 dark:hover:text-white transition-all duration-200">
+              className="flex-shrink-0 w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-muted-foreground hover:bg-blue-600 hover:text-white dark:hover:bg-blue-600 dark:hover:text-white transition-all duration-200">
               <ExternalLink className="w-4 h-4" />
             </a>
           </div>
@@ -334,14 +334,14 @@ const ArticleCard = React.forwardRef(function ArticleCard({ article, index, save
       <Dialog open={abstractOpen} onOpenChange={setAbstractOpen}>
         <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto dark:bg-slate-900 dark:border-slate-700">
           <DialogHeader>
-            <DialogTitle className="text-base font-semibold text-slate-900 dark:text-slate-100 leading-snug pr-6">
+            <DialogTitle className="text-base font-semibold text-foreground leading-snug pr-6">
               {article.title}
             </DialogTitle>
-            {rawAuthorText && <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{rawAuthorText}</p>}
+            {rawAuthorText && <p className="text-xs text-muted-foreground mt-1">{rawAuthorText}</p>}
           </DialogHeader>
           <div className="mt-3">
             <p className="text-xs font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wide mb-2">Abstract</p>
-            <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-line">{abstractText}</p>
+            <p className="text-sm text-foreground leading-relaxed whitespace-pre-line">{abstractText}</p>
           </div>
         </DialogContent>
       </Dialog>

@@ -52,11 +52,11 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-background via-card to-muted dark:from-slate-950 dark:via-slate-900 dark:to-slate-900 flex items-center justify-center p-4">
       {/* Dark mode toggle */}
       <button
         onClick={toggleDark}
-        className="fixed top-4 right-4 w-9 h-9 rounded-lg border flex items-center justify-center transition-colors bg-white/80 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700"
+        className="fixed top-4 right-4 w-9 h-9 rounded-lg border flex items-center justify-center transition-colors bg-card/80 border-border text-muted-foreground hover:bg-accent"
         title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
       >
         {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
@@ -70,12 +70,12 @@ export default function LoginPage() {
             <BookOpen className="w-7 h-7 text-white" />
           </div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Literature Tracker</h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Follow your favorite journals</p>
+          <p className="text-sm text-muted-foreground mt-1">Follow your favorite journals</p>
         </div>
 
         {/* Card */}
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
-          <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-6 text-center">
+        <div className="bg-card rounded-2xl border border-border shadow-sm p-6">
+          <h2 className="text-lg font-semibold text-foreground mb-6 text-center">
             {isForgotPassword ? 'Reset your password' : isLogin ? 'Sign in to your account' : 'Create an account'}
           </h2>
 
@@ -88,7 +88,7 @@ export default function LoginPage() {
                 onChange={e => setEmail(e.target.value)}
                 placeholder="you@example.com"
                 required
-                className="w-full px-3 py-2 text-sm border border-slate-200 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-card text-foreground placeholder:text-muted-foreground"
               />
             </div>
 
@@ -101,7 +101,7 @@ export default function LoginPage() {
                   onChange={e => setPassword(e.target.value)}
                   placeholder="••••••••"
                   required
-                  className="w-full px-3 py-2 text-sm border border-slate-200 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+                  className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-card text-foreground"
                 />
               </div>
             )}

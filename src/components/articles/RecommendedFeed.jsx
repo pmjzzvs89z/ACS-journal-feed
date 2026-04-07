@@ -191,7 +191,7 @@ export default function RecommendedFeed({ followedJournals, savedArticles, onSav
       {/* Filter section toggle - collapsed state */}
       <button
         onClick={() => setFilterExpanded(!filterExpanded)}
-        className="w-full bg-white rounded-2xl border border-slate-200 shadow-sm px-4 py-3 mb-4 flex items-center justify-between hover:shadow-md transition-shadow"
+        className="w-full bg-card rounded-2xl border border-border shadow-sm px-4 py-3 mb-4 flex items-center justify-between hover:shadow-md transition-shadow"
       >
         <div className="flex items-center gap-3 flex-1 text-left min-w-0">
           <div className="w-8 h-8 rounded-lg bg-purple-50 flex items-center justify-center flex-shrink-0">
@@ -217,7 +217,7 @@ export default function RecommendedFeed({ followedJournals, savedArticles, onSav
           className="overflow-hidden mb-4"
         >
           <div className="w-full">
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 space-y-3">
+            <div className="bg-card rounded-2xl border border-border shadow-sm p-4 space-y-3">
             {/* Header with toggle */}
             <div className="flex items-start justify-between">
               <div>
@@ -323,14 +323,14 @@ export default function RecommendedFeed({ followedJournals, savedArticles, onSav
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: Math.min(index * 0.03, 0.4), duration: 0.3 }}
-                  className="group bg-white rounded-2xl border border-slate-200 hover:shadow-xl hover:border-slate-300 transition-all duration-300 overflow-hidden"
+                  className="group bg-card rounded-2xl border border-border hover:shadow-xl hover:border-border transition-all duration-300 overflow-hidden"
                 >
                   <div className="flex items-stretch gap-0">
                   {/* Graphical abstract box — always present, shows placeholder if no image */}
                   {(() => {
                     const imgUrl = article.enclosure?.link || article.enclosure?.url || article.thumbnail || null;
                     return (
-                      <div className="hidden sm:flex flex-shrink-0 w-80 items-center justify-center bg-slate-50 border-r border-slate-100 p-2" style={{ minHeight: '160px', maxHeight: '220px' }}>
+                      <div className="hidden sm:flex flex-shrink-0 w-80 items-center justify-center bg-muted border-r border-border p-2" style={{ minHeight: '160px', maxHeight: '220px' }}>
                         {imgUrl ? (
                           <img
                             src={imgUrl}

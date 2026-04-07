@@ -161,7 +161,7 @@ export default function JournalSelector({ followedJournals, onToggleJournal, onC
         onClick={(e) => { e.stopPropagation(); onToggleJournal(journal); }}
         className={cn(
           "w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all text-left",
-          followed ? "bg-white border border-slate-200 shadow-sm" : "hover:bg-white"
+          followed ? "bg-card border border-border shadow-sm" : "hover:bg-card"
         )}
       >
         <div
@@ -178,8 +178,8 @@ export default function JournalSelector({ followedJournals, onToggleJournal, onC
           style={{ color: followed ? journal.color : '#94a3b8' }}
         />
         <div className="flex-1 min-w-0">
-          <p className="text-xs font-semibold text-slate-800 truncate">{journal.abbrev}</p>
-          <p className="text-xs text-slate-400 truncate">{journal.name}</p>
+          <p className="text-xs font-semibold text-foreground truncate">{journal.abbrev}</p>
+          <p className="text-xs text-muted-foreground truncate">{journal.name}</p>
         </div>
       </button>
     );
@@ -188,14 +188,14 @@ export default function JournalSelector({ followedJournals, onToggleJournal, onC
   return (
     <div className="space-y-3">
       {/* Field Selector Toggle */}
-      <div className="flex items-center gap-1 bg-slate-100 rounded-xl p-1">
+      <div className="flex items-center gap-1 bg-muted rounded-xl p-1">
         <button
           onClick={() => handleFieldSwitch('chemistry')}
           className={cn(
             "flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-lg text-sm font-medium transition-all",
             activeField === 'chemistry'
-              ? "bg-white shadow text-blue-700 border border-blue-100"
-              : "text-slate-500 hover:text-slate-700"
+              ? "bg-card shadow text-blue-700 border border-blue-100"
+              : "text-muted-foreground hover:text-foreground"
           )}
         >
           <FlaskConical className="w-3.5 h-3.5 flex-shrink-0" />
@@ -206,8 +206,8 @@ export default function JournalSelector({ followedJournals, onToggleJournal, onC
           className={cn(
             "flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-lg text-sm font-medium transition-all",
             activeField === 'engineering'
-              ? "bg-white shadow text-orange-700 border border-orange-100"
-              : "text-slate-500 hover:text-slate-700"
+              ? "bg-card shadow text-orange-700 border border-orange-100"
+              : "text-muted-foreground hover:text-foreground"
           )}
         >
           <Cog className="w-3.5 h-3.5 flex-shrink-0" />
@@ -218,8 +218,8 @@ export default function JournalSelector({ followedJournals, onToggleJournal, onC
           className={cn(
             "flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-lg text-sm font-medium transition-all",
             activeField === 'materials'
-              ? "bg-white shadow text-emerald-700 border border-emerald-100"
-              : "text-slate-500 hover:text-slate-700"
+              ? "bg-card shadow text-emerald-700 border border-emerald-100"
+              : "text-muted-foreground hover:text-foreground"
           )}
         >
           <Layers className="w-3.5 h-3.5 flex-shrink-0" />
@@ -264,7 +264,7 @@ export default function JournalSelector({ followedJournals, onToggleJournal, onC
         <select
           value={filterPublisher}
           onChange={e => setFilterPublisher(e.target.value)}
-          className="rounded-lg border border-slate-200 bg-slate-50 px-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-700"
+          className="rounded-lg border border-border bg-muted px-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-foreground"
           style={{ flex: '1.3', fontSize: '0.828rem', height: '1.75rem' }}
         >
           <option value="">All Publishers</option>
@@ -276,7 +276,7 @@ export default function JournalSelector({ followedJournals, onToggleJournal, onC
         <select
           value={filterCategory}
           onChange={e => setFilterCategory(e.target.value)}
-          className="rounded-lg border border-slate-200 bg-slate-50 px-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-700"
+          className="rounded-lg border border-border bg-muted px-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-foreground"
           style={{ flex: '1.3', fontSize: '0.828rem', height: '1.75rem' }}
         >
           <option value="">All Categories</option>
@@ -300,16 +300,16 @@ export default function JournalSelector({ followedJournals, onToggleJournal, onC
         /* Flat filtered list grouped by publisher */
         <div className="space-y-2">
           {filteredPublishers.length === 0 ? (
-            <p className="text-sm text-slate-400 text-center py-6">No journals found.</p>
+            <p className="text-sm text-muted-foreground text-center py-6">No journals found.</p>
           ) : (
             filteredPublishers.map(publisher => (
-              <div key={publisher.id} className="rounded-xl border border-slate-200 overflow-hidden">
-                <div className="flex items-center gap-2 px-4 py-2 bg-slate-50 border-b border-slate-100">
+              <div key={publisher.id} className="rounded-xl border border-border overflow-hidden">
+                <div className="flex items-center gap-2 px-4 py-2 bg-muted border-b border-border">
                   <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: publisher.color }} />
-                  <span className="text-xs font-semibold text-slate-600">{publisher.label}</span>
-                  <span className="ml-auto text-xs text-slate-400">{publisher.journals.length} journal{publisher.journals.length !== 1 ? 's' : ''}</span>
+                  <span className="text-xs font-semibold text-muted-foreground">{publisher.label}</span>
+                  <span className="ml-auto text-xs text-muted-foreground">{publisher.journals.length} journal{publisher.journals.length !== 1 ? 's' : ''}</span>
                 </div>
-                <div className="py-1 px-3 space-y-0.5 bg-slate-50">
+                <div className="py-1 px-3 space-y-0.5 bg-muted">
                   {publisher.journals.map(j => renderJournal(j, publisher))}
                 </div>
               </div>
@@ -324,14 +324,14 @@ export default function JournalSelector({ followedJournals, onToggleJournal, onC
             const publisherSelected = publisher.journals.filter(j => isFollowed(j.id)).length;
 
             return (
-              <div key={publisher.id} className="rounded-xl border border-slate-200 overflow-hidden">
+              <div key={publisher.id} className="rounded-xl border border-border overflow-hidden">
                 <button
                   onClick={() => togglePublisher(publisher.id)}
-                  className="w-full flex items-center gap-3 px-4 py-2.5 bg-slate-50 hover:bg-slate-100 transition-colors"
+                  className="w-full flex items-center gap-3 px-4 py-2.5 bg-muted hover:bg-accent transition-colors"
                 >
                   <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: publisher.color }} />
-                  <span className="font-semibold text-slate-800 text-sm">{publisher.label}</span>
-                  <span className="text-[11px] text-slate-400 font-normal ml-1">{publisher.journals.length}</span>
+                  <span className="font-semibold text-foreground text-sm">{publisher.label}</span>
+                  <span className="text-[11px] text-muted-foreground font-normal ml-1">{publisher.journals.length}</span>
                   <span className="flex-1" />
                   {publisherSelected > 0 && (
                     <span className="text-xs font-medium px-1.5 py-0.5 rounded-full text-white" style={{ backgroundColor: publisher.color }}>
@@ -339,8 +339,8 @@ export default function JournalSelector({ followedJournals, onToggleJournal, onC
                     </span>
                   )}
                   {isPublisherOpen
-                    ? <ChevronDown className="w-4 h-4 text-slate-400 flex-shrink-0" />
-                    : <ChevronRight className="w-4 h-4 text-slate-400 flex-shrink-0" />}
+                    ? <ChevronDown className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                    : <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />}
                 </button>
 
                 <AnimatePresence initial={false}>
@@ -350,9 +350,9 @@ export default function JournalSelector({ followedJournals, onToggleJournal, onC
                       animate={{ height: 'auto', opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
                       transition={{ duration: 0.2 }}
-                      className="overflow-hidden border-t border-slate-100"
+                      className="overflow-hidden border-t border-border"
                     >
-                      <div className="divide-y divide-slate-100">
+                      <div className="divide-y divide-border">
                         {CATEGORIES.map((category) => {
                           const categoryJournals = publisher.journals.filter(j => j.category === category);
                           if (categoryJournals.length === 0) return null;
@@ -364,10 +364,10 @@ export default function JournalSelector({ followedJournals, onToggleJournal, onC
                             <div key={category}>
                               <button
                                 onClick={() => toggleCategory(categoryKey)}
-                                className="w-full flex items-center gap-3 px-4 py-2.5 bg-white hover:bg-slate-50 transition-colors"
+                                className="w-full flex items-center gap-3 px-4 py-2.5 bg-card hover:bg-accent transition-colors"
                               >
-                                <span className="text-left text-sm text-slate-700 pl-2">{category}</span>
-                                <span className="text-[11px] text-slate-400 font-normal ml-1">{categoryJournals.length}</span>
+                                <span className="text-left text-sm text-foreground pl-2">{category}</span>
+                                <span className="text-[11px] text-muted-foreground font-normal ml-1">{categoryJournals.length}</span>
                                 <span className="flex-1" />
                                 {selectedCount > 0 && (
                                   <span className="text-xs font-medium px-1.5 py-0.5 rounded-full text-white" style={{ backgroundColor: publisher.color }}>
@@ -375,8 +375,8 @@ export default function JournalSelector({ followedJournals, onToggleJournal, onC
                                   </span>
                                 )}
                                 {isCategoryOpen
-                                  ? <ChevronDown className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
-                                  : <ChevronRight className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />}
+                                  ? <ChevronDown className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
+                                  : <ChevronRight className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />}
                               </button>
 
                               <AnimatePresence initial={false}>
@@ -386,7 +386,7 @@ export default function JournalSelector({ followedJournals, onToggleJournal, onC
                                     animate={{ height: 'auto', opacity: 1 }}
                                     exit={{ height: 0, opacity: 0 }}
                                     transition={{ duration: 0.2 }}
-                                    className="overflow-hidden bg-slate-50 border-t border-slate-100"
+                                    className="overflow-hidden bg-muted border-t border-border"
                                   >
                                     <div className="py-1 px-3 space-y-0.5">
                                       {categoryJournals.map(j => renderJournal(j, publisher))}
@@ -420,8 +420,8 @@ export default function JournalSelector({ followedJournals, onToggleJournal, onC
                   className="w-full flex items-center gap-3 px-4 py-2 bg-purple-50 hover:bg-purple-100 transition-colors"
                 >
                   <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: color }} />
-                  <span className="font-semibold text-slate-800 text-sm">Journals Added Manually</span>
-                  <span className="text-[11px] text-slate-400 font-normal ml-1">{customJournals.length}</span>
+                  <span className="font-semibold text-foreground text-sm">Journals Added Manually</span>
+                  <span className="text-[11px] text-muted-foreground font-normal ml-1">{customJournals.length}</span>
                   <span className="flex-1" />
                   {selectedCount > 0 && (
                     <span className="text-xs font-medium px-1.5 py-0.5 rounded-full text-white" style={{ backgroundColor: color }}>
@@ -429,8 +429,8 @@ export default function JournalSelector({ followedJournals, onToggleJournal, onC
                     </span>
                   )}
                   {isOpen
-                    ? <ChevronDown className="w-4 h-4 text-slate-400 flex-shrink-0" />
-                    : <ChevronRight className="w-4 h-4 text-slate-400 flex-shrink-0" />}
+                    ? <ChevronDown className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                    : <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />}
                 </button>
                 <AnimatePresence initial={false}>
                   {isOpen && (
@@ -441,7 +441,7 @@ export default function JournalSelector({ followedJournals, onToggleJournal, onC
                       transition={{ duration: 0.2 }}
                       className="overflow-hidden border-t border-purple-100"
                     >
-                      <div className="py-1 px-3 space-y-0.5 bg-slate-50">
+                      <div className="py-1 px-3 space-y-0.5 bg-muted">
                         {customJournals.map(j => {
                           const followed = j.is_active;
                           return (
@@ -449,7 +449,7 @@ export default function JournalSelector({ followedJournals, onToggleJournal, onC
                               key={j.journal_id}
                               className={cn(
                                 "w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all",
-                                followed ? "bg-white border border-slate-200 shadow-sm" : "hover:bg-white"
+                                followed ? "bg-card border border-border shadow-sm" : "hover:bg-card"
                               )}
                             >
                               <button
@@ -464,8 +464,8 @@ export default function JournalSelector({ followedJournals, onToggleJournal, onC
                                 </div>
                                 <BookOpen className="w-3.5 h-3.5 flex-shrink-0" style={{ color: followed ? color : '#94a3b8' }} />
                                 <div className="flex-1 min-w-0">
-                                  <p className="text-xs font-semibold text-slate-800 truncate">{j.journal_name}</p>
-                                  <p className="text-xs text-slate-400 truncate">{j.rss_url}</p>
+                                  <p className="text-xs font-semibold text-foreground truncate">{j.journal_name}</p>
+                                  <p className="text-xs text-muted-foreground truncate">{j.rss_url}</p>
                                 </div>
                               </button>
                               <button

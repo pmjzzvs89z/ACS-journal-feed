@@ -40,9 +40,9 @@ export default function Settings() {
   const activeCount = followedJournals.filter(j => j.is_active).length;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-background via-card to-muted dark:from-slate-950 dark:via-slate-900 dark:to-slate-900">
       {/* Header */}
-      <header className="sticky top-0 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800">
+      <header className="sticky top-0 z-40 bg-card/80 backdrop-blur-xl border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-3.5">
@@ -52,8 +52,8 @@ export default function Settings() {
                 className="w-12 h-12 object-contain"
               />
               <div>
-                <h1 className="text-xl font-bold text-slate-900 dark:text-white">Literature Tracker</h1>
-                <p className="text-xs text-slate-500 dark:text-slate-400 hidden sm:block">Follow your favorite journals</p>
+                <h1 className="text-xl font-bold text-foreground">Literature Tracker</h1>
+                <p className="text-xs text-muted-foreground hidden sm:block">Follow your favorite journals</p>
               </div>
             </div>
 
@@ -98,15 +98,15 @@ export default function Settings() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex justify-center">
           <div style={{ width: '620px' }} className="flex-shrink-0">
-            <div className="bg-white dark:bg-slate-900 rounded-2xl border-[1.5px] border-[#DCE8F6] dark:border-slate-700 shadow-sm overflow-hidden">
+            <div className="bg-card rounded-2xl border-[1.5px] border-border shadow-sm overflow-hidden">
               {/* Box header */}
-              <div className="flex items-center gap-3 px-4 py-3 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
+              <div className="flex items-center gap-3 px-4 py-3 border-b border-border bg-muted">
                 <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center">
                   <BookOpen className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h2 className="text-sm font-bold text-slate-900 dark:text-white">Journals Selector</h2>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                  <h2 className="text-sm font-bold text-foreground">Journals Selector</h2>
+                  <p className="text-xs text-muted-foreground">
                     {isLoading ? 'Loading…' : `${activeCount} journal${activeCount !== 1 ? 's' : ''} selected`}
                   </p>
                 </div>
@@ -128,8 +128,8 @@ export default function Settings() {
         {/* Suggestions section */}
         <div className="flex justify-center mt-4">
           <div style={{ width: '620px' }} className="flex-shrink-0">
-            <div className="bg-white dark:bg-slate-900 rounded-2xl border-[1.5px] border-[#DCE8F6] dark:border-slate-700 shadow-sm p-3">
-              <p className="text-sm text-slate-700 dark:text-slate-300">
+            <div className="bg-card rounded-2xl border-[1.5px] border-border shadow-sm p-3">
+              <p className="text-sm text-foreground">
                 To share your comments and suggestions about this app{' '}
                 <a
                   href="mailto:jklosin@dow.com?subject=Suggestion%20to%20improve%20Literature%20Tracker%20app"
