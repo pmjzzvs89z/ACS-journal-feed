@@ -15,6 +15,9 @@ async function fetchWithTimeout(url, options = {}) {
 }
 
 export async function fetchRssFeed(rssUrl) {
+  // Migrate legacy RSC FeedBurner URLs (feeds.rsc.org is dead → use pubs.rsc.org)
+  rssUrl = rssUrl.replace(/^https?:\/\/feeds\.rsc\.org\/rss\//, 'https://pubs.rsc.org/rss/');
+
   // Strategy 1: Supabase Edge Function — server-side proxy, no auth required.
   try {
     const response = await fetchWithTimeout(SUPABASE_RSS_PROXY, {
