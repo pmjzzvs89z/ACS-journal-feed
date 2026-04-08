@@ -58,11 +58,10 @@ export default function AddCustomJournal({ onJournalAdded }) {
     <div className="rounded-xl border border-border overflow-hidden">
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full flex items-center gap-3 px-4 py-2 bg-green-50 hover:bg-green-100 transition-colors"
+        className="w-full flex items-center gap-3 px-4 py-2 bg-secondary hover:bg-muted dark:bg-slate-800 dark:hover:bg-slate-700 transition-colors"
       >
-        <div className="w-3 h-3 rounded-full flex-shrink-0 bg-green-500" />
-        <span className="font-semibold text-foreground text-sm">Add Journal Manually</span>
-        <span className="text-sm text-muted-foreground font-normal ml-1">Add RSS</span>
+        <div className="w-3 h-3 rounded-full flex-shrink-0 bg-muted-foreground/40" />
+        <span className="font-normal text-foreground text-sm">Add Custom RSS</span>
       </button>
 
       {isExpanded && (
@@ -93,7 +92,7 @@ export default function AddCustomJournal({ onJournalAdded }) {
             </div>
 
             {error && (
-              <p className="text-xs text-red-600 bg-red-50 px-2 py-1.5 rounded">{error}</p>
+              <p className="text-xs text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/30 px-2 py-1.5 rounded">{error}</p>
             )}
 
             <div className="flex gap-2 pt-2">

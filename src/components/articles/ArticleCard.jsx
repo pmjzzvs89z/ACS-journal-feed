@@ -90,6 +90,26 @@ function extractImage(article) {
   const rscMatch = link.match(/pubs\.rsc\.org\/.*\/([a-z0-9]+)$/i);
   if (rscMatch) return `https://pubs.rsc.org/services/images/RSCpubs.ePlatform.Service.FreeContent.ImageService.svc/ImageService/image/GA?id=${rscMatch[1]}`;
 
+  // Springer Nature graphical abstract: construct from DOI
+  // DOI like 10.1007/s10562-026-05358-9 → filename 10562_2026_5358_Figa_HTML.png
+  const springerDoi = article.doi || (() => {
+    const m = link.match(/(?:link\.springer\.com\/article|nature\.com\/articles)\/.*(10\.\d{4,}\/[^\s?&#]+)/);
+    return m ? m[1] : '';
+  })();
+  if (springerDoi && /^10\.\d{4,}\/s\d+/.test(springerDoi)) {
+    const suffix = springerDoi.replace(/^10\.\d+\/s/, '');
+    const parts = suffix.split('-');
+    if (parts.length >= 4) {
+      const journalId = parts[0];
+      let year = parts[1];
+      if (year.length === 2) year = '20' + year;
+      else if (year.length === 3) year = '2' + year;
+      const articleNum = String(parseInt(parts[2], 10));
+      const encodedDoi = springerDoi.replace('/', '%2F');
+      return `https://media.springernature.com/lw685/springer-static/image/art%3A${encodedDoi}/MediaObjects/${journalId}_${year}_${articleNum}_Figa_HTML.png`;
+    }
+  }
+
   for (const src of htmlSources) {
     if (!src) continue;
     const imgRegex = /\bsrc=["']([^"']+)["']/gi;
@@ -148,6 +168,7 @@ const ArticleCard = React.forwardRef(function ArticleCard({ article, index, save
   const [abstractOpen, setAbstractOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [hasBeenSeen, setHasBeenSeen] = React.useState(() => isArticleSeen(article.link));
+  const [currentImageUrl, setCurrentImageUrl] = useState(null);
 
   const articleRef = React.useRef(null);
   const wasEverVisibleRef = React.useRef(false);
@@ -158,7 +179,17 @@ const ArticleCard = React.forwardRef(function ArticleCard({ article, index, save
 
   useEffect(() => {
     setImageFailed(false);
+    setCurrentImageUrl(imageUrl);
   }, [imageUrl]);
+
+  const handleImageError = React.useCallback(() => {
+    // Springer Nature: try .jpg fallback when .png fails
+    if (currentImageUrl && currentImageUrl.includes('media.springernature.com') && currentImageUrl.endsWith('_Figa_HTML.png')) {
+      setCurrentImageUrl(currentImageUrl.replace('_Figa_HTML.png', '_Figa_HTML.jpg'));
+      return;
+    }
+    setImageFailed(true);
+  }, [currentImageUrl]);
 
   React.useEffect(() => {
     wasEverVisibleRef.current = false;
@@ -194,7 +225,7 @@ const ArticleCard = React.forwardRef(function ArticleCard({ article, index, save
         journal_name: article.journalName || '',
         journal_abbrev: article.journalAbbrev || '',
         journal_color: article.journalColor || '#0066b3',
-        thumbnail: imageUrl || '',
+        thumbnail: currentImageUrl || '',
         abstract: abstractText || '',
       });
     }
@@ -210,7 +241,7 @@ const ArticleCard = React.forwardRef(function ArticleCard({ article, index, save
     ? article.author.join(', ')
     : article.author || article.authors || '';
 
-  const showImage = !imageFailed && !!imageUrl;
+  const showImage = !imageFailed && !!currentImageUrl;
 
   return (
     <motion.article
@@ -225,9 +256,9 @@ const ArticleCard = React.forwardRef(function ArticleCard({ article, index, save
         <div className="hidden sm:flex flex-shrink-0 w-[368px] items-center justify-center bg-muted border-r border-border p-2" style={{ minHeight: '160px', maxHeight: '220px' }}>
           {showImage ? (
             <img
-              src={imageUrl}
+              src={currentImageUrl}
               alt="Graphical abstract"
-              onError={() => setImageFailed(true)}
+              onError={handleImageError}
               referrerPolicy="no-referrer"
               className="w-full h-full object-contain"
               style={{ maxHeight: '210px' }}
@@ -244,9 +275,9 @@ const ArticleCard = React.forwardRef(function ArticleCard({ article, index, save
           {showImage && (
             <div className="sm:hidden w-full mb-4 rounded-xl overflow-hidden bg-muted border border-border">
               <img
-                src={imageUrl}
+                src={currentImageUrl}
                 alt="Graphical abstract"
-                onError={() => setImageFailed(true)}
+                onError={handleImageError}
                 referrerPolicy="no-referrer"
                 className="w-full max-h-40 object-contain"
               />
