@@ -53,7 +53,7 @@ function decodeHtmlEntities(str) {
   }
 }
 
-function extractImage(article) {
+export function extractImage(article) {
   const SKIP = [
     'spacer', 'pixel', 'blank', 'icon', 'logo', 'arrow', 'button', 'badge',
     '1x1', 'tracking', 'beacon', 'stat',
@@ -82,9 +82,10 @@ function extractImage(article) {
   }
 
   // Elsevier graphical abstract: construct from PII in article link
+  // Use ga1 (graphical abstract) not fx1 (featured image / scheme)
   const link = article.link || '';
   const piiMatch = link.match(/\/pii\/(S[0-9Xx]+)/i);
-  if (piiMatch) return `https://ars.els-cdn.com/content/image/1-s2.0-${piiMatch[1]}-fx1_lrg.jpg`;
+  if (piiMatch) return `https://ars.els-cdn.com/content/image/1-s2.0-${piiMatch[1]}-ga1_lrg.jpg`;
 
   // RSC graphical abstract: construct from article ID at end of link URL
   const rscMatch = link.match(/pubs\.rsc\.org\/.*\/([a-z0-9]+)$/i);

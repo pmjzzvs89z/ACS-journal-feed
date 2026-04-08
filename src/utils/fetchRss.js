@@ -180,10 +180,13 @@ function parseRssXml(xml) {
         }
       }
       if (!pubDate && description) {
-        const m = description.match(/Publication date:\s*([^<\n]+)/i);
+        // Elsevier: text is concatenated "Publication date: June 2026Source: ..."
+        // Use non-greedy match ending at year to avoid grabbing trailing text.
+        const m = description.match(/Publication date:\s*(.+?\d{4})/i);
         if (m) {
-          const parsed = new Date(m[1].trim());
-          pubDate = !isNaN(parsed.getTime()) ? parsed.toISOString() : m[1].trim();
+          const dateStr = m[1].trim();
+          const parsed = new Date(dateStr);
+          pubDate = !isNaN(parsed.getTime()) ? parsed.toISOString() : dateStr;
         }
       }
 

@@ -59,6 +59,12 @@ Deno.serve(async (req: Request) => {
   }
 });
 
+// Strip CDATA markers that the HTML parser leaves as raw text
+function stripCDATA(s: string): string {
+  if (!s) return s;
+  return s.replace(/<!\[CDATA\[/g, "").replace(/\]\]>/g, "").trim();
+}
+
 function parseRss(xml: string) {
   const DC_NS = "http://purl.org/dc/elements/1.1/";
   const ATOM_NS = "http://www.w3.org/2005/Atom";
@@ -67,14 +73,40 @@ function parseRss(xml: string) {
   const items: Record<string, unknown>[] = [];
 
   try {
-    const doc = new DOMParser().parseFromString(xml, "text/xml");
+    // deno_dom's WASM DOMParser only supports text/html; text/xml returns null.
+    // Trade-off: HTML parser can't handle XML namespaces or void <link>, so we
+    // pre-extract <link> text and <dc:creator> lists from raw XML per <item>.
+    const linkTexts: string[] = [];
+    const dcCreatorTexts: string[][] = [];
+    const itemBlockRegex = /<item[\s>]([\s\S]*?)<\/item>/gi;
+    let ib: RegExpExecArray | null;
+    while ((ib = itemBlockRegex.exec(xml)) !== null) {
+      const block = ib[1];
+      // Pre-extract link
+      const innerLinkMatch = block.match(/<link[^>]*>([^<]+)<\/link>/i);
+      linkTexts.push(innerLinkMatch ? innerLinkMatch[1].trim() : "");
+      // Pre-extract all dc:creator elements (Springer Nature lists one per author)
+      const creators: string[] = [];
+      const creatorRegex = /<dc:creator[^>]*>([\s\S]*?)<\/dc:creator>/gi;
+      let cm: RegExpExecArray | null;
+      while ((cm = creatorRegex.exec(block)) !== null) {
+        const v = stripCDATA(cm[1].trim());
+        if (v) creators.push(v);
+      }
+      dcCreatorTexts.push(creators);
+    }
+
+    const doc = new DOMParser().parseFromString(xml, "text/html");
     if (!doc) return items;
 
     const entries = doc.querySelectorAll("item, entry");
+    let entryIndex = 0;
     for (const item of entries) {
-      const getText = (tag: string) => item.getElementsByTagName(tag)?.[0]?.textContent?.trim() || "";
+      // getText / getTextNS strip CDATA markers automatically
+      const getText = (tag: string) =>
+        stripCDATA(item.getElementsByTagName(tag)?.[0]?.textContent?.trim() || "");
       const getTextNS = (ns: string, local: string) =>
-        item.getElementsByTagNameNS(ns, local)?.[0]?.textContent?.trim() || "";
+        stripCDATA(item.getElementsByTagNameNS(ns, local)?.[0]?.textContent?.trim() || "");
       const getAttr = (tag: string, attr: string) => {
         const els = item.getElementsByTagName(tag);
         for (let i = 0; i < els.length; i++) {
@@ -85,27 +117,38 @@ function parseRss(xml: string) {
       };
 
       // ── Authors ─────────────────────────────────────────────────────────
-      const dcCreatorEls = item.getElementsByTagNameNS(DC_NS, "creator");
-      const dcCreators: string[] = [];
-      for (let i = 0; i < dcCreatorEls.length; i++) {
-        const v = dcCreatorEls[i]?.textContent?.trim();
-        if (v) dcCreators.push(v);
-      }
+      // Prefer pre-extracted dc:creator list (HTML parser can't handle XML namespaces)
+      const preCreators = dcCreatorTexts[entryIndex] || [];
       let author: string | string[];
-      if (dcCreators.length > 1) {
-        author = dcCreators;
-      } else if (dcCreators.length === 1) {
-        author = dcCreators[0];
+      if (preCreators.length > 1) {
+        author = preCreators;
+      } else if (preCreators.length === 1) {
+        author = preCreators[0];
       } else {
-        author =
-          getText("dc:creator") ||
-          item.querySelector("author name")?.textContent?.trim() ||
-          getText("author") ||
-          "";
+        // Fallback: try DOM-based extraction for non-RSS-2.0 feeds (e.g. Atom)
+        const dcCreatorEls = item.getElementsByTagNameNS(DC_NS, "creator");
+        const dcCreators: string[] = [];
+        for (let i = 0; i < dcCreatorEls.length; i++) {
+          const v = stripCDATA(dcCreatorEls[i]?.textContent?.trim() || "");
+          if (v) dcCreators.push(v);
+        }
+        if (dcCreators.length > 1) {
+          author = dcCreators;
+        } else if (dcCreators.length === 1) {
+          author = dcCreators[0];
+        } else {
+          author =
+            getText("dc:creator") ||
+            stripCDATA(item.querySelector("author name")?.textContent?.trim() || "") ||
+            getText("author") ||
+            "";
+        }
       }
 
       // ── Link ────────────────────────────────────────────────────────────
-      const link = getAttr("link", "href") || getText("link");
+      // HTML parser treats <link> as void, so getText("link") is always "".
+      // Use pre-extracted regex matches, then fall back to <guid> text.
+      const link = getAttr("link", "href") || getText("link") || linkTexts[entryIndex] || getText("guid") || "";
 
       // ── Enclosure / thumbnail ───────────────────────────────────────────
       const enclosureUrl =
@@ -148,25 +191,33 @@ function parseRss(xml: string) {
         getText("updated") ||
         "";
 
-      // ── Elsevier fallbacks ──────────────────────────────────────────────
+      // ── Elsevier fallbacks (authors + date from description HTML) ──────
       if (!author && description) {
         const m = description.match(/Author\(s\):\s*([^<]+)/i);
         if (m) {
-          const parts = m[1].trim().split(/,\s*/).filter(Boolean);
-          author = parts.length > 1 ? parts : m[1].trim();
+          const raw = stripCDATA(m[1].trim());
+          const parts = raw.split(/,\s*/).filter(Boolean);
+          author = parts.length > 1 ? parts : raw;
         }
       }
       let finalPubDate = pubDate;
       if (!finalPubDate && description) {
-        const m = description.match(/Publication date:\s*([^<\n]+)/i);
+        // Elsevier description is concatenated: "Publication date: June 2026Source: ..."
+        // Use non-greedy match ending at the year to avoid grabbing "Source:..." text.
+        const m = description.match(/Publication date:\s*(.+?\d{4})/i);
         if (m) {
-          const parsed = new Date(m[1].trim());
-          finalPubDate = !isNaN(parsed.getTime()) ? parsed.toISOString() : m[1].trim();
+          const dateStr = m[1].trim();
+          const parsed = new Date(dateStr);
+          finalPubDate = !isNaN(parsed.getTime()) ? parsed.toISOString() : dateStr;
         }
       }
 
+      // Strip residual HTML tags (e.g. <sub>, <sup>) from title
+      const rawTitle = getText("title");
+      const cleanTitle = rawTitle.replace(/<[^>]+>/g, "");
+
       items.push({
-        title: getText("title"),
+        title: cleanTitle,
         link,
         pubDate: finalPubDate,
         author,
@@ -175,6 +226,7 @@ function parseRss(xml: string) {
         content,
         enclosure: enclosureUrl ? { link: enclosureUrl, url: enclosureUrl } : null,
       });
+      entryIndex++;
     }
   } catch (e) {
     console.error("[fetch-rss] parse error:", e);
