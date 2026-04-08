@@ -67,7 +67,7 @@ function parseRss(xml: string) {
   const items: Record<string, unknown>[] = [];
 
   try {
-    const doc = new DOMParser().parseFromString(xml, "text/xml");
+    const doc = new DOMParser().parseFromString(xml, "text/html");
     if (!doc) return items;
 
     const entries = doc.querySelectorAll("item, entry");
