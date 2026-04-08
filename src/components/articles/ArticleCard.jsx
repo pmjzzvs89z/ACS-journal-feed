@@ -87,9 +87,16 @@ export function extractImage(article) {
   const piiMatch = link.match(/\/pii\/(S[0-9Xx]+)/i);
   if (piiMatch) return `https://ars.els-cdn.com/content/image/1-s2.0-${piiMatch[1]}-ga1_lrg.jpg`;
 
-  // RSC graphical abstract: construct from article ID at end of link URL
+  // RSC graphical abstract: only show if the feed description actually contains a GA image
+  // (early papers are published without GA; it gets added days later)
   const rscMatch = link.match(/pubs\.rsc\.org\/.*\/([a-z0-9]+)$/i);
-  if (rscMatch) return `https://pubs.rsc.org/services/images/RSCpubs.ePlatform.Service.FreeContent.ImageService.svc/ImageService/image/GA?id=${rscMatch[1]}`;
+  if (rscMatch) {
+    const desc = article.description || '';
+    if (/GA\?id=/i.test(desc)) {
+      return `https://pubs.rsc.org/services/images/RSCpubs.ePlatform.Service.FreeContent.ImageService.svc/ImageService/image/GA?id=${rscMatch[1]}`;
+    }
+    return null;  // No GA yet — article will be hidden by feed filter
+  }
 
   // Springer Nature graphical abstract: construct from DOI
   // DOI like 10.1007/s10562-026-05358-9 → filename 10562_2026_5358_Figa_HTML.png

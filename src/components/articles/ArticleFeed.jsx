@@ -4,10 +4,13 @@ import { Inbox, RotateCcw, Settings, ArrowUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import ArticleCard, { clearAllSeenArticles, extractImage } from './ArticleCard';
 import ArticleFilters from './ArticleFilters';
-import { ALL_JOURNALS, ACS_JOURNALS } from '@/components/journals/JournalList';
+import { ALL_JOURNALS, ACS_JOURNALS, RSC_JOURNALS, WILEY_JOURNALS, ELSEVIER_JOURNALS, SPRINGER_JOURNALS } from '@/components/journals/JournalList';
 
 const DEFAULT_FILTERS = { keyword: '', journal: '', dateFrom: '', dateTo: '' };
-const ACS_JOURNAL_IDS = new Set(ACS_JOURNALS.map(j => j.id));
+const GA_REQUIRED_IDS = new Set([
+  ...ACS_JOURNALS, ...RSC_JOURNALS, ...WILEY_JOURNALS,
+  ...ELSEVIER_JOURNALS, ...SPRINGER_JOURNALS,
+].map(j => j.id));
 
 const QUICK_FILTER_KEY = 'cjf_quick_filters';
 function loadQuickFilters() {
@@ -59,8 +62,8 @@ export default function ArticleFeed({ articles, isLoading, loadingProgress, onRe
 
   const filtered = useMemo(() => {
     const results = articles.filter(a => {
-      // Hide ACS articles that lack a graphical abstract (e.g. corrections, errata)
-      if (ACS_JOURNAL_IDS.has(a.journalId) && !extractImage(a)) return false;
+      // Hide articles that lack a graphical abstract (e.g. corrections, errata, early papers)
+      if (GA_REQUIRED_IDS.has(a.journalId) && !extractImage(a)) return false;
 
       const kw = filters.keyword.toLowerCase();
       const authorStr = (Array.isArray(a.author) ? a.author.join(' ') : a.author || '').toLowerCase();
