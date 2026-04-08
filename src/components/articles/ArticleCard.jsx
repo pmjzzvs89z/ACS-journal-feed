@@ -82,10 +82,9 @@ function extractImage(article) {
   }
 
   // Elsevier graphical abstract: construct from PII in article link
-  // Prefer ga1 (actual graphical abstract) over fx1 (scheme figure)
   const link = article.link || '';
   const piiMatch = link.match(/\/pii\/(S[0-9Xx]+)/i);
-  if (piiMatch) return `https://ars.els-cdn.com/content/image/1-s2.0-${piiMatch[1]}-ga1_lrg.jpg`;
+  if (piiMatch) return `https://ars.els-cdn.com/content/image/1-s2.0-${piiMatch[1]}-fx1_lrg.jpg`;
 
   // RSC graphical abstract: construct from article ID at end of link URL
   const rscMatch = link.match(/pubs\.rsc\.org\/.*\/([a-z0-9]+)$/i);
@@ -184,11 +183,6 @@ const ArticleCard = React.forwardRef(function ArticleCard({ article, index, save
   }, [imageUrl]);
 
   const handleImageError = React.useCallback(() => {
-    // Elsevier: try fx1 fallback when ga1 (graphical abstract) doesn't exist
-    if (currentImageUrl && currentImageUrl.includes('ars.els-cdn.com') && currentImageUrl.includes('-ga1_lrg.jpg')) {
-      setCurrentImageUrl(currentImageUrl.replace('-ga1_lrg.jpg', '-fx1_lrg.jpg'));
-      return;
-    }
     // Springer Nature: try .jpg fallback when .png fails
     if (currentImageUrl && currentImageUrl.includes('media.springernature.com') && currentImageUrl.endsWith('_Figa_HTML.png')) {
       setCurrentImageUrl(currentImageUrl.replace('_Figa_HTML.png', '_Figa_HTML.jpg'));
