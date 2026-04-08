@@ -14,9 +14,36 @@ async function fetchWithTimeout(url, options = {}) {
   }
 }
 
+// Resolve DOI for Elsevier items via CrossRef API (PII → DOI lookup)
+async function resolveElsevierDois(items) {
+  const needsDoi = items.filter(item =>
+    !item.doi && item.link && item.link.includes('sciencedirect.com/science/article/pii/')
+  );
+  if (needsDoi.length === 0) return;
+
+  await Promise.allSettled(needsDoi.map(async (item) => {
+    try {
+      const piiMatch = item.link.match(/\/pii\/([A-Z0-9]+)/i);
+      if (!piiMatch) return;
+      const pii = piiMatch[1];
+      const resp = await fetchWithTimeout(
+        `https://api.crossref.org/works?filter=alternative-id:${pii}&rows=1&select=DOI`,
+        { headers: { 'User-Agent': 'LiteratureTracker/1.0 (mailto:noreply@example.com)' } }
+      );
+      if (resp.ok) {
+        const data = await resp.json();
+        const doi = data?.message?.items?.[0]?.DOI;
+        if (doi) item.doi = doi;
+      }
+    } catch { /* skip — DOI is optional */ }
+  }));
+}
+
 export async function fetchRssFeed(rssUrl) {
   // Migrate legacy RSC FeedBurner URLs (feeds.rsc.org is dead → use pubs.rsc.org)
   rssUrl = rssUrl.replace(/^https?:\/\/feeds\.rsc\.org\/rss\//, 'https://pubs.rsc.org/rss/');
+
+  const isElsevier = rssUrl.includes('sciencedirect.com');
 
   // Strategy 1: Supabase Edge Function — server-side proxy, no auth required.
   try {
@@ -39,6 +66,8 @@ export async function fetchRssFeed(rssUrl) {
             }
           }
         }
+        // Resolve DOIs for Elsevier items (not present in RSS XML)
+        if (isElsevier) await resolveElsevierDois(data.items);
         console.log(`[fetchRss] Supabase proxy ok: ${data.items.length} items for ${rssUrl.slice(0, 60)}`);
         return { status: 'ok', items: data.items };
       }
@@ -58,6 +87,8 @@ export async function fetchRssFeed(rssUrl) {
       if (text) {
         const items = parseRssXml(text);
         if (items.length > 0) {
+          // Resolve DOIs for Elsevier items (not present in RSS XML)
+          if (isElsevier) await resolveElsevierDois(items);
           console.log(`[fetchRss] corsproxy ok: ${items.length} items for ${rssUrl.slice(0, 60)}`);
           return { status: 'ok', items };
         }
