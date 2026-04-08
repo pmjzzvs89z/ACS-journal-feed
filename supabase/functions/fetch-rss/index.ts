@@ -46,46 +46,6 @@ Deno.serve(async (req: Request) => {
     const xml = await resp.text();
     const items = parseRss(xml);
 
-    // Taylor & Francis: fetch TOC pages to extract GA image URLs
-    if (rss_url.includes("tandfonline.com/feed/rss/")) {
-      try {
-        const journalCode = rss_url.match(/\/feed\/rss\/([a-z0-9]+)/i)?.[1] || "";
-        if (journalCode) {
-          const fetchHeaders = {
-            "User-Agent":
-              "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
-            Accept: "text/html,application/xhtml+xml,*/*",
-          };
-          // Fetch both current issue and ahead-of-print TOC pages in parallel
-          const [tocCurrent, tocAop] = await Promise.allSettled([
-            fetch(`https://www.tandfonline.com/toc/${journalCode}/current`, { headers: fetchHeaders }),
-            fetch(`https://www.tandfonline.com/toc/${journalCode}/0/0`, { headers: fetchHeaders }),
-          ]);
-          const gaMap: Record<string, string> = {};
-          const gaRegex = /https?:\/\/www\.tandfonline\.com\/cms\/asset\/[a-f0-9-]+\/[a-z]+_a_(\d+)_uf\d+_[a-z]\.(?:jpg|png|gif)/gi;
-          for (const result of [tocCurrent, tocAop]) {
-            if (result.status === "fulfilled" && result.value.ok) {
-              const html = await result.value.text();
-              let m: RegExpExecArray | null;
-              while ((m = gaRegex.exec(html)) !== null) {
-                gaMap[m[1]] = m[0];
-              }
-            }
-          }
-          // Attach GA URLs to matching items
-          for (const item of items) {
-            const link = (item.link as string) || "";
-            const artIdMatch = link.match(/\.(\d{5,})(?:\?|$)/);
-            if (artIdMatch && gaMap[artIdMatch[1]]) {
-              item.enclosure = { link: gaMap[artIdMatch[1]], url: gaMap[artIdMatch[1]] };
-            }
-          }
-        }
-      } catch (e) {
-        console.error("[fetch-rss] T&F TOC scrape error:", e);
-      }
-    }
-
     return new Response(JSON.stringify({ status: "ok", items }), {
       status: 200,
       headers: { ...CORS_HEADERS, "Content-Type": "application/json" },
