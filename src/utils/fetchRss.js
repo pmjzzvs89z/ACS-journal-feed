@@ -15,9 +15,6 @@ async function fetchWithTimeout(url, options = {}) {
 }
 
 export async function fetchRssFeed(rssUrl) {
-  // Migrate legacy RSC FeedBurner URLs (feeds.rsc.org is dead → use pubs.rsc.org)
-  rssUrl = rssUrl.replace(/^https?:\/\/feeds\.rsc\.org\/rss\//, 'https://pubs.rsc.org/rss/');
-
   // Strategy 1: Supabase Edge Function — server-side proxy, no auth required.
   try {
     const response = await fetchWithTimeout(SUPABASE_RSS_PROXY, {
@@ -28,17 +25,6 @@ export async function fetchRssFeed(rssUrl) {
     if (response.ok) {
       const data = await response.json();
       if (data.items?.length > 0) {
-        // Patch missing pubDate for RSC items — the Supabase proxy misses
-        // RSC's Atom-namespaced <a10:updated> date. Use today's date as
-        // these are "latest articles" feeds, so the publish date is recent.
-        if (rssUrl.includes('pubs.rsc.org')) {
-          const today = new Date().toISOString();
-          for (const item of data.items) {
-            if (!item.pubDate) {
-              item.pubDate = today;
-            }
-          }
-        }
         console.log(`[fetchRss] Supabase proxy ok: ${data.items.length} items for ${rssUrl.slice(0, 60)}`);
         return { status: 'ok', items: data.items };
       }
@@ -163,13 +149,10 @@ function parseRssXml(xml) {
       }
 
       // ── pubDate ─────────────────────────────────────────────────────────────
-      const ATOM_NS = 'http://www.w3.org/2005/Atom';
       let pubDate =
         getText('pubDate') ||
         getTextNS(DC_NS, 'date') || getText('dc:date') ||
-        getText('published') ||
-        getTextNS(ATOM_NS, 'updated') || getText('a10:updated') ||
-        getText('updated');
+        getText('published') || getText('updated');
 
       // ── Elsevier fallbacks (authors + date embedded in description HTML) ────
       if (!author && description) {

@@ -91,75 +91,75 @@ export const ACS_JOURNALS = [
 
 export const RSC_JOURNALS = [
   // General
-  { id: 'rsc_chemscience', name: 'Chemical Science', abbrev: 'Chem. Sci.', rss_url: 'https://pubs.rsc.org/rss/sc', color: '#e74c3c', category: 'General' },
-  { id: 'rsc_chemcomm', name: 'Chemical Communications', abbrev: 'Chem. Commun.', rss_url: 'https://pubs.rsc.org/rss/cc', color: '#f39c12', category: 'General' },
-  { id: 'rsc_chemsoc', name: 'Chemical Society Reviews', abbrev: 'Chem. Soc. Rev.', rss_url: 'https://pubs.rsc.org/rss/cs', color: '#0066b3', category: 'General' },
-  { id: 'rsc_rscchembd', name: 'RSC Chemical Biology', abbrev: 'RSC Chem. Biol.', rss_url: 'https://pubs.rsc.org/rss/cb', color: '#27ae60', category: 'General' },
-  { id: 'rsc_newjchem', name: 'New Journal of Chemistry', abbrev: 'New J. Chem.', rss_url: 'https://pubs.rsc.org/rss/nj', color: '#e74c3c', category: 'General' },
+  { id: 'rsc_chemscience', name: 'Chemical Science', abbrev: 'Chem. Sci.', rss_url: 'http://feeds.rsc.org/rss/sc', color: '#e74c3c', category: 'General' },
+  { id: 'rsc_chemcomm', name: 'Chemical Communications', abbrev: 'Chem. Commun.', rss_url: 'http://feeds.rsc.org/rss/cc', color: '#f39c12', category: 'General' },
+  { id: 'rsc_chemsoc', name: 'Chemical Society Reviews', abbrev: 'Chem. Soc. Rev.', rss_url: 'http://feeds.rsc.org/rss/cs', color: '#0066b3', category: 'General' },
+  { id: 'rsc_rscchembd', name: 'RSC Chemical Biology', abbrev: 'RSC Chem. Biol.', rss_url: 'http://feeds.rsc.org/rss/cb', color: '#27ae60', category: 'General' },
+  { id: 'rsc_newjchem', name: 'New Journal of Chemistry', abbrev: 'New J. Chem.', rss_url: 'http://feeds.rsc.org/rss/nj', color: '#e74c3c', category: 'General' },
 
   // Analytical Chemistry
-  { id: 'rsc_analyst', name: 'Analyst', abbrev: 'Analyst', rss_url: 'https://pubs.rsc.org/rss/an', color: '#e85d00', category: 'Analytical Chemistry' },
-  { id: 'rsc_analytmethods', name: 'Analytical Methods', abbrev: 'Anal. Methods', rss_url: 'https://pubs.rsc.org/rss/ay', color: '#d35400', category: 'Analytical Chemistry' },
-  { id: 'rsc_jaas', name: 'Journal of Analytical Atomic Spectrometry', abbrev: 'JAAS', rss_url: 'https://pubs.rsc.org/rss/ja', color: '#c0392b', category: 'Analytical Chemistry' },
-  { id: 'rsc_labchip', name: 'Lab on a Chip', abbrev: 'Lab Chip', rss_url: 'https://pubs.rsc.org/rss/lc', color: '#e74c3c', category: 'Analytical Chemistry' },
-  { id: 'rsc_sensact', name: 'Sensors & Diagnostics', abbrev: 'Sens. Diagn.', rss_url: 'https://pubs.rsc.org/rss/sd', color: '#f39c12', category: 'Analytical Chemistry' },
+  { id: 'rsc_analyst', name: 'Analyst', abbrev: 'Analyst', rss_url: 'http://feeds.rsc.org/rss/an', color: '#e85d00', category: 'Analytical Chemistry' },
+  { id: 'rsc_analytmethods', name: 'Analytical Methods', abbrev: 'Anal. Methods', rss_url: 'http://feeds.rsc.org/rss/ay', color: '#d35400', category: 'Analytical Chemistry' },
+  { id: 'rsc_jaas', name: 'Journal of Analytical Atomic Spectrometry', abbrev: 'JAAS', rss_url: 'http://feeds.rsc.org/rss/ja', color: '#c0392b', category: 'Analytical Chemistry' },
+  { id: 'rsc_labchip', name: 'Lab on a Chip', abbrev: 'Lab Chip', rss_url: 'http://feeds.rsc.org/rss/lc', color: '#e74c3c', category: 'Analytical Chemistry' },
+  { id: 'rsc_sensact', name: 'Sensors & Diagnostics', abbrev: 'Sens. Diagn.', rss_url: 'http://feeds.rsc.org/rss/sd', color: '#f39c12', category: 'Analytical Chemistry' },
 
   // Biological/Medicinal Chemistry
-  { id: 'rsc_medchemcomm', name: 'RSC Medicinal Chemistry', abbrev: 'RSC Med. Chem.', rss_url: 'https://pubs.rsc.org/rss/md', color: '#2980b9', category: 'Biological/Medicinal Chemistry' },
-  { id: 'rsc_biomaterscience', name: 'Biomaterials Science', abbrev: 'Biomater. Sci.', rss_url: 'https://pubs.rsc.org/rss/bm', color: '#16a085', category: 'Biological/Medicinal Chemistry' },
-  { id: 'rsc_rscpharma', name: 'RSC Pharmaceutics', abbrev: 'RSC Pharm.', rss_url: 'https://pubs.rsc.org/rss/pm', color: '#3498db', category: 'Biological/Medicinal Chemistry' },
-  { id: 'rsc_foodfunct', name: 'Food & Function', abbrev: 'Food Funct.', rss_url: 'https://pubs.rsc.org/rss/fo', color: '#e67e22', category: 'Biological/Medicinal Chemistry' },
+  { id: 'rsc_medchemcomm', name: 'RSC Medicinal Chemistry', abbrev: 'RSC Med. Chem.', rss_url: 'http://feeds.rsc.org/rss/md', color: '#2980b9', category: 'Biological/Medicinal Chemistry' },
+  { id: 'rsc_biomaterscience', name: 'Biomaterials Science', abbrev: 'Biomater. Sci.', rss_url: 'http://feeds.rsc.org/rss/bm', color: '#16a085', category: 'Biological/Medicinal Chemistry' },
+  { id: 'rsc_rscpharma', name: 'RSC Pharmaceutics', abbrev: 'RSC Pharm.', rss_url: 'http://feeds.rsc.org/rss/pm', color: '#3498db', category: 'Biological/Medicinal Chemistry' },
+  { id: 'rsc_foodfunct', name: 'Food & Function', abbrev: 'Food Funct.', rss_url: 'http://feeds.rsc.org/rss/fo', color: '#e67e22', category: 'Biological/Medicinal Chemistry' },
 
   // Physical/Theoretical Chemistry
-  { id: 'rsc_pccp', name: 'Physical Chemistry Chemical Physics', abbrev: 'PCCP', rss_url: 'https://pubs.rsc.org/rss/cp', color: '#fd7e14', category: 'Physical/Theoretical Chemistry' },
-  { id: 'rsc_faraday', name: 'Faraday Discussions', abbrev: 'Faraday Discuss.', rss_url: 'https://pubs.rsc.org/rss/fd', color: '#e67e22', category: 'Physical/Theoretical Chemistry' },
-  { id: 'rsc_molsyst', name: 'Molecular Systems Design & Engineering', abbrev: 'Mol. Syst. Des. Eng.', rss_url: 'https://pubs.rsc.org/rss/me', color: '#f39c12', category: 'Physical/Theoretical Chemistry' },
-  { id: 'rsc_digidisc', name: 'Digital Discovery', abbrev: 'Digital Discovery', rss_url: 'https://pubs.rsc.org/rss/dd', color: '#6610f2', category: 'Physical/Theoretical Chemistry' },
+  { id: 'rsc_pccp', name: 'Physical Chemistry Chemical Physics', abbrev: 'PCCP', rss_url: 'http://feeds.rsc.org/rss/cp', color: '#fd7e14', category: 'Physical/Theoretical Chemistry' },
+  { id: 'rsc_faraday', name: 'Faraday Discussions', abbrev: 'Faraday Discuss.', rss_url: 'http://feeds.rsc.org/rss/fd', color: '#e67e22', category: 'Physical/Theoretical Chemistry' },
+  { id: 'rsc_molsyst', name: 'Molecular Systems Design & Engineering', abbrev: 'Mol. Syst. Des. Eng.', rss_url: 'http://feeds.rsc.org/rss/me', color: '#f39c12', category: 'Physical/Theoretical Chemistry' },
+  { id: 'rsc_digidisc', name: 'Digital Discovery', abbrev: 'Digital Discovery', rss_url: 'http://feeds.rsc.org/rss/dd', color: '#6610f2', category: 'Physical/Theoretical Chemistry' },
 
   // Inorganic/Materials Chemistry
-  { id: 'rsc_dalton', name: 'Dalton Transactions', abbrev: 'Dalton Trans.', rss_url: 'https://pubs.rsc.org/rss/dt', color: '#20c997', category: 'Inorganic/Materials Chemistry' },
-  { id: 'rsc_crystengcomm', name: 'CrystEngComm', abbrev: 'CrystEngComm', rss_url: 'https://pubs.rsc.org/rss/ce', color: '#1abc9c', category: 'Inorganic/Materials Chemistry' },
-  { id: 'rsc_nanoscale', name: 'Nanoscale', abbrev: 'Nanoscale', rss_url: 'https://pubs.rsc.org/rss/nr', color: '#7b2d8e', category: 'Inorganic/Materials Chemistry' },
-  { id: 'rsc_nanoscaleadv', name: 'Nanoscale Advances', abbrev: 'Nanoscale Adv.', rss_url: 'https://pubs.rsc.org/rss/na', color: '#6c3483', category: 'Inorganic/Materials Chemistry' },
-  { id: 'rsc_nanoscalehoriz', name: 'Nanoscale Horizons', abbrev: 'Nanoscale Horiz.', rss_url: 'https://pubs.rsc.org/rss/nh', color: '#5b2d8e', category: 'Inorganic/Materials Chemistry' },
-  { id: 'rsc_jmaterchemc', name: 'Journal of Materials Chemistry C', abbrev: 'J. Mater. Chem. C', rss_url: 'https://pubs.rsc.org/rss/tc', color: '#2e86c1', category: 'Inorganic/Materials Chemistry' },
-  { id: 'rsc_jmaterchema', name: 'Journal of Materials Chemistry A', abbrev: 'J. Mater. Chem. A', rss_url: 'https://pubs.rsc.org/rss/ta', color: '#117a65', category: 'Inorganic/Materials Chemistry' },
-  { id: 'rsc_jmaterchemb', name: 'Journal of Materials Chemistry B', abbrev: 'J. Mater. Chem. B', rss_url: 'https://pubs.rsc.org/rss/tb', color: '#1a5276', category: 'Inorganic/Materials Chemistry' },
-  { id: 'rsc_inorgchemfront', name: 'Inorganic Chemistry Frontiers', abbrev: 'Inorg. Chem. Front.', rss_url: 'https://pubs.rsc.org/rss/qi', color: '#148f77', category: 'Inorganic/Materials Chemistry' },
-  { id: 'rsc_materadv', name: 'Materials Advances', abbrev: 'Mater. Adv.', rss_url: 'https://pubs.rsc.org/rss/ma', color: '#0d6efd', category: 'Inorganic/Materials Chemistry' },
-  { id: 'rsc_materchemfront', name: 'Materials Chemistry Frontiers', abbrev: 'Mater. Chem. Front.', rss_url: 'https://pubs.rsc.org/rss/qm', color: '#0a9396', category: 'Inorganic/Materials Chemistry' },
-  { id: 'rsc_materhorizons', name: 'Materials Horizons', abbrev: 'Mater. Horiz.', rss_url: 'https://pubs.rsc.org/rss/mh', color: '#005f73', category: 'Inorganic/Materials Chemistry' },
+  { id: 'rsc_dalton', name: 'Dalton Transactions', abbrev: 'Dalton Trans.', rss_url: 'http://feeds.rsc.org/rss/dt', color: '#20c997', category: 'Inorganic/Materials Chemistry' },
+  { id: 'rsc_crystengcomm', name: 'CrystEngComm', abbrev: 'CrystEngComm', rss_url: 'http://feeds.rsc.org/rss/ce', color: '#1abc9c', category: 'Inorganic/Materials Chemistry' },
+  { id: 'rsc_nanoscale', name: 'Nanoscale', abbrev: 'Nanoscale', rss_url: 'http://feeds.rsc.org/rss/nr', color: '#7b2d8e', category: 'Inorganic/Materials Chemistry' },
+  { id: 'rsc_nanoscaleadv', name: 'Nanoscale Advances', abbrev: 'Nanoscale Adv.', rss_url: 'http://feeds.rsc.org/rss/na', color: '#6c3483', category: 'Inorganic/Materials Chemistry' },
+  { id: 'rsc_nanoscalehoriz', name: 'Nanoscale Horizons', abbrev: 'Nanoscale Horiz.', rss_url: 'http://feeds.rsc.org/rss/nh', color: '#5b2d8e', category: 'Inorganic/Materials Chemistry' },
+  { id: 'rsc_jmaterchemc', name: 'Journal of Materials Chemistry C', abbrev: 'J. Mater. Chem. C', rss_url: 'http://feeds.rsc.org/rss/tc', color: '#2e86c1', category: 'Inorganic/Materials Chemistry' },
+  { id: 'rsc_jmaterchema', name: 'Journal of Materials Chemistry A', abbrev: 'J. Mater. Chem. A', rss_url: 'http://feeds.rsc.org/rss/ta', color: '#117a65', category: 'Inorganic/Materials Chemistry' },
+  { id: 'rsc_jmaterchemb', name: 'Journal of Materials Chemistry B', abbrev: 'J. Mater. Chem. B', rss_url: 'http://feeds.rsc.org/rss/tb', color: '#1a5276', category: 'Inorganic/Materials Chemistry' },
+  { id: 'rsc_inorgchemfront', name: 'Inorganic Chemistry Frontiers', abbrev: 'Inorg. Chem. Front.', rss_url: 'http://feeds.rsc.org/rss/qi', color: '#148f77', category: 'Inorganic/Materials Chemistry' },
+  { id: 'rsc_materadv', name: 'Materials Advances', abbrev: 'Mater. Adv.', rss_url: 'http://feeds.rsc.org/rss/ma', color: '#0d6efd', category: 'Inorganic/Materials Chemistry' },
+  { id: 'rsc_materchemfront', name: 'Materials Chemistry Frontiers', abbrev: 'Mater. Chem. Front.', rss_url: 'http://feeds.rsc.org/rss/qm', color: '#0a9396', category: 'Inorganic/Materials Chemistry' },
+  { id: 'rsc_materhorizons', name: 'Materials Horizons', abbrev: 'Mater. Horiz.', rss_url: 'http://feeds.rsc.org/rss/mh', color: '#005f73', category: 'Inorganic/Materials Chemistry' },
 
   // Organic Chemistry
-  { id: 'rsc_orgbiomolchem', name: 'Organic & Biomolecular Chemistry', abbrev: 'Org. Biomol. Chem.', rss_url: 'https://pubs.rsc.org/rss/ob', color: '#d63384', category: 'Organic Chemistry' },
-  { id: 'rsc_natprodreports', name: 'Natural Product Reports', abbrev: 'Nat. Prod. Rep.', rss_url: 'https://pubs.rsc.org/rss/np', color: '#c0392b', category: 'Organic Chemistry' },
-  { id: 'rsc_greenchem', name: 'Green Chemistry', abbrev: 'Green Chem.', rss_url: 'https://pubs.rsc.org/rss/gc', color: '#27ae60', category: 'Organic Chemistry' },
-  { id: 'rsc_catal', name: 'Catalysis Science & Technology', abbrev: 'Catal. Sci. Technol.', rss_url: 'https://pubs.rsc.org/rss/cy', color: '#dc3545', category: 'Organic Chemistry' },
-  { id: 'rsc_orgchemfront', name: 'Organic Chemistry Frontiers', abbrev: 'Org. Chem. Front.', rss_url: 'https://pubs.rsc.org/rss/qo', color: '#6f42c1', category: 'Organic Chemistry' },
-  { id: 'rsc_rscmechano', name: 'RSC Mechanochemistry', abbrev: 'RSC Mechanochem.', rss_url: 'https://pubs.rsc.org/rss/mr', color: '#e91e8c', category: 'Organic Chemistry' },
+  { id: 'rsc_orgbiomolchem', name: 'Organic & Biomolecular Chemistry', abbrev: 'Org. Biomol. Chem.', rss_url: 'http://feeds.rsc.org/rss/ob', color: '#d63384', category: 'Organic Chemistry' },
+  { id: 'rsc_natprodreports', name: 'Natural Product Reports', abbrev: 'Nat. Prod. Rep.', rss_url: 'http://feeds.rsc.org/rss/np', color: '#c0392b', category: 'Organic Chemistry' },
+  { id: 'rsc_greenchem', name: 'Green Chemistry', abbrev: 'Green Chem.', rss_url: 'http://feeds.rsc.org/rss/gc', color: '#27ae60', category: 'Organic Chemistry' },
+  { id: 'rsc_catal', name: 'Catalysis Science & Technology', abbrev: 'Catal. Sci. Technol.', rss_url: 'http://feeds.rsc.org/rss/cy', color: '#dc3545', category: 'Organic Chemistry' },
+  { id: 'rsc_orgchemfront', name: 'Organic Chemistry Frontiers', abbrev: 'Org. Chem. Front.', rss_url: 'http://feeds.rsc.org/rss/qo', color: '#6f42c1', category: 'Organic Chemistry' },
+  { id: 'rsc_rscmechano', name: 'RSC Mechanochemistry', abbrev: 'RSC Mechanochem.', rss_url: 'http://feeds.rsc.org/rss/mr', color: '#e91e8c', category: 'Organic Chemistry' },
 
   // Applied/Industrial Chemistry
-  { id: 'rsc_energyenviron', name: 'Energy & Environmental Science', abbrev: 'Energy Environ. Sci.', rss_url: 'https://pubs.rsc.org/rss/ee', color: '#28a745', category: 'Applied/Industrial Chemistry' },
-  { id: 'rsc_rscadv', name: 'RSC Advances', abbrev: 'RSC Adv.', rss_url: 'https://pubs.rsc.org/rss/ra', color: '#6c757d', category: 'Applied/Industrial Chemistry' },
-  { id: 'rsc_sustenergy', name: 'Sustainable Energy & Fuels', abbrev: 'Sustain. Energy Fuels', rss_url: 'https://pubs.rsc.org/rss/se', color: '#2ecc71', category: 'Applied/Industrial Chemistry' },
-  { id: 'rsc_react_chem_eng', name: 'Reaction Chemistry & Engineering', abbrev: 'React. Chem. Eng.', rss_url: 'https://pubs.rsc.org/rss/re', color: '#f39c12', category: 'Applied/Industrial Chemistry' },
-  { id: 'rsc_envsciwat', name: 'Environmental Science: Water Research & Technology', abbrev: 'Environ. Sci.: Water', rss_url: 'https://pubs.rsc.org/rss/ew', color: '#2980b9', category: 'Applied/Industrial Chemistry' },
-  { id: 'rsc_envscinatno', name: 'Environmental Science: Nano', abbrev: 'Environ. Sci.: Nano', rss_url: 'https://pubs.rsc.org/rss/en', color: '#148f77', category: 'Applied/Industrial Chemistry' },
-  { id: 'rsc_envsciatm', name: 'Environmental Science: Atmospheres', abbrev: 'Environ. Sci.: Atmos.', rss_url: 'https://pubs.rsc.org/rss/ea', color: '#0a9396', category: 'Applied/Industrial Chemistry' },
-  { id: 'rsc_envsciproc', name: 'Environmental Science: Processes & Impacts', abbrev: 'Environ. Sci.: Process.', rss_url: 'https://pubs.rsc.org/rss/em', color: '#17a2b8', category: 'Applied/Industrial Chemistry' },
-  { id: 'rsc_envscienv', name: 'Environmental Science: Advances', abbrev: 'Environ. Sci.: Adv.', rss_url: 'https://pubs.rsc.org/rss/va', color: '#20c997', category: 'Applied/Industrial Chemistry' },
-  { id: 'rsc_eesbatt', name: 'EES Batteries', abbrev: 'EES Batteries', rss_url: 'https://pubs.rsc.org/rss/eb', color: '#ffc107', category: 'Applied/Industrial Chemistry' },
-  { id: 'rsc_eescatal', name: 'EES Catalysis', abbrev: 'EES Catalysis', rss_url: 'https://pubs.rsc.org/rss/ey', color: '#fd7e14', category: 'Applied/Industrial Chemistry' },
-  { id: 'rsc_eessolar', name: 'EES Solar', abbrev: 'EES Solar', rss_url: 'https://pubs.rsc.org/rss/el', color: '#e67e22', category: 'Applied/Industrial Chemistry' },
-  { id: 'rsc_energyadv', name: 'Energy Advances', abbrev: 'Energy Adv.', rss_url: 'https://pubs.rsc.org/rss/ya', color: '#f39c12', category: 'Applied/Industrial Chemistry' },
-  { id: 'rsc_indchemmat', name: 'Industrial Chemistry & Materials', abbrev: 'Ind. Chem. Mater.', rss_url: 'https://pubs.rsc.org/rss/im', color: '#6c757d', category: 'Applied/Industrial Chemistry' },
-  { id: 'rsc_rscsustain', name: 'RSC Sustainability', abbrev: 'RSC Sustain.', rss_url: 'https://pubs.rsc.org/rss/su', color: '#2ecc71', category: 'Applied/Industrial Chemistry' },
+  { id: 'rsc_energyenviron', name: 'Energy & Environmental Science', abbrev: 'Energy Environ. Sci.', rss_url: 'http://feeds.rsc.org/rss/ee', color: '#28a745', category: 'Applied/Industrial Chemistry' },
+  { id: 'rsc_rscadv', name: 'RSC Advances', abbrev: 'RSC Adv.', rss_url: 'http://feeds.rsc.org/rss/ra', color: '#6c757d', category: 'Applied/Industrial Chemistry' },
+  { id: 'rsc_sustenergy', name: 'Sustainable Energy & Fuels', abbrev: 'Sustain. Energy Fuels', rss_url: 'http://feeds.rsc.org/rss/se', color: '#2ecc71', category: 'Applied/Industrial Chemistry' },
+  { id: 'rsc_react_chem_eng', name: 'Reaction Chemistry & Engineering', abbrev: 'React. Chem. Eng.', rss_url: 'http://feeds.rsc.org/rss/re', color: '#f39c12', category: 'Applied/Industrial Chemistry' },
+  { id: 'rsc_envsciwat', name: 'Environmental Science: Water Research & Technology', abbrev: 'Environ. Sci.: Water', rss_url: 'http://feeds.rsc.org/rss/ew', color: '#2980b9', category: 'Applied/Industrial Chemistry' },
+  { id: 'rsc_envscinatno', name: 'Environmental Science: Nano', abbrev: 'Environ. Sci.: Nano', rss_url: 'http://feeds.rsc.org/rss/en', color: '#148f77', category: 'Applied/Industrial Chemistry' },
+  { id: 'rsc_envsciatm', name: 'Environmental Science: Atmospheres', abbrev: 'Environ. Sci.: Atmos.', rss_url: 'http://feeds.rsc.org/rss/ea', color: '#0a9396', category: 'Applied/Industrial Chemistry' },
+  { id: 'rsc_envsciproc', name: 'Environmental Science: Processes & Impacts', abbrev: 'Environ. Sci.: Process.', rss_url: 'http://feeds.rsc.org/rss/em', color: '#17a2b8', category: 'Applied/Industrial Chemistry' },
+  { id: 'rsc_envscienv', name: 'Environmental Science: Advances', abbrev: 'Environ. Sci.: Adv.', rss_url: 'http://feeds.rsc.org/rss/va', color: '#20c997', category: 'Applied/Industrial Chemistry' },
+  { id: 'rsc_eesbatt', name: 'EES Batteries', abbrev: 'EES Batteries', rss_url: 'http://feeds.rsc.org/rss/eb', color: '#ffc107', category: 'Applied/Industrial Chemistry' },
+  { id: 'rsc_eescatal', name: 'EES Catalysis', abbrev: 'EES Catalysis', rss_url: 'http://feeds.rsc.org/rss/ey', color: '#fd7e14', category: 'Applied/Industrial Chemistry' },
+  { id: 'rsc_eessolar', name: 'EES Solar', abbrev: 'EES Solar', rss_url: 'http://feeds.rsc.org/rss/el', color: '#e67e22', category: 'Applied/Industrial Chemistry' },
+  { id: 'rsc_energyadv', name: 'Energy Advances', abbrev: 'Energy Adv.', rss_url: 'http://feeds.rsc.org/rss/ya', color: '#f39c12', category: 'Applied/Industrial Chemistry' },
+  { id: 'rsc_indchemmat', name: 'Industrial Chemistry & Materials', abbrev: 'Ind. Chem. Mater.', rss_url: 'http://feeds.rsc.org/rss/im', color: '#6c757d', category: 'Applied/Industrial Chemistry' },
+  { id: 'rsc_rscsustain', name: 'RSC Sustainability', abbrev: 'RSC Sustain.', rss_url: 'http://feeds.rsc.org/rss/su', color: '#2ecc71', category: 'Applied/Industrial Chemistry' },
 
   // Polymers/Macromolecules
-  { id: 'rsc_polym', name: 'Polymer Chemistry', abbrev: 'Polym. Chem.', rss_url: 'https://pubs.rsc.org/rss/py', color: '#6f42c1', category: 'Polymers/Macromolecules' },
-  { id: 'rsc_softmatter', name: 'Soft Matter', abbrev: 'Soft Matter', rss_url: 'https://pubs.rsc.org/rss/sm', color: '#8e44ad', category: 'Polymers/Macromolecules' },
-  { id: 'rsc_rscapplpolym', name: 'RSC Applied Polymers', abbrev: 'RSC Appl. Polym.', rss_url: 'https://pubs.rsc.org/rss/lp', color: '#6c3483', category: 'Polymers/Macromolecules' },
-  { id: 'rsc_rscapplinterf', name: 'RSC Applied Interfaces', abbrev: 'RSC Appl. Interfaces', rss_url: 'https://pubs.rsc.org/rss/lf', color: '#495057', category: 'Polymers/Macromolecules' },
+  { id: 'rsc_polym', name: 'Polymer Chemistry', abbrev: 'Polym. Chem.', rss_url: 'http://feeds.rsc.org/rss/py', color: '#6f42c1', category: 'Polymers/Macromolecules' },
+  { id: 'rsc_softmatter', name: 'Soft Matter', abbrev: 'Soft Matter', rss_url: 'http://feeds.rsc.org/rss/sm', color: '#8e44ad', category: 'Polymers/Macromolecules' },
+  { id: 'rsc_rscapplpolym', name: 'RSC Applied Polymers', abbrev: 'RSC Appl. Polym.', rss_url: 'http://feeds.rsc.org/rss/lp', color: '#6c3483', category: 'Polymers/Macromolecules' },
+  { id: 'rsc_rscapplinterf', name: 'RSC Applied Interfaces', abbrev: 'RSC Appl. Interfaces', rss_url: 'http://feeds.rsc.org/rss/lf', color: '#495057', category: 'Polymers/Macromolecules' },
 ];
 
 export const WILEY_JOURNALS = [
@@ -452,28 +452,28 @@ export const ACS_MATERIALS_JOURNALS = [
 
 export const RSC_MATERIALS_JOURNALS = [
   // Materials Science & Nanotechnology
-  { id: 'mat_rsc_nanoscale', name: 'Nanoscale', abbrev: 'Nanoscale', rss_url: 'https://pubs.rsc.org/rss/nr', color: '#7b2d8e', category: 'Materials Science & Nanotechnology' },
-  { id: 'mat_rsc_nanoscaleadv', name: 'Nanoscale Advances', abbrev: 'Nanoscale Adv.', rss_url: 'https://pubs.rsc.org/rss/na', color: '#6c3483', category: 'Materials Science & Nanotechnology' },
-  { id: 'mat_rsc_nanoscalehoriz', name: 'Nanoscale Horizons', abbrev: 'Nanoscale Horiz.', rss_url: 'https://pubs.rsc.org/rss/nh', color: '#5b2d8e', category: 'Materials Science & Nanotechnology' },
-  { id: 'mat_rsc_jmaterchema', name: 'Journal of Materials Chemistry A', abbrev: 'J. Mater. Chem. A', rss_url: 'https://pubs.rsc.org/rss/ta', color: '#117a65', category: 'Materials Science & Nanotechnology' },
-  { id: 'mat_rsc_jmaterchemb', name: 'Journal of Materials Chemistry B', abbrev: 'J. Mater. Chem. B', rss_url: 'https://pubs.rsc.org/rss/tb', color: '#1a5276', category: 'Materials Science & Nanotechnology' },
-  { id: 'mat_rsc_jmaterchemc', name: 'Journal of Materials Chemistry C', abbrev: 'J. Mater. Chem. C', rss_url: 'https://pubs.rsc.org/rss/tc', color: '#2e86c1', category: 'Materials Science & Nanotechnology' },
-  { id: 'mat_rsc_materadv', name: 'Materials Advances', abbrev: 'Mater. Adv.', rss_url: 'https://pubs.rsc.org/rss/ma', color: '#0d6efd', category: 'Materials Science & Nanotechnology' },
-  { id: 'mat_rsc_materhorizons', name: 'Materials Horizons', abbrev: 'Mater. Horiz.', rss_url: 'https://pubs.rsc.org/rss/mh', color: '#005f73', category: 'Materials Science & Nanotechnology' },
+  { id: 'mat_rsc_nanoscale', name: 'Nanoscale', abbrev: 'Nanoscale', rss_url: 'http://feeds.rsc.org/rss/nr', color: '#7b2d8e', category: 'Materials Science & Nanotechnology' },
+  { id: 'mat_rsc_nanoscaleadv', name: 'Nanoscale Advances', abbrev: 'Nanoscale Adv.', rss_url: 'http://feeds.rsc.org/rss/na', color: '#6c3483', category: 'Materials Science & Nanotechnology' },
+  { id: 'mat_rsc_nanoscalehoriz', name: 'Nanoscale Horizons', abbrev: 'Nanoscale Horiz.', rss_url: 'http://feeds.rsc.org/rss/nh', color: '#5b2d8e', category: 'Materials Science & Nanotechnology' },
+  { id: 'mat_rsc_jmaterchema', name: 'Journal of Materials Chemistry A', abbrev: 'J. Mater. Chem. A', rss_url: 'http://feeds.rsc.org/rss/ta', color: '#117a65', category: 'Materials Science & Nanotechnology' },
+  { id: 'mat_rsc_jmaterchemb', name: 'Journal of Materials Chemistry B', abbrev: 'J. Mater. Chem. B', rss_url: 'http://feeds.rsc.org/rss/tb', color: '#1a5276', category: 'Materials Science & Nanotechnology' },
+  { id: 'mat_rsc_jmaterchemc', name: 'Journal of Materials Chemistry C', abbrev: 'J. Mater. Chem. C', rss_url: 'http://feeds.rsc.org/rss/tc', color: '#2e86c1', category: 'Materials Science & Nanotechnology' },
+  { id: 'mat_rsc_materadv', name: 'Materials Advances', abbrev: 'Mater. Adv.', rss_url: 'http://feeds.rsc.org/rss/ma', color: '#0d6efd', category: 'Materials Science & Nanotechnology' },
+  { id: 'mat_rsc_materhorizons', name: 'Materials Horizons', abbrev: 'Mater. Horiz.', rss_url: 'http://feeds.rsc.org/rss/mh', color: '#005f73', category: 'Materials Science & Nanotechnology' },
   // Analytical & Measurement Science
-  { id: 'mat_rsc_analyst', name: 'Analyst', abbrev: 'Analyst', rss_url: 'https://pubs.rsc.org/rss/an', color: '#e85d00', category: 'Analytical & Measurement Science' },
-  { id: 'mat_rsc_analytmethods', name: 'Analytical Methods', abbrev: 'Anal. Methods', rss_url: 'https://pubs.rsc.org/rss/ay', color: '#d35400', category: 'Analytical & Measurement Science' },
-  { id: 'mat_rsc_jaas', name: 'Journal of Analytical Atomic Spectrometry', abbrev: 'JAAS', rss_url: 'https://pubs.rsc.org/rss/ja', color: '#c0392b', category: 'Analytical & Measurement Science' },
-  { id: 'mat_rsc_labchip', name: 'Lab on a Chip', abbrev: 'Lab Chip', rss_url: 'https://pubs.rsc.org/rss/lc', color: '#e74c3c', category: 'Analytical & Measurement Science' },
-  { id: 'mat_rsc_sensact', name: 'Sensors & Diagnostics', abbrev: 'Sens. Diagn.', rss_url: 'https://pubs.rsc.org/rss/sd', color: '#f39c12', category: 'Sensors & Diagnostics' },
+  { id: 'mat_rsc_analyst', name: 'Analyst', abbrev: 'Analyst', rss_url: 'http://feeds.rsc.org/rss/an', color: '#e85d00', category: 'Analytical & Measurement Science' },
+  { id: 'mat_rsc_analytmethods', name: 'Analytical Methods', abbrev: 'Anal. Methods', rss_url: 'http://feeds.rsc.org/rss/ay', color: '#d35400', category: 'Analytical & Measurement Science' },
+  { id: 'mat_rsc_jaas', name: 'Journal of Analytical Atomic Spectrometry', abbrev: 'JAAS', rss_url: 'http://feeds.rsc.org/rss/ja', color: '#c0392b', category: 'Analytical & Measurement Science' },
+  { id: 'mat_rsc_labchip', name: 'Lab on a Chip', abbrev: 'Lab Chip', rss_url: 'http://feeds.rsc.org/rss/lc', color: '#e74c3c', category: 'Analytical & Measurement Science' },
+  { id: 'mat_rsc_sensact', name: 'Sensors & Diagnostics', abbrev: 'Sens. Diagn.', rss_url: 'http://feeds.rsc.org/rss/sd', color: '#f39c12', category: 'Sensors & Diagnostics' },
   // Sustainability & Green Chemistry
-  { id: 'mat_rsc_greenchem', name: 'Green Chemistry', abbrev: 'Green Chem.', rss_url: 'https://pubs.rsc.org/rss/gc', color: '#27ae60', category: 'Sustainability & Green Chemistry' },
-  { id: 'mat_rsc_energyenviron', name: 'Energy & Environmental Science', abbrev: 'Energy Environ. Sci.', rss_url: 'https://pubs.rsc.org/rss/ee', color: '#28a745', category: 'Sustainability & Green Chemistry' },
-  { id: 'mat_rsc_sustenergy', name: 'Sustainable Energy & Fuels', abbrev: 'Sustain. Energy Fuels', rss_url: 'https://pubs.rsc.org/rss/se', color: '#2ecc71', category: 'Sustainability & Green Chemistry' },
-  { id: 'mat_rsc_rscsustain', name: 'RSC Sustainability', abbrev: 'RSC Sustain.', rss_url: 'https://pubs.rsc.org/rss/su', color: '#2ecc71', category: 'Sustainability & Green Chemistry' },
+  { id: 'mat_rsc_greenchem', name: 'Green Chemistry', abbrev: 'Green Chem.', rss_url: 'http://feeds.rsc.org/rss/gc', color: '#27ae60', category: 'Sustainability & Green Chemistry' },
+  { id: 'mat_rsc_energyenviron', name: 'Energy & Environmental Science', abbrev: 'Energy Environ. Sci.', rss_url: 'http://feeds.rsc.org/rss/ee', color: '#28a745', category: 'Sustainability & Green Chemistry' },
+  { id: 'mat_rsc_sustenergy', name: 'Sustainable Energy & Fuels', abbrev: 'Sustain. Energy Fuels', rss_url: 'http://feeds.rsc.org/rss/se', color: '#2ecc71', category: 'Sustainability & Green Chemistry' },
+  { id: 'mat_rsc_rscsustain', name: 'RSC Sustainability', abbrev: 'RSC Sustain.', rss_url: 'http://feeds.rsc.org/rss/su', color: '#2ecc71', category: 'Sustainability & Green Chemistry' },
   // Polymers & Soft Matter
-  { id: 'mat_rsc_polym', name: 'Polymer Chemistry', abbrev: 'Polym. Chem.', rss_url: 'https://pubs.rsc.org/rss/py', color: '#6f42c1', category: 'Polymers & Soft Matter' },
-  { id: 'mat_rsc_softmatter', name: 'Soft Matter', abbrev: 'Soft Matter', rss_url: 'https://pubs.rsc.org/rss/sm', color: '#8e44ad', category: 'Polymers & Soft Matter' },
+  { id: 'mat_rsc_polym', name: 'Polymer Chemistry', abbrev: 'Polym. Chem.', rss_url: 'http://feeds.rsc.org/rss/py', color: '#6f42c1', category: 'Polymers & Soft Matter' },
+  { id: 'mat_rsc_softmatter', name: 'Soft Matter', abbrev: 'Soft Matter', rss_url: 'http://feeds.rsc.org/rss/sm', color: '#8e44ad', category: 'Polymers & Soft Matter' },
 ];
 
 export const WILEY_MATERIALS_JOURNALS = [
@@ -615,19 +615,19 @@ export const ACS_ENGINEERING_JOURNALS = [
 
 export const RSC_ENGINEERING_JOURNALS = [
   // Chemical Engineering
-  { id: 'eng_rsc_reactchemeng', name: 'Reaction Chemistry & Engineering', abbrev: 'React. Chem. Eng.', rss_url: 'https://pubs.rsc.org/rss/re', color: '#e63946', category: 'Chemical Engineering' },
-  { id: 'eng_rsc_indchemmat', name: 'Industrial Chemistry & Materials', abbrev: 'Ind. Chem. Mater.', rss_url: 'https://pubs.rsc.org/rss/im', color: '#e63946', category: 'Chemical Engineering' },
+  { id: 'eng_rsc_reactchemeng', name: 'Reaction Chemistry & Engineering', abbrev: 'React. Chem. Eng.', rss_url: 'http://feeds.rsc.org/rss/re', color: '#e63946', category: 'Chemical Engineering' },
+  { id: 'eng_rsc_indchemmat', name: 'Industrial Chemistry & Materials', abbrev: 'Ind. Chem. Mater.', rss_url: 'http://feeds.rsc.org/rss/im', color: '#e63946', category: 'Chemical Engineering' },
   // Reaction Engineering
-  { id: 'eng_rsc_catalscitechnol', name: 'Catalysis Science & Technology', abbrev: 'Catal. Sci. Technol.', rss_url: 'https://pubs.rsc.org/rss/cy', color: '#e63946', category: 'Reaction Engineering' },
-  { id: 'eng_rsc_greenchem', name: 'Green Chemistry', abbrev: 'Green Chem.', rss_url: 'https://pubs.rsc.org/rss/gc', color: '#e63946', category: 'Reaction Engineering' },
+  { id: 'eng_rsc_catalscitechnol', name: 'Catalysis Science & Technology', abbrev: 'Catal. Sci. Technol.', rss_url: 'http://feeds.rsc.org/rss/cy', color: '#e63946', category: 'Reaction Engineering' },
+  { id: 'eng_rsc_greenchem', name: 'Green Chemistry', abbrev: 'Green Chem.', rss_url: 'http://feeds.rsc.org/rss/gc', color: '#e63946', category: 'Reaction Engineering' },
   // Separations
-  { id: 'eng_rsc_labchip', name: 'Lab on a Chip', abbrev: 'Lab Chip', rss_url: 'https://pubs.rsc.org/rss/lc', color: '#e63946', category: 'Separations' },
-  { id: 'eng_rsc_envsciwat', name: 'Environmental Science: Water Research & Technology', abbrev: 'Environ. Sci.: Water', rss_url: 'https://pubs.rsc.org/rss/ew', color: '#e63946', category: 'Separations' },
+  { id: 'eng_rsc_labchip', name: 'Lab on a Chip', abbrev: 'Lab Chip', rss_url: 'http://feeds.rsc.org/rss/lc', color: '#e63946', category: 'Separations' },
+  { id: 'eng_rsc_envsciwat', name: 'Environmental Science: Water Research & Technology', abbrev: 'Environ. Sci.: Water', rss_url: 'http://feeds.rsc.org/rss/ew', color: '#e63946', category: 'Separations' },
   // Process Modeling & Simulation
-  { id: 'eng_rsc_molsysdes', name: 'Molecular Systems Design & Engineering', abbrev: 'Mol. Syst. Des. Eng.', rss_url: 'https://pubs.rsc.org/rss/me', color: '#e63946', category: 'Process Modeling & Simulation' },
-  { id: 'eng_rsc_digidisc', name: 'Digital Discovery', abbrev: 'Digital Discovery', rss_url: 'https://pubs.rsc.org/rss/dd', color: '#e63946', category: 'Process Modeling & Simulation' },
+  { id: 'eng_rsc_molsysdes', name: 'Molecular Systems Design & Engineering', abbrev: 'Mol. Syst. Des. Eng.', rss_url: 'http://feeds.rsc.org/rss/me', color: '#e63946', category: 'Process Modeling & Simulation' },
+  { id: 'eng_rsc_digidisc', name: 'Digital Discovery', abbrev: 'Digital Discovery', rss_url: 'http://feeds.rsc.org/rss/dd', color: '#e63946', category: 'Process Modeling & Simulation' },
   // Scale-up & Manufacturing Science
-  { id: 'eng_rsc_rscadv', name: 'RSC Advances', abbrev: 'RSC Adv.', rss_url: 'https://pubs.rsc.org/rss/ra', color: '#e63946', category: 'Scale-up & Manufacturing Science' },
+  { id: 'eng_rsc_rscadv', name: 'RSC Advances', abbrev: 'RSC Adv.', rss_url: 'http://feeds.rsc.org/rss/ra', color: '#e63946', category: 'Scale-up & Manufacturing Science' },
 ];
 
 export const SPRINGER_ENGINEERING_JOURNALS = [
