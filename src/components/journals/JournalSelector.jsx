@@ -110,7 +110,7 @@ export default function JournalSelector({ followedJournals, onToggleJournal, onC
             j.abbrev.toLowerCase().includes(q) ||
             p.label.toLowerCase().includes(q);
           return matchesCategory && matchesSearch;
-        });
+        }).sort((a, b) => a.name.localeCompare(b.name));
         return { ...p, journals };
       })
       .filter(p => p.journals.length > 0);
@@ -187,7 +187,8 @@ export default function JournalSelector({ followedJournals, onToggleJournal, onC
 
   return (
     <div className="space-y-3">
-      {/* Field Selector Toggle */}
+      {/* Field Selector Toggle — sticky so it stays visible when scrolling */}
+      <div className="sticky top-0 z-10 bg-card pt-0 pb-1">
       <div className="flex items-center gap-1 bg-muted rounded-xl p-1">
         <button
           onClick={() => handleFieldSwitch('chemistry')}
@@ -229,7 +230,7 @@ export default function JournalSelector({ followedJournals, onToggleJournal, onC
 
       {/* Discover tab */}
       <button
-        onClick={() => handleFieldSwitch('discover')}
+        onClick={() => handleFieldSwitch(isDiscoverMode ? 'chemistry' : 'discover')}
         className={cn(
           "w-full flex items-center justify-center gap-2 px-3 rounded-lg text-sm font-medium transition-all border",
           isDiscoverMode
@@ -241,6 +242,7 @@ export default function JournalSelector({ followedJournals, onToggleJournal, onC
         <Sparkles className="w-3.5 h-3.5 flex-shrink-0" />
         <span>Discover Journals</span>
       </button>
+      </div>{/* end sticky wrapper */}
 
       {/* Discover panel */}
       {isDiscoverMode && (
@@ -354,7 +356,7 @@ export default function JournalSelector({ followedJournals, onToggleJournal, onC
                     >
                       <div className="divide-y divide-border">
                         {CATEGORIES.map((category) => {
-                          const categoryJournals = publisher.journals.filter(j => j.category === category);
+                          const categoryJournals = publisher.journals.filter(j => j.category === category).sort((a, b) => a.name.localeCompare(b.name));
                           if (categoryJournals.length === 0) return null;
                           const categoryKey = `${publisher.id}-${category}`;
                           const isCategoryOpen = expandedCategories.has(categoryKey);

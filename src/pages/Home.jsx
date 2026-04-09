@@ -236,14 +236,14 @@ export default function Home() {
       <header className="sticky top-0 z-40 bg-card/80 backdrop-blur-xl border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-3.5">
+            <div className="flex-1 flex items-center gap-3.5">
               <img
                 src="/logo.svg"
                 alt="Literature Tracker"
                 className="w-12 h-12 object-contain"
               />
               <div>
-                <h1 className="text-xl font-bold text-foreground">Literature Tracker</h1>
+                <h1 className="text-2xl font-bold text-foreground">Literature Tracker</h1>
                 <p className="text-xs text-muted-foreground hidden sm:block">Follow your favorite journals</p>
               </div>
             </div>
@@ -255,7 +255,7 @@ export default function Home() {
                 className={`flex items-center gap-1.5 px-4 py-1 rounded-lg border text-sm font-semibold transition-colors ${
                   activeTab === 'feed'
                     ? 'bg-blue-50/60 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-700'
-                    : 'bg-blue-50/60 dark:bg-slate-800 text-muted-foreground border-blue-100 dark:border-slate-700 hover:bg-blue-100/60 dark:hover:bg-slate-700'
+                    : 'feed-pulse bg-blue-50/60 dark:bg-slate-800 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-700 hover:bg-blue-100/60 dark:hover:bg-slate-700'
                 }`}
               >
                 <Rss className={`w-4 h-4 ${activeTab === 'feed' ? 'text-blue-600 dark:text-blue-400' : ''}`} />
@@ -277,7 +277,7 @@ export default function Home() {
               </button>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex-1 flex items-center gap-2 justify-end">
               <Link to={createPageUrl('Settings')}>
                 <button className={`flex items-center gap-1.5 px-3 py-1 rounded-lg border text-sm font-medium transition-colors ${
                   isSettingsActive

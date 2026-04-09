@@ -262,7 +262,7 @@ const ArticleCard = React.forwardRef(function ArticleCard({ article, index, save
     >
       <div className="flex items-stretch gap-0">
         {/* Graphical abstract — desktop */}
-        <div className="hidden sm:flex flex-shrink-0 w-[368px] items-center justify-center bg-muted border-r border-border p-2" style={{ minHeight: '160px', maxHeight: '220px' }}>
+        <div className="hidden sm:flex flex-shrink-0 w-[405px] items-center justify-center bg-muted border-r border-border p-2" style={{ minHeight: '160px', maxHeight: '220px' }}>
           {showImage ? (
             <img
               src={currentImageUrl}

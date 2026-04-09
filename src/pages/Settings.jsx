@@ -47,14 +47,14 @@ export default function Settings() {
       <header className="sticky top-0 z-40 bg-card/80 backdrop-blur-xl border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-3.5">
+            <div className="flex-1 flex items-center gap-3.5">
               <img
                 src="/logo.svg"
                 alt="Literature Tracker"
                 className="w-12 h-12 object-contain"
               />
               <div>
-                <h1 className="text-xl font-bold text-foreground">Literature Tracker</h1>
+                <h1 className="text-2xl font-bold text-foreground">Literature Tracker</h1>
                 <p className="text-xs text-muted-foreground hidden sm:block">Follow your favorite journals</p>
               </div>
             </div>
@@ -62,7 +62,7 @@ export default function Settings() {
             {/* Tab nav */}
             <div className="flex items-center gap-4">
               <Link to={createPageUrl('Home') + '?tab=feed'}>
-                <button className="flex items-center gap-1.5 px-4 py-1 rounded-lg border text-sm font-semibold transition-colors bg-blue-50/60 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-blue-100 dark:border-slate-700 hover:bg-blue-100/60 dark:hover:bg-slate-700">
+                <button className="feed-pulse flex items-center gap-1.5 px-4 py-1 rounded-lg border text-sm font-semibold transition-colors bg-blue-50/60 dark:bg-slate-800 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-700 hover:bg-blue-100/60 dark:hover:bg-slate-700">
                   <Rss className="w-4 h-4" />
                   <span className="hidden sm:inline">Feed</span>
                 </button>
@@ -75,7 +75,7 @@ export default function Settings() {
               </Link>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex-1 flex items-center gap-2 justify-end">
               <button className="flex items-center gap-1.5 px-3 py-1 rounded-lg border text-sm font-medium transition-colors bg-blue-50/60 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-700">
                 <SettingsIcon className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                 <span className="hidden sm:inline">Journal Selector</span>
@@ -107,21 +107,21 @@ export default function Settings() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex justify-center">
           <div style={{ width: '620px' }} className="flex-shrink-0">
-            <div className="bg-card rounded-2xl border-[1.5px] border-border shadow-sm overflow-hidden">
-              {/* Box header */}
-              <div className="flex items-center gap-3 px-4 py-3 border-b border-border bg-muted">
+            <div className="bg-card rounded-2xl border-[1.5px] border-border shadow-sm overflow-hidden flex flex-col" style={{ maxHeight: 'calc(100vh - 130px)' }}>
+              {/* Box header — always visible */}
+              <div className="flex-shrink-0 flex items-center gap-3 px-4 py-3 border-b border-border bg-muted">
                 <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center">
                   <BookOpen className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h2 className="text-sm font-bold text-foreground">Journals Selector</h2>
-                  <p className="text-xs text-muted-foreground">
+                  <h2 className="text-sm font-normal text-white">
                     {isLoading ? 'Loading…' : `${activeCount} journal${activeCount !== 1 ? 's' : ''} selected`}
-                  </p>
+                  </h2>
                 </div>
               </div>
 
-              <ScrollArea className="h-[calc(100vh-160px)]">
+              {/* Scrollable journal list */}
+              <div className="flex-1 overflow-y-auto journal-scroll">
                 <div className="p-4">
                   <JournalSelector
                     followedJournals={followedJournals}
@@ -129,7 +129,7 @@ export default function Settings() {
                     onCustomJournalAdded={() => queryClient.invalidateQueries({ queryKey: ['followedJournals'] })}
                   />
                 </div>
-              </ScrollArea>
+              </div>
             </div>
           </div>
         </div>

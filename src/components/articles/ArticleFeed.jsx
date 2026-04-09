@@ -6,7 +6,14 @@ import ArticleCard, { clearAllSeenArticles, extractImage } from './ArticleCard';
 import ArticleFilters from './ArticleFilters';
 import { ALL_JOURNALS, ACS_JOURNALS, RSC_JOURNALS, WILEY_JOURNALS, ELSEVIER_JOURNALS, SPRINGER_JOURNALS } from '@/components/journals/JournalList';
 
-const DEFAULT_FILTERS = { keyword: '', journal: '', dateFrom: '', dateTo: '' };
+const JOURNAL_FILTER_KEY = 'cjf_journal_filter';
+function loadJournalFilter() {
+  try { return sessionStorage.getItem(JOURNAL_FILTER_KEY) || ''; }
+  catch { return ''; }
+}
+function getDefaultFilters() {
+  return { keyword: '', journal: loadJournalFilter(), dateFrom: '', dateTo: '' };
+}
 const GA_REQUIRED_IDS = new Set([
   ...ACS_JOURNALS, ...RSC_JOURNALS, ...WILEY_JOURNALS,
   ...ELSEVIER_JOURNALS, ...SPRINGER_JOURNALS,
@@ -27,7 +34,7 @@ function SkeletonCard() {
   return (
     <div className="bg-card rounded-2xl border-[1.5px] border-border overflow-hidden animate-pulse">
       <div className="flex items-stretch gap-0">
-        <div className="hidden sm:flex flex-shrink-0 w-[368px] bg-slate-200 dark:bg-slate-700" style={{ minHeight: '160px' }} />
+        <div className="hidden sm:flex flex-shrink-0 w-[405px] bg-slate-200 dark:bg-slate-700" style={{ minHeight: '160px' }} />
         <div className="flex-1 py-5 pr-5 pl-10 space-y-3">
           <div className="flex gap-2 items-center">
             <div className="h-5 w-20 bg-slate-200 dark:bg-slate-700 rounded-full" />
@@ -43,7 +50,11 @@ function SkeletonCard() {
 }
 
 export default function ArticleFeed({ articles, isLoading, loadingProgress, onRefresh, followedCount, savedArticles = [], onSaveToggle, followedJournals = [] }) {
-  const [filters, setFilters] = useState(DEFAULT_FILTERS);
+  const [filters, setFiltersRaw] = useState(getDefaultFilters);
+  const setFilters = (newFilters) => {
+    setFiltersRaw(newFilters);
+    try { sessionStorage.setItem(JOURNAL_FILTER_KEY, newFilters.journal || ''); } catch {}
+  };
   const [quickFilters, setQuickFilters] = useState(loadQuickFilters);
   const [sortBy, setSortBy] = useState('date_desc');
   const [resetKey, setResetKey] = useState(0);
@@ -184,18 +195,18 @@ export default function ArticleFeed({ articles, isLoading, loadingProgress, onRe
       <div className="flex items-center mb-4">
         {/* Left: heading */}
         <div className="flex-1">
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Latest Articles</h2>
+          <h2 className="text-xl font-bold text-slate-900 dark:text-white">Latest Articles</h2>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
             {filtered.length}{filtered.length !== articles.length ? ` of ${articles.length}` : ''} article{filtered.length !== 1 ? 's' : ''} from {followedCount} journal{followedCount !== 1 ? 's' : ''}
           </p>
         </div>
 
         {/* Center: journal filter */}
-        <div className="flex-shrink-0 mx-4">
+        <div className="feed-pulse flex-shrink-0 mx-4 rounded-lg">
           <select
             value={filters.journal}
             onChange={e => setFilters({ ...filters, journal: e.target.value })}
-            className="h-9 text-sm border border-blue-100 dark:border-slate-600 rounded-lg px-3 bg-blue-50/60 dark:bg-slate-800 text-slate-600 dark:text-slate-300 focus:outline-none focus:ring-1 focus:ring-blue-500 hover:bg-blue-100/60 dark:hover:bg-slate-700 transition-colors cursor-pointer"
+            className="h-9 text-sm border border-blue-200 dark:border-blue-700 rounded-lg px-3 bg-blue-50/60 dark:bg-slate-800 text-slate-600 dark:text-slate-300 focus:outline-none focus:ring-1 focus:ring-blue-500 hover:bg-blue-100/60 dark:hover:bg-slate-700 transition-colors cursor-pointer"
           >
             <option value="">All Selected Journals</option>
             {journals.map(j => (
