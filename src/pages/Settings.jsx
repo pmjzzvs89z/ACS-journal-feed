@@ -2,18 +2,20 @@ import React, { useState } from 'react';
 import { entities } from '@/api/entities';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { BookOpen, Rss, Bookmark, Settings as SettingsIcon, Moon, Sun } from 'lucide-react';
+import { BookOpen, Rss, Bookmark, Settings as SettingsIcon, Moon, Sun, LogOut } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 import JournalSelector from '@/components/journals/JournalSelector';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { useDarkMode } from '@/hooks/useDarkMode';
+import { useAuth } from '@/lib/AuthContext';
 
 export default function Settings() {
   const queryClient = useQueryClient();
   const location = useLocation();
   const isGuideActive = location.pathname === createPageUrl('Guide');
   const [isDark, toggleDark] = useDarkMode();
+  const { logout } = useAuth();
 
   const { data: followedJournals = [], isLoading } = useQuery({
     queryKey: ['followedJournals'],
@@ -89,6 +91,13 @@ export default function Settings() {
                 title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
               >
                 {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+              </button>
+              <button
+                onClick={logout}
+                className="flex items-center justify-center w-8 h-8 rounded-lg border transition-colors bg-blue-50/60 dark:bg-slate-800 text-muted-foreground border-blue-100 dark:border-slate-700 hover:bg-red-100/60 dark:hover:bg-red-900/30 hover:text-red-600 dark:hover:text-red-400"
+                title="Log out"
+              >
+                <LogOut className="w-4 h-4" />
               </button>
             </div>
           </div>

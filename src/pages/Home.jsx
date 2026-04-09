@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { entities } from '@/api/entities';
 import { fetchRssFeed } from '@/utils/fetchRss';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Settings, Bookmark, Rss, BookOpen, RefreshCw, Moon, Sun } from 'lucide-react';
+import { Settings, Bookmark, Rss, BookOpen, RefreshCw, Moon, Sun, LogOut } from 'lucide-react';
 import ArticleFeed from '@/components/articles/ArticleFeed';
 import SavedFeed from '@/components/articles/SavedFeed';
 import RecommendedFeed from '@/components/articles/RecommendedFeed';
@@ -10,6 +10,7 @@ import { ALL_JOURNALS } from '@/components/journals/JournalList';
 import { Link, useLocation } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { useDarkMode } from '@/hooks/useDarkMode';
+import { useAuth } from '@/lib/AuthContext';
 
 const RULES_KEY = 'cjf_autosave_rules';
 
@@ -54,6 +55,7 @@ export default function Home() {
   const [selectedKeywords, setSelectedKeywords] = useState([]);
   const [filterEnabled, setFilterEnabled] = useState(false);
   const [isDark, toggleDark] = useDarkMode();
+  const { logout } = useAuth();
   const queryClient = useQueryClient();
 
   // Remove ?tab= from URL immediately so refreshing always lands on Feed
@@ -258,9 +260,6 @@ export default function Home() {
               >
                 <Rss className={`w-4 h-4 ${activeTab === 'feed' ? 'text-blue-600 dark:text-blue-400' : ''}`} />
                 <span className="hidden sm:inline">Feed</span>
-                {unreadCount > 0 && activeTab !== 'feed' && (
-                  <span className="bg-blue-500 text-white text-xs rounded-full px-1.5 py-0.5 leading-none">{unreadCount > 99 ? '99+' : unreadCount}</span>
-                )}
               </button>
               <button
                 onClick={() => setActiveTab('saved')}
@@ -304,6 +303,13 @@ export default function Home() {
                 title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
               >
                 {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+              </button>
+              <button
+                onClick={logout}
+                className="flex items-center justify-center w-8 h-8 rounded-lg border transition-colors bg-blue-50/60 dark:bg-slate-800 text-muted-foreground border-blue-100 dark:border-slate-700 hover:bg-red-100/60 dark:hover:bg-red-900/30 hover:text-red-600 dark:hover:text-red-400"
+                title="Log out"
+              >
+                <LogOut className="w-4 h-4" />
               </button>
             </div>
           </div>

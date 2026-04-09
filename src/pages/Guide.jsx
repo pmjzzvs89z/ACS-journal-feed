@@ -1,8 +1,9 @@
 import React from 'react';
-import { Settings, Bookmark, Rss, BookOpen, Moon, Sun } from 'lucide-react';
+import { Settings, Bookmark, Rss, BookOpen, Moon, Sun, LogOut } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { useDarkMode } from '@/hooks/useDarkMode';
+import { useAuth } from '@/lib/AuthContext';
 
 const Section = ({ title, children }) => (
   <div className="mb-8">
@@ -16,6 +17,7 @@ export default function Guide() {
   const isSettingsActive = location.pathname === createPageUrl('Settings');
   const isGuideActive = location.pathname === createPageUrl('Guide');
   const [isDark, toggleDark] = useDarkMode();
+  const { logout } = useAuth();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-card to-muted dark:from-slate-950 dark:via-slate-900 dark:to-slate-900">
@@ -68,6 +70,13 @@ export default function Guide() {
                 title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
               >
                 {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+              </button>
+              <button
+                onClick={logout}
+                className="flex items-center justify-center w-8 h-8 rounded-lg border transition-colors bg-blue-50/60 dark:bg-slate-800 text-muted-foreground border-blue-100 dark:border-slate-700 hover:bg-red-100/60 dark:hover:bg-red-900/30 hover:text-red-600 dark:hover:text-red-400"
+                title="Log out"
+              >
+                <LogOut className="w-4 h-4" />
               </button>
             </div>
           </div>

@@ -120,11 +120,12 @@ export default function ArticleFeed({ articles, isLoading, loadingProgress, onRe
         <div className="w-20 h-20 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-6">
           <Inbox className="w-10 h-10 text-slate-400 dark:text-slate-500" />
         </div>
-        <h3 className="text-xl font-semibold text-slate-800 dark:text-slate-200 mb-2">No journals selected</h3>
-        <p className="text-blue-600 dark:text-blue-400 max-w-md flex flex-wrap items-center justify-center gap-x-1">
-          <span>To see recent research articles in your feed, select</span>
-          <span className="inline-flex items-center gap-1"><Settings className="w-4 h-4" /><strong>Journal Selector</strong></span>
-          <span className="ml-1">button in the top right corner.</span>
+        <h3 className="text-2xl font-bold text-white mb-3">Welcome to Literature Tracker</h3>
+        <p className="text-lg text-blue-600 dark:text-blue-400 max-w-lg flex flex-wrap items-center justify-center gap-x-1">
+          <span>To get started, select your favorite journals in</span>
+          <span className="inline-flex items-center gap-1"><Settings className="w-4 h-4 font-bold" /><strong>Journal Selector</strong></span>
+          <span>and view them in the</span>
+          <strong>Feed</strong>
         </p>
       </motion.div>
     );
