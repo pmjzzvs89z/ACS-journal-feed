@@ -48,11 +48,21 @@ export default function ArticleFeed({ articles, isLoading, loadingProgress, onRe
   const [sortBy, setSortBy] = useState('date_desc');
   const [resetKey, setResetKey] = useState(0);
   const [showBackToTop, setShowBackToTop] = useState(false);
+  const [failedImageIds, setFailedImageIds] = useState(new Set());
 
   useEffect(() => {
     const onScroll = () => setShowBackToTop(window.scrollY > 400);
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  const handleImageFail = React.useCallback((articleId) => {
+    setFailedImageIds(prev => {
+      if (prev.has(articleId)) return prev;
+      const next = new Set(prev);
+      next.add(articleId);
+      return next;
+    });
   }, []);
 
   const handleResetArticles = () => {
@@ -64,6 +74,8 @@ export default function ArticleFeed({ articles, isLoading, loadingProgress, onRe
     const results = articles.filter(a => {
       // Hide articles that lack a graphical abstract (e.g. corrections, errata, early papers)
       if (GA_REQUIRED_IDS.has(a.journalId) && !extractImage(a)) return false;
+      // Also hide if the GA image failed to load (404 from publisher CDN)
+      if (GA_REQUIRED_IDS.has(a.journalId) && failedImageIds.has(a.link)) return false;
 
       const kw = filters.keyword.toLowerCase();
       const authorStr = (Array.isArray(a.author) ? a.author.join(' ') : a.author || '').toLowerCase();
@@ -96,7 +108,7 @@ export default function ArticleFeed({ articles, isLoading, loadingProgress, onRe
     }
 
     return results;
-  }, [articles, filters, quickFilters, sortBy]);
+  }, [articles, filters, quickFilters, sortBy, failedImageIds]);
 
   if (followedCount === 0) {
     return (
@@ -233,6 +245,7 @@ export default function ArticleFeed({ articles, isLoading, loadingProgress, onRe
               savedRecord={savedArticles.find(s => s.article_id === article.link)}
               onSaveToggle={onSaveToggle}
               resetKey={resetKey}
+              onImageFail={GA_REQUIRED_IDS.has(article.journalId) ? handleImageFail : undefined}
             />
           ))}
         </AnimatePresence>

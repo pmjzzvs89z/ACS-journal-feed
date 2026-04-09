@@ -171,7 +171,7 @@ const markArticleSeen = (articleId) => {
 const isArticleSeen = (articleId) => getSeenArticles().has(articleId);
 export const clearAllSeenArticles = () => localStorage.removeItem('seenArticles');
 
-const ArticleCard = React.forwardRef(function ArticleCard({ article, index, savedRecord, onSaveToggle, resetKey = 0 }, _ref) {
+const ArticleCard = React.forwardRef(function ArticleCard({ article, index, savedRecord, onSaveToggle, resetKey = 0, onImageFail }, _ref) {
   const [imageFailed, setImageFailed] = useState(false);
   const [abstractOpen, setAbstractOpen] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -197,7 +197,8 @@ const ArticleCard = React.forwardRef(function ArticleCard({ article, index, save
       return;
     }
     setImageFailed(true);
-  }, [currentImageUrl]);
+    if (onImageFail) onImageFail(article.link);
+  }, [currentImageUrl, onImageFail, article.link]);
 
   React.useEffect(() => {
     wasEverVisibleRef.current = false;
