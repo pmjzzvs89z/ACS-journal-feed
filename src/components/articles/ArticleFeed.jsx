@@ -1,18 +1,19 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Inbox, RotateCcw, Settings, ArrowUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import ArticleCard, { clearAllSeenArticles, extractImage } from './ArticleCard';
+import ArticleCard, { clearAllSeenArticles, getCachedImage } from './ArticleCard';
 import ArticleFilters from './ArticleFilters';
 import { ALL_JOURNALS, ACS_JOURNALS, RSC_JOURNALS, WILEY_JOURNALS, ELSEVIER_JOURNALS, SPRINGER_JOURNALS } from '@/components/journals/JournalList';
 
-const JOURNAL_FILTER_KEY = 'cjf_journal_filter';
-function loadJournalFilter() {
-  try { return sessionStorage.getItem(JOURNAL_FILTER_KEY) || ''; }
-  catch { return ''; }
-}
-function getDefaultFilters() {
-  return { keyword: '', journal: loadJournalFilter(), dateFrom: '', dateTo: '' };
+function filtersFromParams(params) {
+  return {
+    keyword: params.get('keyword') || '',
+    journal: params.get('journal') || '',
+    dateFrom: params.get('from') || '',
+    dateTo: params.get('to') || '',
+  };
 }
 const GA_REQUIRED_IDS = new Set([
   ...ACS_JOURNALS, ...RSC_JOURNALS, ...WILEY_JOURNALS,
@@ -25,10 +26,6 @@ function loadQuickFilters() {
   catch { return { enabled: false, keywords: [], authors: [] }; }
 }
 
-const SORT_OPTIONS = [
-  { value: 'date_desc', label: 'Newest first' },
-  { value: 'date_asc', label: 'Oldest first' },
-];
 
 function SkeletonCard() {
   return (
@@ -50,16 +47,44 @@ function SkeletonCard() {
 }
 
 export default function ArticleFeed({ articles, isLoading, loadingProgress, onRefresh, followedCount, savedArticles = [], onSaveToggle, followedJournals = [] }) {
-  const [filters, setFiltersRaw] = useState(getDefaultFilters);
-  const setFilters = (newFilters) => {
-    setFiltersRaw(newFilters);
-    try { sessionStorage.setItem(JOURNAL_FILTER_KEY, newFilters.journal || ''); } catch {}
-  };
+  const [searchParams, setSearchParams] = useSearchParams();
+  const filters = useMemo(() => filtersFromParams(searchParams), [searchParams]);
+  const setFilters = useCallback((newFilters) => {
+    setSearchParams(prev => {
+      const next = new URLSearchParams(prev);
+      // Update or remove each filter param
+      if (newFilters.keyword) next.set('keyword', newFilters.keyword);
+      else next.delete('keyword');
+      if (newFilters.journal) next.set('journal', newFilters.journal);
+      else next.delete('journal');
+      if (newFilters.dateFrom) next.set('from', newFilters.dateFrom);
+      else next.delete('from');
+      if (newFilters.dateTo) next.set('to', newFilters.dateTo);
+      else next.delete('to');
+      return next;
+    }, { replace: true });
+  }, [setSearchParams]);
   const [quickFilters, setQuickFilters] = useState(loadQuickFilters);
-  const [sortBy, setSortBy] = useState('date_desc');
   const [resetKey, setResetKey] = useState(0);
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [failedImageIds, setFailedImageIds] = useState(new Set());
+
+  // Infinite scroll — only render a slice of articles, grow on scroll
+  const PAGE_SIZE = 30;
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const sentinelRef = useRef(null);
+
+  // O(1) lookup for saved articles instead of .find() per card
+  const savedMap = useMemo(() => {
+    const m = new Map();
+    savedArticles.forEach(s => m.set(s.article_id, s));
+    return m;
+  }, [savedArticles]);
+
+  // Reset visible count when filters change
+  useEffect(() => {
+    setVisibleCount(PAGE_SIZE);
+  }, [filters, quickFilters]);
 
   useEffect(() => {
     const onScroll = () => setShowBackToTop(window.scrollY > 400);
@@ -84,7 +109,7 @@ export default function ArticleFeed({ articles, isLoading, loadingProgress, onRe
   const filtered = useMemo(() => {
     const results = articles.filter(a => {
       // Hide articles that lack a graphical abstract (e.g. corrections, errata, early papers)
-      if (GA_REQUIRED_IDS.has(a.journalId) && !extractImage(a)) return false;
+      if (GA_REQUIRED_IDS.has(a.journalId) && !getCachedImage(a)) return false;
       // Also hide if the GA image failed to load (404 from publisher CDN)
       if (GA_REQUIRED_IDS.has(a.journalId) && failedImageIds.has(a.link)) return false;
 
@@ -112,14 +137,32 @@ export default function ArticleFeed({ articles, isLoading, loadingProgress, onRe
       return true;
     });
 
-    if (sortBy === 'date_asc') {
-      results.sort((a, b) => new Date(a.pubDate || 0) - new Date(b.pubDate || 0));
-    } else {
-      results.sort((a, b) => new Date(b.pubDate || 0) - new Date(a.pubDate || 0));
-    }
+    // Primary sort: journal name A→Z; secondary sort: newest first within each journal
+    results.sort((a, b) => {
+      const cmp = (a.journalAbbrev || '').localeCompare(b.journalAbbrev || '', undefined, { sensitivity: 'base' });
+      if (cmp !== 0) return cmp;
+      return new Date(b.pubDate || 0) - new Date(a.pubDate || 0);
+    });
 
     return results;
-  }, [articles, filters, quickFilters, sortBy, failedImageIds]);
+  }, [articles, filters, quickFilters, failedImageIds]);
+
+  // Slice for rendering — only mount what's needed
+  const visibleArticles = useMemo(() => filtered.slice(0, visibleCount), [filtered, visibleCount]);
+  const hasMore = visibleCount < filtered.length;
+
+  // Infinite scroll observer — loads more articles when sentinel enters viewport
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        setVisibleCount(prev => prev + PAGE_SIZE);
+      }
+    }, { rootMargin: '400px' });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [hasMore]);
 
   if (followedCount === 0) {
     return (
@@ -187,7 +230,7 @@ export default function ArticleFeed({ articles, isLoading, loadingProgress, onRe
       });
     }
   });
-  const journals = [...journalsFromArticles.values()].sort((a, b) => a.name.localeCompare(b.name));
+  const journals = [...journalsFromArticles.values()].sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
 
   return (
     <div>
@@ -215,17 +258,8 @@ export default function ArticleFeed({ articles, isLoading, loadingProgress, onRe
           </select>
         </div>
 
-        {/* Right: sort + reset */}
+        {/* Right: reset */}
         <div className="flex-1 flex items-center gap-2 justify-end">
-          <select
-            value={sortBy}
-            onChange={e => setSortBy(e.target.value)}
-            className="h-9 text-sm border border-blue-100 dark:border-slate-600 rounded-lg px-3 bg-blue-50/60 dark:bg-slate-800 text-slate-600 dark:text-slate-300 focus:outline-none focus:ring-1 focus:ring-blue-500 hover:bg-blue-100/60 dark:hover:bg-slate-700 transition-colors cursor-pointer"
-          >
-            {SORT_OPTIONS.map(o => (
-              <option key={o.value} value={o.value}>{o.label}</option>
-            ))}
-          </select>
           <Button
             onClick={handleResetArticles}
             size="sm"
@@ -249,18 +283,21 @@ export default function ArticleFeed({ articles, isLoading, loadingProgress, onRe
 
       <div className="space-y-4">
         <AnimatePresence mode="popLayout">
-          {filtered.map((article, index) => (
+          {visibleArticles.map((article, index) => (
             <ArticleCard
               key={`${article.journalId}-${article.link}`}
               article={article}
               index={index}
-              savedRecord={savedArticles.find(s => s.article_id === article.link)}
+              savedRecord={savedMap.get(article.link)}
               onSaveToggle={onSaveToggle}
               resetKey={resetKey}
               onImageFail={GA_REQUIRED_IDS.has(article.journalId) ? handleImageFail : undefined}
+              cachedImageUrl={getCachedImage(article)}
             />
           ))}
         </AnimatePresence>
+        {/* Sentinel for infinite scroll */}
+        {hasMore && <div ref={sentinelRef} className="h-4" />}
       </div>
 
       {filtered.length === 0 && !isLoading && (

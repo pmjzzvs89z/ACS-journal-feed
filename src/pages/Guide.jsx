@@ -90,53 +90,67 @@ export default function Guide() {
           <p className="text-muted-foreground text-sm mb-8">Everything you need to know to get started with Literature Tracker.</p>
 
           <p className="mb-8 leading-relaxed text-foreground">
-            <span className="text-blue-600 dark:text-blue-400 font-medium">Literature Tracker app is designed to help you follow your favorite journals.</span>
+            <span className="text-blue-600 dark:text-blue-400 font-medium">Literature Tracker is designed to help you follow your favorite scientific journals.</span>
             <br /><br />
-            Select your favorite journals via <strong>Journal Selector</strong> (top-right). Choose from hundreds of chemistry, materials, and engineering journals across ACS, RSC, Wiley, Elsevier, MDPI, Springer, and more.
+            Select your favorite journals via <strong>Journal Selector</strong> (top-right). Choose from hundreds of journals across three fields — Chemistry, Engineering, and Materials Science — from publishers including ACS, RSC, Wiley, Elsevier, MDPI, Springer Nature, AAAS, Taylor &amp; Francis, ASME, IChemE, and IOP.
           </p>
 
-          <Section title="Tabs">
-            <ul className="space-y-4 text-sm text-foreground">
-              <li>
-                <span className="font-semibold text-foreground">Feed</span> – Live RSS articles from your followed journals, sorted by date. Click the title or arrow icon to open the article. Use the bookmark icon to save an article.
-              </li>
-              <li>
-                <span className="font-semibold text-foreground">Saved</span> – All your bookmarked articles. Export them as RIS, CSV, or plain text. Set up <strong>Auto-Save Rules</strong> to automatically bookmark articles matching specific keywords or authors.
-              </li>
+          <Section title="Feed">
+            <ul className="space-y-2 text-sm text-foreground list-disc list-inside">
+              <li>Articles are sorted by <span className="font-medium">journal name A&ndash;Z</span>, with the newest articles first within each journal</li>
+              <li>Each article card shows a <span className="font-medium">graphical abstract</span> (when available from the publisher), title, authors, date, DOI, and journal badge</li>
+              <li>Click the title or the arrow icon to open the full article on the publisher's website</li>
+              <li>Use the <span className="font-medium">Save</span> button to bookmark an article for later</li>
+              <li>Use the <span className="font-medium">journal dropdown</span> (top center, highlighted with a gentle pulse) to filter the feed to a single journal</li>
+              <li>Use the <span className="font-medium">Reset</span> button to mark all articles as unread (blue) again</li>
+              <li>A <span className="font-medium">Back to Top</span> button appears when you scroll down</li>
             </ul>
           </Section>
 
-          <Section title="Filters & Persistent Filters">
-            <p className="text-sm text-foreground mb-3">The Feed tab has a filter bar where you can:</p>
-            <ul className="space-y-2 text-sm text-foreground list-disc list-inside mb-4">
-              <li><span className="font-medium">Search by keyword</span> – filters article titles and abstracts in real time</li>
-              <li><span className="font-medium">Filter by author</span> – show only articles from specific authors</li>
-              <li><span className="font-medium">Filter by date range</span> – limit results to a time window</li>
-              <li><span className="font-medium">Filter by journal</span> – narrow down to one or more followed journals</li>
+          <Section title="Saved Articles">
+            <ul className="space-y-2 text-sm text-foreground list-disc list-inside">
+              <li>All your bookmarked articles in one place</li>
+              <li>Select articles with checkboxes and <span className="font-medium">export</span> them as RIS (for Zotero, Mendeley, EndNote), CSV, or plain text</li>
+              <li>Set up <span className="font-medium">Auto-Save Rules</span> to automatically bookmark articles matching specific keywords or authors — rules run every time the feed refreshes</li>
+              <li>Unsave articles individually with the trash icon</li>
             </ul>
+          </Section>
+
+          <Section title="Filters">
+            <p className="text-sm text-foreground mb-3">The Feed tab has a search and filter bar:</p>
+            <ul className="space-y-2 text-sm text-foreground list-disc list-inside mb-4">
+              <li><span className="font-medium">Search by keyword</span> — filters article titles, abstracts, and authors in real time</li>
+              <li><span className="font-medium">Filter by date range</span> — limit results to a specific time window</li>
+              <li><span className="font-medium">Filter by journal</span> — use the dropdown above the feed to show only one journal</li>
+            </ul>
+            <p className="text-sm text-foreground leading-relaxed mb-3">
+              <span className="font-semibold">Persistent Filter:</span> Add keywords and/or authors that are saved in your browser and reapplied automatically every time you open the app. Toggle the filter on and off with the switch. Remove individual items by clicking the <strong>&times;</strong> on any filter badge.
+            </p>
             <p className="text-sm text-foreground leading-relaxed">
-              <span className="font-semibold">Persistent Filter:</span> keywords and authors you save as filters are stored in your browser and reapplied automatically every time you open the app. Add them via the filter bar; remove them by clicking the <strong>×</strong> on any filter badge. You can turn on and off this filter via toggle switch.
+              <span className="font-semibold">URL-based filters:</span> All active filters (journal, keyword, date range) are stored in the page URL. This means your filters <span className="font-medium">survive page refresh</span>, can be <span className="font-medium">bookmarked</span> for quick access, and work with browser back/forward navigation.
             </p>
           </Section>
 
           <Section title="Journal Selector">
             <ul className="space-y-2 text-sm text-foreground list-disc list-inside">
-              <li>Search by name or keyword</li>
-              <li>Filter by publisher or category</li>
-              <li>Switch between Chemistry, Engineering, and Materials Science fields</li>
-              <li>Add a custom journal by pasting its RSS feed URL</li>
+              <li>Switch between <span className="font-medium">Chemistry</span>, <span className="font-medium">Engineering</span>, and <span className="font-medium">Materials Science</span> fields using the tabs at the top</li>
+              <li>Browse by publisher (e.g., ACS, RSC, Wiley) or by research category (e.g., Organic Chemistry, Catalysis)</li>
+              <li>Search by journal name or keyword</li>
+              <li>Use <span className="font-medium">Discover Journals</span> to see suggested journals you may want to follow (click again to close)</li>
+              <li>Add a <span className="font-medium">custom journal</span> by pasting its RSS feed URL</li>
+              <li>Journals are listed alphabetically within each category and publisher</li>
             </ul>
           </Section>
 
           <Section title="Tips">
             <ul className="space-y-2 text-sm text-foreground list-disc list-inside">
               <li>Articles you've scrolled past appear in <span className="text-muted-foreground font-medium">gray</span>; unread ones are <span className="text-blue-600 dark:text-blue-400 font-medium">blue</span></li>
-              <li>The Feed tab badge shows how many unread articles you have</li>
               <li>A banner appears after 30 minutes reminding you to refresh for the latest articles</li>
               <li>Articles are cached for 20 minutes — switching tabs and back is instant</li>
-              <li>Auto-Save Rules (in Saved tab) run every time the feed refreshes</li>
-              <li>Quick filters and auto-save rules persist across sessions (stored locally in your browser)</li>
-              <li>Use the <span className="font-medium">moon/sun</span> icon in the header to toggle dark mode</li>
+              <li>The <span className="font-medium">Feed</span> button gently pulses when you're on another tab, as a reminder to return to your articles</li>
+              <li>Persistent filters and auto-save rules are stored locally in your browser and persist across sessions</li>
+              <li>Use the <span className="font-medium">moon/sun</span> icon in the header to toggle between dark and light mode</li>
+              <li>Use the <span className="font-medium">logout</span> button (top-right) to sign out of your account</li>
             </ul>
           </Section>
         </div>

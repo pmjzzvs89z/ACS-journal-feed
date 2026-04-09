@@ -48,7 +48,11 @@ Deno.serve(async (req: Request) => {
 
     return new Response(JSON.stringify({ status: "ok", items }), {
       status: 200,
-      headers: { ...CORS_HEADERS, "Content-Type": "application/json" },
+      headers: {
+        ...CORS_HEADERS,
+        "Content-Type": "application/json",
+        "Cache-Control": "public, max-age=300, s-maxage=300",
+      },
     });
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : String(e);

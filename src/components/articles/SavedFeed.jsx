@@ -156,7 +156,7 @@ export default function SavedFeed({ savedArticles, onRefresh, articles = [] }) {
   const [selectedIds, setSelectedIds] = useState(new Set());
   const [exportOpen, setExportOpen] = useState(false);
   const [rulesExpanded, setRulesExpanded] = useState(false);
-  const [rules, setRulesState] = useState(loadRules);
+  const [rules, setRulesState] = useState(() => loadRules());
 
   const handleRulesChange = (newRules) => {
     setRulesState(newRules);

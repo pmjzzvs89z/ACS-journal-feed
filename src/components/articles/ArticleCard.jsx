@@ -158,20 +158,37 @@ export function extractImage(article) {
   return null;
 }
 
-// ── Seen articles helpers ──────────────────────────────────────────────────
+// ── Image URL cache — avoids re-running expensive regex extraction ─────────
+const _imageCache = new Map();
+export function getCachedImage(article) {
+  const key = article.link;
+  if (_imageCache.has(key)) return _imageCache.get(key);
+  const url = extractImage(article);
+  _imageCache.set(key, url);
+  return url;
+}
+
+// ── Seen articles helpers (cached in memory, flushed to localStorage) ─────
+let _seenCache = null;
 const getSeenArticles = () => {
-  try { return new Set(JSON.parse(localStorage.getItem('seenArticles') || '[]')); }
-  catch { return new Set(); }
+  if (_seenCache) return _seenCache;
+  try { _seenCache = new Set(JSON.parse(localStorage.getItem('seenArticles') || '[]')); }
+  catch { _seenCache = new Set(); }
+  return _seenCache;
 };
 const markArticleSeen = (articleId) => {
   const seen = getSeenArticles();
+  if (seen.has(articleId)) return; // skip redundant writes
   seen.add(articleId);
   localStorage.setItem('seenArticles', JSON.stringify([...seen]));
 };
 const isArticleSeen = (articleId) => getSeenArticles().has(articleId);
-export const clearAllSeenArticles = () => localStorage.removeItem('seenArticles');
+export const clearAllSeenArticles = () => {
+  _seenCache = null;
+  localStorage.removeItem('seenArticles');
+};
 
-const ArticleCard = React.forwardRef(function ArticleCard({ article, index, savedRecord, onSaveToggle, resetKey = 0, onImageFail }, _ref) {
+const ArticleCard = React.memo(React.forwardRef(function ArticleCard({ article, index, savedRecord, onSaveToggle, resetKey = 0, onImageFail, cachedImageUrl }, _ref) {
   const [imageFailed, setImageFailed] = useState(false);
   const [abstractOpen, setAbstractOpen] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -182,7 +199,7 @@ const ArticleCard = React.forwardRef(function ArticleCard({ article, index, save
   const wasEverVisibleRef = React.useRef(false);
 
   const abstractText = extractAbstract(article);
-  const imageUrl = extractImage(article);
+  const imageUrl = cachedImageUrl !== undefined ? cachedImageUrl : extractImage(article);
   const isSaved = !!savedRecord;
 
   useEffect(() => {
@@ -222,24 +239,29 @@ const ArticleCard = React.forwardRef(function ArticleCard({ article, index, save
     e.preventDefault();
     e.stopPropagation();
     setSaving(true);
-    if (isSaved) {
-      await entities.SavedArticle.delete(savedRecord.id);
-    } else {
-      await entities.SavedArticle.create({
-        article_id: article.link,
-        title: article.title,
-        link: article.link,
-        authors: Array.isArray(article.author) ? article.author.join(', ') : (article.author || ''),
-        pub_date: article.pubDate || '',
-        journal_name: article.journalName || '',
-        journal_abbrev: article.journalAbbrev || '',
-        journal_color: article.journalColor || '#0066b3',
-        thumbnail: currentImageUrl || '',
-        abstract: abstractText || '',
-      });
+    try {
+      if (isSaved) {
+        await entities.SavedArticle.delete(savedRecord.id);
+      } else {
+        await entities.SavedArticle.create({
+          article_id: article.link,
+          title: article.title,
+          link: article.link,
+          authors: Array.isArray(article.author) ? article.author.join(', ') : (article.author || ''),
+          pub_date: article.pubDate || '',
+          journal_name: article.journalName || '',
+          journal_abbrev: article.journalAbbrev || '',
+          journal_color: article.journalColor || '#0066b3',
+          thumbnail: currentImageUrl || '',
+          abstract: abstractText || '',
+        });
+      }
+      if (onSaveToggle) onSaveToggle();
+    } catch (err) {
+      console.error('Failed to save/unsave article:', err);
+    } finally {
+      setSaving(false);
     }
-    if (onSaveToggle) onSaveToggle();
-    setSaving(false);
   };
 
   const formatDate = (dateString) => {
@@ -267,6 +289,7 @@ const ArticleCard = React.forwardRef(function ArticleCard({ article, index, save
             <img
               src={currentImageUrl}
               alt="Graphical abstract"
+              loading="lazy"
               onError={handleImageError}
               referrerPolicy="no-referrer"
               className="w-full h-full object-contain"
@@ -286,6 +309,7 @@ const ArticleCard = React.forwardRef(function ArticleCard({ article, index, save
               <img
                 src={currentImageUrl}
                 alt="Graphical abstract"
+                loading="lazy"
                 onError={handleImageError}
                 referrerPolicy="no-referrer"
                 className="w-full max-h-40 object-contain"
@@ -387,6 +411,6 @@ const ArticleCard = React.forwardRef(function ArticleCard({ article, index, save
       </Dialog>
     </motion.article>
   );
-});
+}));
 
 export default ArticleCard;

@@ -7,7 +7,7 @@ import ArticleFeed from '@/components/articles/ArticleFeed';
 import SavedFeed from '@/components/articles/SavedFeed';
 import RecommendedFeed from '@/components/articles/RecommendedFeed';
 import { ALL_JOURNALS } from '@/components/journals/JournalList';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { useDarkMode } from '@/hooks/useDarkMode';
 import { useAuth } from '@/lib/AuthContext';
@@ -46,9 +46,17 @@ export default function Home() {
   const progressSetterRef = useRef(setLoadingProgress);
   progressSetterRef.current = setLoadingProgress;
 
-  const urlParams = new URLSearchParams(window.location.search);
-  const initialTab = urlParams.get('tab') || 'feed';
-  const [activeTab, setActiveTab] = useState(initialTab);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeTab = searchParams.get('tab') || 'feed';
+  const setActiveTab = useCallback((tab) => {
+    setSearchParams(prev => {
+      const next = new URLSearchParams(prev);
+      if (tab === 'feed') next.delete('tab');
+      else next.set('tab', tab);
+      return next;
+    }, { replace: true });
+  }, [setSearchParams]);
+
   const [unreadCount, setUnreadCount] = useState(0);
   const [showRefreshBanner, setShowRefreshBanner] = useState(false);
   const [userKeywords, setUserKeywords] = useState('');
@@ -58,21 +66,15 @@ export default function Home() {
   const { logout } = useAuth();
   const queryClient = useQueryClient();
 
-  // Remove ?tab= from URL immediately so refreshing always lands on Feed
-  useEffect(() => {
-    if (new URLSearchParams(window.location.search).has('tab')) {
-      window.history.replaceState({}, '', window.location.pathname);
-    }
-  }, []);
-
   const location = useLocation();
   const isSettingsActive = location.pathname === createPageUrl('Settings');
   const isGuideActive = location.pathname === createPageUrl('Guide');
 
-  // Fetch followed journals
+  // Fetch followed journals — keep fresh for 10 min so navigating back doesn't trigger a refetch
   const { data: followedJournals = [], isLoading: isLoadingJournals } = useQuery({
     queryKey: ['followedJournals'],
     queryFn: () => entities.FollowedJournal.list(),
+    staleTime: 10 * 60 * 1000,
   });
 
   // Fetch saved articles
@@ -99,10 +101,10 @@ export default function Home() {
     progressSetterRef.current({ done: 0, total: activeJournals.length });
     const allArticles = [];
 
-    const BATCH_SIZE = 3;
+    const BATCH_SIZE = 6;
     for (let i = 0; i < activeJournals.length; i += BATCH_SIZE) {
       const batch = activeJournals.slice(i, i + BATCH_SIZE);
-      if (i > 0) await new Promise(r => setTimeout(r, 1200));
+      if (i > 0) await new Promise(r => setTimeout(r, 400));
       await Promise.all(
         batch.map(async (journal) => {
           const journalInfo = ALL_JOURNALS.find(j => j.id === journal.journal_id);
@@ -131,6 +133,10 @@ export default function Home() {
   }, [followedJournals]);
 
   // Cached RSS query — stays fresh for 20 minutes
+  // Only block on isLoadingJournals if we have no journal data yet (first load).
+  // On subsequent mounts (navigating back), followedJournals is already cached,
+  // so journalQueryKey is stable and the articles cache is served instantly.
+  const hasJournalData = followedJournals.length > 0;
   const {
     data: articles = [],
     isLoading: isLoadingArticles,
@@ -141,7 +147,7 @@ export default function Home() {
     queryFn: fetchArticlesQuery,
     staleTime: 20 * 60 * 1000,
     gcTime: 30 * 60 * 1000,
-    enabled: !isLoadingJournals,
+    enabled: hasJournalData || !isLoadingJournals,
   });
 
   // Auto-save side effect — runs whenever articles change
