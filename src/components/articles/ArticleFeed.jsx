@@ -377,7 +377,7 @@ export default function ArticleFeed({ articles, isLoading, loadingProgress, onRe
             exit={{ opacity: 0, y: 16 }}
             transition={{ duration: 0.2 }}
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-4 py-2.5 bg-muted hover:bg-accent text-foreground text-sm font-semibold rounded-xl shadow-lg hover:shadow-xl border border-border transition-colors"
+            className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex items-center gap-1.5 px-2.5 py-1 bg-slate-700 hover:bg-slate-600 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl border border-slate-600 transition-colors"
             aria-label="Back to top"
           >
             <ArrowUp className="w-4 h-4" />
@@ -395,7 +395,7 @@ export default function ArticleFeed({ articles, isLoading, loadingProgress, onRe
             exit={{ opacity: 0, x: 16 }}
             transition={{ duration: 0.2 }}
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            className="fixed right-6 top-1/2 -translate-y-1/2 z-50 flex items-center justify-center w-7 h-11 rounded-lg bg-blue-600/90 hover:bg-blue-600 text-white shadow-lg hover:shadow-xl border border-blue-400 transition-colors"
+            className="fixed right-[max(0.5rem,calc(50vw-41.75rem))] top-1/2 -translate-y-1/2 z-50 flex items-center justify-center w-7 h-11 rounded-lg bg-slate-700 hover:bg-slate-600 text-white shadow-lg hover:shadow-xl border border-slate-600 transition-colors"
             aria-label="Back to top"
             title="Back to top"
           >
