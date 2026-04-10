@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, forwardRef, useImperativeHandle } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { BookOpen, ChevronRight, ChevronDown, X, FlaskConical, Cog, Layers, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -71,13 +71,40 @@ const MATERIALS_PUBLISHERS = [
   { id: 'mat_iop',      label: 'IOP Publishing',  journals: IOP_MATERIALS_JOURNALS,      color: '#C8102E' },
 ];
 
-export default function JournalSelector({ followedJournals, onToggleJournal, onCustomJournalAdded }) {
+const JournalSelector = forwardRef(function JournalSelector({ followedJournals, onToggleJournal, onCustomJournalAdded }, ref) {
   const [activeField, setActiveField] = useState('chemistry'); // 'chemistry' | 'engineering' | 'materials' | 'discover'
   const [expandedPublisher, setExpandedPublisher] = useState(null);
   const [expandedCategories, setExpandedCategories] = useState(new Set());
   const [search, setSearch] = useState('');
   const [filterCategory, setFilterCategory] = useState('');
   const [filterPublisher, setFilterPublisher] = useState('');
+
+  // Clear everything — same effect as pressing the blue "Close" button, plus
+  // collapsing any expanded publisher/category accordion.
+  const clearAll = () => {
+    setExpandedPublisher(null);
+    setExpandedCategories(new Set());
+    setSearch('');
+    setFilterCategory('');
+    setFilterPublisher('');
+  };
+
+  const hasSomethingOpen =
+    expandedPublisher !== null ||
+    expandedCategories.size > 0 ||
+    filterCategory !== '' ||
+    filterPublisher !== '';
+
+  // Expose an imperative API so the parent page (Settings.jsx) can trigger
+  // clearAll() when the user clicks outside the JournalSelector card.
+  useImperativeHandle(ref, () => ({
+    clearAll,
+    hasSomethingOpen: () =>
+      expandedPublisher !== null ||
+      expandedCategories.size > 0 ||
+      filterCategory !== '' ||
+      filterPublisher !== '',
+  }), [expandedPublisher, expandedCategories, filterCategory, filterPublisher]);
 
   const PUBLISHERS = activeField === 'chemistry' ? CHEMISTRY_PUBLISHERS : activeField === 'engineering' ? ENGINEERING_PUBLISHERS : MATERIALS_PUBLISHERS;
   const CATEGORIES = activeField === 'chemistry' ? CHEMISTRY_CATEGORIES : activeField === 'engineering' ? ENGINEERING_CATEGORIES : MATERIALS_CATEGORIES;
@@ -290,9 +317,9 @@ export default function JournalSelector({ followedJournals, onToggleJournal, onC
         {isFiltering && (
           <button
             onClick={clearFilters}
-            className="text-xs text-blue-600 hover:text-blue-800 font-medium whitespace-nowrap px-1"
+            className="text-sm text-blue-600 hover:text-blue-800 font-medium whitespace-nowrap px-1 animate-pulse"
           >
-            Clear
+            Close
           </button>
         )}
       </div>
@@ -497,4 +524,6 @@ export default function JournalSelector({ followedJournals, onToggleJournal, onC
       )}
     </div>
   );
-}
+});
+
+export default JournalSelector;

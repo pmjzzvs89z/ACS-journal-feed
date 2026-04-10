@@ -7,6 +7,27 @@ import ArticleCard, { clearAllSeenArticles, getCachedImage } from './ArticleCard
 import ArticleFilters from './ArticleFilters';
 import { ALL_JOURNALS, ACS_JOURNALS, RSC_JOURNALS, WILEY_JOURNALS, ELSEVIER_JOURNALS, SPRINGER_JOURNALS } from '@/components/journals/JournalList';
 
+const FILTERS_KEY = 'cjf_feed_filters';
+
+function loadStoredFilters() {
+  try {
+    const raw = localStorage.getItem(FILTERS_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== 'object') return null;
+    const hasAny = parsed.keyword || parsed.journal || parsed.dateFrom || parsed.dateTo;
+    return hasAny ? parsed : null;
+  } catch { return null; }
+}
+
+function saveStoredFilters(filters) {
+  try {
+    const hasAny = filters.keyword || filters.journal || filters.dateFrom || filters.dateTo;
+    if (hasAny) localStorage.setItem(FILTERS_KEY, JSON.stringify(filters));
+    else localStorage.removeItem(FILTERS_KEY);
+  } catch { /* ignore */ }
+}
+
 function filtersFromParams(params) {
   return {
     keyword: params.get('keyword') || '',
@@ -56,7 +77,28 @@ function SkeletonCard() {
 export default function ArticleFeed({ articles, isLoading, loadingProgress, onRefresh, followedCount, savedArticles = [], onSaveToggle, followedJournals = [] }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const filters = useMemo(() => filtersFromParams(searchParams), [searchParams]);
+
+  // Hydrate filters from localStorage on mount if URL has none
+  // (e.g. returning from Journal Selector or Guide routes)
+  useEffect(() => {
+    const fromUrl = filtersFromParams(searchParams);
+    const hasUrlFilters = fromUrl.keyword || fromUrl.journal || fromUrl.dateFrom || fromUrl.dateTo;
+    if (hasUrlFilters) return;
+    const stored = loadStoredFilters();
+    if (!stored) return;
+    setSearchParams(prev => {
+      const next = new URLSearchParams(prev);
+      if (stored.keyword) next.set('keyword', stored.keyword);
+      if (stored.journal) next.set('journal', stored.journal);
+      if (stored.dateFrom) next.set('from', stored.dateFrom);
+      if (stored.dateTo) next.set('to', stored.dateTo);
+      return next;
+    }, { replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const setFilters = useCallback((newFilters) => {
+    saveStoredFilters(newFilters);
     setSearchParams(prev => {
       const next = new URLSearchParams(prev);
       // Update or remove each filter param

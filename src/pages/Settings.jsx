@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { entities } from '@/api/entities';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { BookOpen, Rss, Bookmark, Settings as SettingsIcon, Moon, Sun, LogOut } from 'lucide-react';
@@ -15,6 +15,18 @@ export default function Settings() {
   const isGuideActive = location.pathname === createPageUrl('Guide');
   const [isDark, toggleDark] = useDarkMode();
   const { logout } = useAuth();
+  const journalCardRef = useRef(null);
+  const journalSelectorRef = useRef(null);
+
+  // Clicking anywhere outside the Journal Selector card (e.g. the blue page
+  // background) has the same effect as pressing the blue "Close" button in
+  // the filters row — clears All Publishers / All Categories dropdowns and
+  // collapses any expanded publisher/category accordion.
+  const handlePageMouseDown = (e) => {
+    if (journalCardRef.current && !journalCardRef.current.contains(e.target)) {
+      journalSelectorRef.current?.clearAll?.();
+    }
+  };
 
   const { data: followedJournals = [], isLoading } = useQuery({
     queryKey: ['followedJournals'],
@@ -41,7 +53,7 @@ export default function Settings() {
   const activeCount = followedJournals.filter(j => j.is_active).length;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-card to-muted dark:from-slate-950 dark:via-slate-900 dark:to-slate-900">
+    <div onMouseDown={handlePageMouseDown} className="min-h-screen bg-gradient-to-br from-background via-card to-muted dark:from-slate-950 dark:via-slate-900 dark:to-slate-900">
       {/* Header */}
       <header className="sticky top-0 z-40 bg-card/80 backdrop-blur-xl border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -105,7 +117,7 @@ export default function Settings() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex justify-center">
-          <div style={{ width: '620px' }} className="flex-shrink-0">
+          <div ref={journalCardRef} style={{ width: '620px' }} className="flex-shrink-0">
             <div className="bg-card rounded-2xl border-[1.5px] border-border shadow-sm overflow-hidden flex flex-col" style={{ maxHeight: 'calc(100vh - 130px)' }}>
               {/* Box header — always visible */}
               <div className="flex-shrink-0 flex items-center gap-3 px-4 py-3 border-b border-border bg-muted">
@@ -123,6 +135,7 @@ export default function Settings() {
               <div className="flex-1 overflow-y-auto journal-scroll">
                 <div className="p-4">
                   <JournalSelector
+                    ref={journalSelectorRef}
                     followedJournals={followedJournals}
                     onToggleJournal={(journal) => toggleJournalMutation.mutate(journal)}
                     onCustomJournalAdded={() => queryClient.invalidateQueries({ queryKey: ['followedJournals'] })}
