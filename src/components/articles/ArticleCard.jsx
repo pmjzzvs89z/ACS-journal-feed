@@ -292,7 +292,6 @@ const ArticleCard = React.memo(React.forwardRef(function ArticleCard({ article, 
               alt="Graphical abstract"
 
               onError={handleImageError}
-              referrerPolicy="no-referrer"
               className="w-full h-full object-contain"
               style={{ maxHeight: '210px' }}
             />
@@ -312,8 +311,7 @@ const ArticleCard = React.memo(React.forwardRef(function ArticleCard({ article, 
                 alt="Graphical abstract"
   
                 onError={handleImageError}
-                referrerPolicy="no-referrer"
-                className="w-full max-h-40 object-contain"
+                  className="w-full max-h-40 object-contain"
               />
             </div>
           )}
