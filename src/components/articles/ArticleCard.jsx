@@ -290,7 +290,7 @@ const ArticleCard = React.memo(React.forwardRef(function ArticleCard({ article, 
             <img
               src={currentImageUrl}
               alt="Graphical abstract"
-              loading="lazy"
+
               onError={handleImageError}
               referrerPolicy="no-referrer"
               className="w-full h-full object-contain"
@@ -310,7 +310,7 @@ const ArticleCard = React.memo(React.forwardRef(function ArticleCard({ article, 
               <img
                 src={currentImageUrl}
                 alt="Graphical abstract"
-                loading="lazy"
+  
                 onError={handleImageError}
                 referrerPolicy="no-referrer"
                 className="w-full max-h-40 object-contain"
