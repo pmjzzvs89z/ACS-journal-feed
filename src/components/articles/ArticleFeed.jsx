@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Inbox, RotateCcw, Settings, ArrowUp } from 'lucide-react';
+import { Inbox, RotateCcw, Settings, ArrowUp, Check, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import ArticleCard, { clearAllSeenArticles, getCachedImage } from './ArticleCard';
 import ArticleFilters from './ArticleFilters';
@@ -43,6 +43,72 @@ const GA_REQUIRED_IDS = new Set([
 const GA_HIDE_ON_FAIL_IDS = new Set([
   ...ELSEVIER_JOURNALS, ...SPRINGER_JOURNALS,
 ].map(j => j.id));
+
+function JournalDropdown({ value, onChange, journals }) {
+  const [open, setOpen] = useState(false);
+  const wrapRef = useRef(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const onDocClick = (e) => {
+      if (wrapRef.current && !wrapRef.current.contains(e.target)) setOpen(false);
+    };
+    const onKey = (e) => { if (e.key === 'Escape') setOpen(false); };
+    document.addEventListener('mousedown', onDocClick);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onDocClick);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [open]);
+
+  const selected = journals.find(j => j.id === value);
+  const label = selected ? selected.name : 'All Selected Journals';
+
+  return (
+    <div ref={wrapRef} className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen(o => !o)}
+        className="flex items-center gap-2 h-9 text-sm border border-blue-200 dark:border-blue-700 rounded-lg px-3 bg-blue-50/60 dark:bg-blue-900/30 text-slate-600 dark:text-slate-300 focus:outline-none focus:ring-1 focus:ring-blue-500 hover:bg-blue-100/60 dark:hover:bg-blue-900/40 transition-colors cursor-pointer"
+      >
+        <span className="truncate max-w-[220px]">{label}</span>
+        <ChevronDown className="w-3.5 h-3.5 opacity-70" />
+      </button>
+      {open && (
+        <div
+          className="absolute left-1/2 -translate-x-1/2 top-full mt-1 min-w-[220px] max-h-[60vh] overflow-y-auto rounded-xl py-1 shadow-2xl"
+          style={{
+            backgroundColor: 'rgb(28, 30, 38)',
+            border: '1px solid rgba(255, 255, 255, 0.12)',
+            zIndex: 9999,
+            isolation: 'isolate',
+          }}
+        >
+          {[{ id: '', name: 'All Selected Journals' }, ...journals].map(j => {
+            const isSelected = j.id === value;
+            return (
+              <button
+                key={j.id || '__all'}
+                type="button"
+                onClick={() => { onChange(j.id); setOpen(false); }}
+                className="w-full flex items-center gap-2 pl-3 pr-4 py-1.5 text-sm text-left transition-colors"
+                style={{ color: '#ffffff', backgroundColor: 'transparent' }}
+                onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.1)'; }}
+                onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; }}
+              >
+                <span className="w-4 flex-shrink-0 flex items-center justify-center">
+                  {isSelected && <Check className="w-3.5 h-3.5" style={{ color: '#ffffff' }} />}
+                </span>
+                <span className="truncate">{j.name}</span>
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
 
 function SkeletonCard() {
   return (
@@ -263,16 +329,11 @@ export default function ArticleFeed({ articles, isLoading, loadingProgress, onRe
 
         {/* Center: journal filter */}
         <div className="feed-pulse-strong flex-shrink-0 mx-4 rounded-lg">
-          <select
+          <JournalDropdown
             value={filters.journal}
-            onChange={e => setFilters({ ...filters, journal: e.target.value })}
-            className="h-9 text-sm border border-blue-200 dark:border-blue-700 rounded-lg px-3 bg-blue-50/60 dark:bg-blue-900/30 text-slate-600 dark:text-slate-300 focus:outline-none focus:ring-1 focus:ring-blue-500 hover:bg-blue-100/60 dark:hover:bg-blue-900/40 transition-colors cursor-pointer"
-          >
-            <option value="">All Selected Journals</option>
-            {journals.map(j => (
-              <option key={j.id} value={j.id}>{j.name}</option>
-            ))}
-          </select>
+            onChange={(id) => setFilters({ ...filters, journal: id })}
+            journals={journals}
+          />
         </div>
 
         {/* Right: reset */}

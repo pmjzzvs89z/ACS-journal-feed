@@ -1,10 +1,77 @@
-import React, { useState, useMemo, forwardRef, useImperativeHandle } from 'react';
+import React, { useState, useMemo, useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BookOpen, ChevronRight, ChevronDown, X, FlaskConical, Cog, Layers, Sparkles } from 'lucide-react';
+import { BookOpen, ChevronRight, ChevronDown, X, FlaskConical, Cog, Layers, Sparkles, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { entities } from '@/api/entities';
 import JournalDiscover from './JournalDiscover';
 import JournalSearch from './JournalSearch';
+function FilterDropdown({ value, onChange, options, allLabel, style }) {
+  const [open, setOpen] = useState(false);
+  const wrapRef = useRef(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const onDocClick = (e) => {
+      if (wrapRef.current && !wrapRef.current.contains(e.target)) setOpen(false);
+    };
+    const onKey = (e) => { if (e.key === 'Escape') setOpen(false); };
+    document.addEventListener('mousedown', onDocClick);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onDocClick);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [open]);
+
+  const selected = options.find(o => o.value === value);
+  const label = selected ? selected.label : allLabel;
+
+  return (
+    <div ref={wrapRef} className="relative" style={style}>
+      <button
+        type="button"
+        onClick={() => setOpen(o => !o)}
+        className="w-full flex items-center gap-2 rounded-lg border border-border bg-muted px-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-foreground"
+        style={{ fontSize: '0.828rem', height: '1.75rem' }}
+      >
+        <span className="truncate flex-1 text-left">{label}</span>
+        <ChevronDown className="w-3.5 h-3.5 opacity-70 flex-shrink-0" />
+      </button>
+      {open && (
+        <div
+          className="absolute left-0 top-full mt-1 min-w-full max-h-[60vh] overflow-y-auto rounded-xl py-1 shadow-2xl"
+          style={{
+            backgroundColor: 'rgb(28, 30, 38)',
+            border: '1px solid rgba(255, 255, 255, 0.12)',
+            zIndex: 9999,
+            isolation: 'isolate',
+          }}
+        >
+          {[{ value: '', label: allLabel }, ...options].map(opt => {
+            const isSelected = opt.value === value;
+            return (
+              <button
+                key={opt.value || '__all'}
+                type="button"
+                onClick={() => { onChange(opt.value); setOpen(false); }}
+                className="w-full flex items-center gap-2 pl-3 pr-4 py-1.5 text-sm text-left transition-colors"
+                style={{ color: '#ffffff', backgroundColor: 'transparent' }}
+                onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.1)'; }}
+                onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; }}
+              >
+                <span className="w-4 flex-shrink-0 flex items-center justify-center">
+                  {isSelected && <Check className="w-3.5 h-3.5" style={{ color: '#ffffff' }} />}
+                </span>
+                <span className="truncate">{opt.label}</span>
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 const CATEGORY_KEYWORDS = {
   'General': ['general', 'chemistry', 'chemical', 'multidisciplinary'],
   'Analytical Chemistry': ['analytical', 'analysis', 'sensor', 'spectroscopy', 'chromatography', 'measurement', 'detection', 'toxicology', 'toxic'],
@@ -290,29 +357,21 @@ const JournalSelector = forwardRef(function JournalSelector({ followedJournals, 
 
       {/* Filters row */}
       <div className="flex gap-2">
-        <select
+        <FilterDropdown
           value={filterPublisher}
-          onChange={e => setFilterPublisher(e.target.value)}
-          className="rounded-lg border border-border bg-muted px-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-foreground"
-          style={{ flex: '1.3', fontSize: '0.828rem', height: '1.75rem' }}
-        >
-          <option value="">All Publishers</option>
-          {PUBLISHERS.map(p => (
-            <option key={p.id} value={p.id}>{p.label}</option>
-          ))}
-        </select>
+          onChange={setFilterPublisher}
+          options={PUBLISHERS.map(p => ({ value: p.id, label: p.label }))}
+          allLabel="All Publishers"
+          style={{ flex: '1.3' }}
+        />
 
-        <select
+        <FilterDropdown
           value={filterCategory}
-          onChange={e => setFilterCategory(e.target.value)}
-          className="rounded-lg border border-border bg-muted px-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-foreground"
-          style={{ flex: '1.3', fontSize: '0.828rem', height: '1.75rem' }}
-        >
-          <option value="">All Categories</option>
-          {CATEGORIES.map(c => (
-            <option key={c} value={c}>{c}</option>
-          ))}
-        </select>
+          onChange={setFilterCategory}
+          options={CATEGORIES.map(c => ({ value: c, label: c }))}
+          allLabel="All Categories"
+          style={{ flex: '1.3' }}
+        />
 
         {isFiltering && (
           <button
@@ -356,7 +415,7 @@ const JournalSelector = forwardRef(function JournalSelector({ followedJournals, 
               <div key={publisher.id} className="rounded-xl border border-border overflow-hidden">
                 <button
                   onClick={() => togglePublisher(publisher.id)}
-                  className="w-full flex items-center gap-3 px-4 py-2.5 bg-muted hover:bg-accent transition-colors"
+                  className="w-full flex items-center gap-3 px-4 py-[0.478rem] bg-muted hover:bg-accent transition-colors"
                 >
                   <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: publisher.color }} />
                   <span className="font-semibold text-foreground text-sm">{publisher.label}</span>
