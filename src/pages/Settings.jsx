@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { BookOpen, Rss, Bookmark, Settings as SettingsIcon, Moon, Sun, LogOut } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 import JournalSelector from '@/components/journals/JournalSelector';
+import Tooltip from '@/components/ui/Tooltip';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { useDarkMode } from '@/hooks/useDarkMode';
@@ -47,7 +48,36 @@ export default function Settings() {
         });
       }
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['followedJournals'] }),
+    // Optimistic update — flip the UI instantly, reconcile on server response.
+    onMutate: async (journal) => {
+      await queryClient.cancelQueries({ queryKey: ['followedJournals'] });
+      const previous = queryClient.getQueryData(['followedJournals']) || [];
+      const existing = previous.find(j => j.journal_id === journal.id);
+      let next;
+      if (existing) {
+        next = previous.map(j =>
+          j.journal_id === journal.id ? { ...j, is_active: !j.is_active } : j
+        );
+      } else {
+        next = [
+          ...previous,
+          {
+            id: `temp-${journal.id}-${Date.now()}`,
+            journal_id: journal.id,
+            journal_name: journal.name,
+            rss_url: journal.rss_url,
+            is_active: true,
+            __optimistic: true,
+          },
+        ];
+      }
+      queryClient.setQueryData(['followedJournals'], next);
+      return { previous };
+    },
+    onError: (_err, _journal, ctx) => {
+      if (ctx?.previous) queryClient.setQueryData(['followedJournals'], ctx.previous);
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ['followedJournals'] }),
   });
 
   const activeCount = followedJournals.filter(j => j.is_active).length;
@@ -74,8 +104,8 @@ export default function Settings() {
             <div className="flex items-center gap-4">
               <Link to={createPageUrl('Home') + '?tab=feed'}>
                 <button className="feed-pulse flex items-center gap-1.5 px-4 py-1 rounded-lg border text-sm font-semibold transition-colors bg-blue-50/60 dark:bg-slate-800 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-700 hover:bg-blue-100/60 dark:hover:bg-slate-700">
-                  <Rss className="w-4 h-4" />
-                  <span className="hidden sm:inline">Feed</span>
+                  <Rss className="w-4 h-4 feed-pulse-inner" />
+                  <span className="hidden sm:inline feed-pulse-inner">Feed</span>
                 </button>
               </Link>
               <Link to={createPageUrl('Home') + '?tab=saved'}>
@@ -91,25 +121,29 @@ export default function Settings() {
                 <SettingsIcon className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                 <span className="hidden sm:inline">Journal Selector</span>
               </button>
-              <Link to={createPageUrl('Guide')}>
-                <button className={`flex items-center gap-1.5 px-3 py-1 rounded-lg border text-sm font-medium transition-colors ${isGuideActive ? 'bg-blue-50/60 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-700' : 'bg-blue-50/60 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-blue-100 dark:border-slate-700 hover:bg-blue-100/60 dark:hover:bg-slate-700'}`}>
-                  <BookOpen className={`w-4 h-4 ${isGuideActive ? 'text-blue-600 dark:text-blue-400' : ''}`} />
+              <Tooltip label="User Guide" delay={500}>
+                <Link to={createPageUrl('Guide')}>
+                  <button className={`flex items-center gap-1.5 px-3 py-1 rounded-lg border text-sm font-medium transition-colors ${isGuideActive ? 'bg-blue-50/60 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-700' : 'bg-blue-50/60 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-blue-100 dark:border-slate-700 hover:bg-blue-100/60 dark:hover:bg-slate-700'}`}>
+                    <BookOpen className={`w-4 h-4 ${isGuideActive ? 'text-blue-600 dark:text-blue-400' : ''}`} />
+                  </button>
+                </Link>
+              </Tooltip>
+              <Tooltip label={isDark ? 'Switch to light mode' : 'Switch to dark mode'} delay={500}>
+                <button
+                  onClick={toggleDark}
+                  className="flex items-center justify-center w-8 h-8 rounded-lg border transition-colors bg-blue-50/60 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-blue-100 dark:border-slate-700 hover:bg-blue-100/60 dark:hover:bg-slate-700"
+                >
+                  {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
                 </button>
-              </Link>
-              <button
-                onClick={toggleDark}
-                className="flex items-center justify-center w-8 h-8 rounded-lg border transition-colors bg-blue-50/60 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-blue-100 dark:border-slate-700 hover:bg-blue-100/60 dark:hover:bg-slate-700"
-                title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-              >
-                {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-              </button>
-              <button
-                onClick={logout}
-                className="flex items-center justify-center w-8 h-8 rounded-lg border transition-colors bg-blue-50/60 dark:bg-slate-800 text-muted-foreground border-blue-100 dark:border-slate-700 hover:bg-red-100/60 dark:hover:bg-red-900/30 hover:text-red-600 dark:hover:text-red-400"
-                title="Log out"
-              >
-                <LogOut className="w-4 h-4" />
-              </button>
+              </Tooltip>
+              <Tooltip label="Log out" delay={500}>
+                <button
+                  onClick={logout}
+                  className="flex items-center justify-center w-8 h-8 rounded-lg border transition-colors bg-blue-50/60 dark:bg-slate-800 text-muted-foreground border-blue-100 dark:border-slate-700 hover:bg-red-100/60 dark:hover:bg-red-900/30 hover:text-red-600 dark:hover:text-red-400"
+                >
+                  <LogOut className="w-4 h-4" />
+                </button>
+              </Tooltip>
             </div>
           </div>
         </div>

@@ -102,11 +102,61 @@
   background: rgba(148, 163, 184, 0.6);
 }
 
+/* Register a custom property so it can be interpolated smoothly inside
+   a @keyframes rule (without @property it would step, not tween). */
+@property --feed-pulse-opacity {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 1;
+}
+
 @keyframes gentle-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
-  50% { box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.22); }
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+    --feed-pulse-opacity: 0.45;
+  }
+  50% {
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.22);
+    --feed-pulse-opacity: 1;
+  }
 }
 
 .feed-pulse {
-  animation: gentle-pulse 2s ease-in-out infinite;
+  animation: gentle-pulse 2.4s ease-in-out infinite;
+}
+
+/* Stronger variant — ~17% larger halo spread and alpha. */
+@keyframes gentle-pulse-strong {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+    --feed-pulse-opacity: 0.45;
+  }
+  50% {
+    box-shadow: 0 0 0 4.914px rgba(59, 130, 246, 0.27027);
+    --feed-pulse-opacity: 1;
+  }
+}
+.feed-pulse-strong {
+  animation: gentle-pulse-strong 2.88s ease-in-out infinite;
+}
+
+/* Inner elements simply read the parent's animated variable, so they
+   are perfectly in sync with the box-shadow pulse — no separate timer. */
+.feed-pulse-inner {
+  opacity: var(--feed-pulse-opacity, 1);
+}
+
+/* Match the look of the native browser title tooltip — small font,
+   normal weight. !important beats any Tailwind utility. */
+.app-tooltip {
+  font-size: 10px !important;
+  font-weight: 400 !important;
+  line-height: 1.3 !important;
+  padding: 2px 6px !important;
+}
+.app-tooltip-lg {
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  line-height: 1.3 !important;
+  padding: 4px 8px !important;
 }

@@ -5,6 +5,7 @@ import { Inbox, RotateCcw, Settings, ArrowUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import ArticleCard, { clearAllSeenArticles, getCachedImage } from './ArticleCard';
 import ArticleFilters from './ArticleFilters';
+import Tooltip from '@/components/ui/Tooltip';
 import { ALL_JOURNALS, ACS_JOURNALS, RSC_JOURNALS, WILEY_JOURNALS, ELSEVIER_JOURNALS, SPRINGER_JOURNALS } from '@/components/journals/JournalList';
 
 const FILTERS_KEY = 'cjf_feed_filters';
@@ -295,11 +296,11 @@ export default function ArticleFeed({ articles, isLoading, loadingProgress, onRe
         </div>
 
         {/* Center: journal filter */}
-        <div className="feed-pulse flex-shrink-0 mx-4 rounded-lg">
+        <div className="feed-pulse-strong flex-shrink-0 mx-4 rounded-lg">
           <select
             value={filters.journal}
             onChange={e => setFilters({ ...filters, journal: e.target.value })}
-            className="h-9 text-sm border border-blue-200 dark:border-blue-700 rounded-lg px-3 bg-blue-50/60 dark:bg-slate-800 text-slate-600 dark:text-slate-300 focus:outline-none focus:ring-1 focus:ring-blue-500 hover:bg-blue-100/60 dark:hover:bg-slate-700 transition-colors cursor-pointer"
+            className="h-9 text-sm border border-blue-200 dark:border-blue-700 rounded-lg px-3 bg-blue-50/60 dark:bg-blue-900/30 text-slate-600 dark:text-slate-300 focus:outline-none focus:ring-1 focus:ring-blue-500 hover:bg-blue-100/60 dark:hover:bg-blue-900/40 transition-colors cursor-pointer"
           >
             <option value="">All Selected Journals</option>
             {journals.map(j => (
@@ -310,16 +311,17 @@ export default function ArticleFeed({ articles, isLoading, loadingProgress, onRe
 
         {/* Right: reset */}
         <div className="flex-1 flex items-center gap-2 justify-end">
-          <Button
-            onClick={handleResetArticles}
-            size="sm"
-            variant="outline"
-            className="text-xs border border-blue-100 dark:border-slate-600 rounded-lg bg-blue-50/60 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-blue-100/60 dark:hover:bg-slate-700 hover:text-slate-600 dark:hover:text-slate-300"
-            title="Reset all articles to blue"
-          >
-            <RotateCcw className="w-3.5 h-3.5 mr-1.5" />
-            Reset
-          </Button>
+          <Tooltip label="Reset all articles to 'unread' (blue titles)" delay={500} className="app-tooltip-lg">
+            <Button
+              onClick={handleResetArticles}
+              size="sm"
+              variant="outline"
+              className="text-xs border border-blue-100 dark:border-slate-600 rounded-lg bg-blue-50/60 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-blue-100/60 dark:hover:bg-slate-700 hover:text-slate-600 dark:hover:text-slate-300"
+            >
+              <RotateCcw className="w-3.5 h-3.5 mr-1.5" />
+              Reset
+            </Button>
+          </Tooltip>
         </div>
       </div>
 
@@ -380,6 +382,24 @@ export default function ArticleFeed({ articles, isLoading, loadingProgress, onRe
           >
             <ArrowUp className="w-4 h-4" />
             Top
+          </motion.button>
+        )}
+      </AnimatePresence>
+
+      {/* Floating up-arrow on the right edge — mid-screen vertical */}
+      <AnimatePresence>
+        {showBackToTop && (
+          <motion.button
+            initial={{ opacity: 0, x: 16 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 16 }}
+            transition={{ duration: 0.2 }}
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            className="fixed right-6 top-1/2 -translate-y-1/2 z-50 flex items-center justify-center w-7 h-11 rounded-lg bg-blue-600/90 hover:bg-blue-600 text-white shadow-lg hover:shadow-xl border border-blue-400 transition-colors"
+            aria-label="Back to top"
+            title="Back to top"
+          >
+            <ArrowUp className="w-5 h-5" />
           </motion.button>
         )}
       </AnimatePresence>

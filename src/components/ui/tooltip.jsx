@@ -1,28 +1,50 @@
-"use client"
+import React, { useState, useRef, useEffect } from 'react';
 
-import * as React from "react"
-import * as TooltipPrimitive from "@radix-ui/react-tooltip"
+/**
+ * Lightweight hover tooltip with a configurable appear delay.
+ * Wraps a single child (typically a button) and shows `label` after
+ * `delay` ms of sustained hover.
+ */
+export default function Tooltip({ label, delay = 500, children, side = 'bottom', className = '', style }) {
+  const [show, setShow] = useState(false);
+  const timerRef = useRef(null);
 
-import { cn } from "@/lib/utils"
+  const handleEnter = () => {
+    clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => setShow(true), delay);
+  };
+  const handleLeave = () => {
+    clearTimeout(timerRef.current);
+    setShow(false);
+  };
 
-const TooltipProvider = TooltipPrimitive.Provider
+  useEffect(() => () => clearTimeout(timerRef.current), []);
 
-const Tooltip = TooltipPrimitive.Root
+  const positionClass =
+    side === 'top'
+      ? 'bottom-full mb-1.5 left-1/2 -translate-x-1/2'
+      : side === 'left'
+      ? 'right-full mr-1.5 top-1/2 -translate-y-1/2'
+      : side === 'right'
+      ? 'left-full ml-1.5 top-1/2 -translate-y-1/2'
+      : 'top-full mt-1.5 left-1/2 -translate-x-1/2'; // bottom
 
-const TooltipTrigger = TooltipPrimitive.Trigger
-
-const TooltipContent = React.forwardRef(({ className, sideOffset = 4, ...props }, ref) => (
-  <TooltipPrimitive.Portal>
-    <TooltipPrimitive.Content
-      ref={ref}
-      sideOffset={sideOffset}
-      className={cn(
-        "z-50 overflow-hidden rounded-md bg-primary px-3 py-1.5 text-xs text-primary-foreground animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
-        className
+  return (
+    <span
+      className="relative inline-flex"
+      onMouseEnter={handleEnter}
+      onMouseLeave={handleLeave}
+    >
+      {children}
+      {show && (
+        <span
+          role="tooltip"
+          style={style}
+          className={`app-tooltip absolute ${positionClass} whitespace-nowrap rounded-md bg-slate-900 text-white dark:bg-slate-700 shadow-lg z-50 pointer-events-none ${className}`}
+        >
+          {label}
+        </span>
       )}
-      {...props} />
-  </TooltipPrimitive.Portal>
-))
-TooltipContent.displayName = TooltipPrimitive.Content.displayName
-
-export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider }
+    </span>
+  );
+}

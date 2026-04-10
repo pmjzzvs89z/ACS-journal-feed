@@ -7,6 +7,7 @@ import ArticleFeed from '@/components/articles/ArticleFeed';
 import SavedFeed from '@/components/articles/SavedFeed';
 import RecommendedFeed from '@/components/articles/RecommendedFeed';
 import { ALL_JOURNALS } from '@/components/journals/JournalList';
+import Tooltip from '@/components/ui/Tooltip';
 import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { useDarkMode } from '@/hooks/useDarkMode';
@@ -294,29 +295,33 @@ export default function Home() {
                   <span className="hidden sm:inline">Journal Selector</span>
                 </button>
               </Link>
-              <Link to={createPageUrl('Guide')}>
-                <button className={`flex items-center gap-1.5 px-3 py-1 rounded-lg border text-sm font-medium transition-colors ${
-                  isGuideActive
-                    ? 'bg-blue-50/60 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-700'
-                    : 'bg-blue-50/60 dark:bg-slate-800 text-muted-foreground border-blue-100 dark:border-slate-700 hover:bg-blue-100/60 dark:hover:bg-slate-700'
-                }`}>
-                  <BookOpen className={`w-4 h-4 ${isGuideActive ? 'text-blue-600 dark:text-blue-400' : ''}`} />
+              <Tooltip label="User Guide" delay={500}>
+                <Link to={createPageUrl('Guide')}>
+                  <button className={`flex items-center gap-1.5 px-3 py-1 rounded-lg border text-sm font-medium transition-colors ${
+                    isGuideActive
+                      ? 'bg-blue-50/60 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-700'
+                      : 'bg-blue-50/60 dark:bg-slate-800 text-muted-foreground border-blue-100 dark:border-slate-700 hover:bg-blue-100/60 dark:hover:bg-slate-700'
+                  }`}>
+                    <BookOpen className={`w-4 h-4 ${isGuideActive ? 'text-blue-600 dark:text-blue-400' : ''}`} />
+                  </button>
+                </Link>
+              </Tooltip>
+              <Tooltip label={isDark ? 'Switch to light mode' : 'Switch to dark mode'} delay={500}>
+                <button
+                  onClick={toggleDark}
+                  className="flex items-center justify-center w-8 h-8 rounded-lg border transition-colors bg-blue-50/60 dark:bg-slate-800 text-muted-foreground border-blue-100 dark:border-slate-700 hover:bg-blue-100/60 dark:hover:bg-slate-700"
+                >
+                  {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
                 </button>
-              </Link>
-              <button
-                onClick={toggleDark}
-                className="flex items-center justify-center w-8 h-8 rounded-lg border transition-colors bg-blue-50/60 dark:bg-slate-800 text-muted-foreground border-blue-100 dark:border-slate-700 hover:bg-blue-100/60 dark:hover:bg-slate-700"
-                title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-              >
-                {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-              </button>
-              <button
-                onClick={logout}
-                className="flex items-center justify-center w-8 h-8 rounded-lg border transition-colors bg-blue-50/60 dark:bg-slate-800 text-muted-foreground border-blue-100 dark:border-slate-700 hover:bg-red-100/60 dark:hover:bg-red-900/30 hover:text-red-600 dark:hover:text-red-400"
-                title="Log out"
-              >
-                <LogOut className="w-4 h-4" />
-              </button>
+              </Tooltip>
+              <Tooltip label="Log out" delay={500}>
+                <button
+                  onClick={logout}
+                  className="flex items-center justify-center w-8 h-8 rounded-lg border transition-colors bg-blue-50/60 dark:bg-slate-800 text-muted-foreground border-blue-100 dark:border-slate-700 hover:bg-red-100/60 dark:hover:bg-red-900/30 hover:text-red-600 dark:hover:text-red-400"
+                >
+                  <LogOut className="w-4 h-4" />
+                </button>
+              </Tooltip>
             </div>
           </div>
         </div>
