@@ -20,6 +20,13 @@ const GA_REQUIRED_IDS = new Set([
   ...ELSEVIER_JOURNALS, ...SPRINGER_JOURNALS,
 ].map(j => j.id));
 
+// Only hide articles on image failure for publishers where we *construct* GA URLs
+// (Elsevier from PII, Springer from DOI) — a 404 means the GA genuinely doesn't exist.
+// For ACS/RSC/Wiley the URL comes from the feed; failure = network/Cloudflare issue, not missing GA.
+const GA_HIDE_ON_FAIL_IDS = new Set([
+  ...ELSEVIER_JOURNALS, ...SPRINGER_JOURNALS,
+].map(j => j.id));
+
 const QUICK_FILTER_KEY = 'cjf_quick_filters';
 function loadQuickFilters() {
   try { return JSON.parse(localStorage.getItem(QUICK_FILTER_KEY) || '{"enabled":false,"keywords":[],"authors":[]}'); }
@@ -111,7 +118,8 @@ export default function ArticleFeed({ articles, isLoading, loadingProgress, onRe
       // Hide articles that lack a graphical abstract (e.g. corrections, errata, early papers)
       if (GA_REQUIRED_IDS.has(a.journalId) && !getCachedImage(a)) return false;
       // Also hide if the GA image failed to load (404 from publisher CDN)
-      if (GA_REQUIRED_IDS.has(a.journalId) && failedImageIds.has(a.link)) return false;
+      // Only for Elsevier/Springer where URLs are constructed and 404 = no GA exists
+      if (GA_HIDE_ON_FAIL_IDS.has(a.journalId) && failedImageIds.has(a.link)) return false;
 
       const kw = filters.keyword.toLowerCase();
       const authorStr = (Array.isArray(a.author) ? a.author.join(' ') : a.author || '').toLowerCase();
@@ -291,7 +299,7 @@ export default function ArticleFeed({ articles, isLoading, loadingProgress, onRe
               savedRecord={savedMap.get(article.link)}
               onSaveToggle={onSaveToggle}
               resetKey={resetKey}
-              onImageFail={GA_REQUIRED_IDS.has(article.journalId) ? handleImageFail : undefined}
+              onImageFail={GA_HIDE_ON_FAIL_IDS.has(article.journalId) ? handleImageFail : undefined}
               cachedImageUrl={getCachedImage(article)}
             />
           ))}
