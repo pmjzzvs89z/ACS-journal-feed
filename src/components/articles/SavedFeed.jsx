@@ -8,6 +8,7 @@ import { entities } from '@/api/entities';
 import { format } from 'date-fns';
 import ExportModal from './ExportModal';
 import AutoSaveRules from './AutoSaveRules';
+import ShareButton from './ShareButton';
 
 const RULES_KEY = 'cjf_autosave_rules';
 const defaultRules = { enabled: false, keywords: [], authors: [] };
@@ -139,6 +140,12 @@ function SavedCard({ saved, onUnsave, selected, onToggleSelect }) {
                   <Trash2 className="w-3.5 h-3.5" />
                   Remove
                 </button>
+                <ShareButton
+                  title={saved.title}
+                  url={saved.link}
+                  authors={saved.authors}
+                  journal={saved.journal_name || saved.journal_abbrev}
+                />
               </div>
             </div>
 

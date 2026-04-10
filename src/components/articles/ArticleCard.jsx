@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ExternalLink, Calendar, BookOpen, Users, Bookmark, BookmarkCheck } from 'lucide-react';
+import ShareButton from './ShareButton';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { format } from 'date-fns';
@@ -372,7 +373,7 @@ const ArticleCard = React.memo(React.forwardRef(function ArticleCard({ article, 
                 ) : null;
               })()}
 
-              {/* Save button */}
+              {/* Save + Share buttons */}
               <div className="flex items-center gap-4 mt-1">
                 <button
                   onClick={handleSaveToggle}
@@ -383,6 +384,12 @@ const ArticleCard = React.memo(React.forwardRef(function ArticleCard({ article, 
                   {isSaved ? <BookmarkCheck className="w-3.5 h-3.5" /> : <Bookmark className="w-3.5 h-3.5" />}
                   {isSaved ? 'Saved' : 'Save'}
                 </button>
+                <ShareButton
+                  title={article.title}
+                  url={article.link}
+                  authors={rawAuthorText}
+                  journal={article.journalName || article.journalAbbrev}
+                />
               </div>
             </div>
 
