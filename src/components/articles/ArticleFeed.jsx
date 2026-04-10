@@ -311,7 +311,7 @@ export default function ArticleFeed({ articles, isLoading, loadingProgress, onRe
 
         {/* Right: reset */}
         <div className="flex-1 flex items-center gap-2 justify-end">
-          <Tooltip label="Reset all articles to 'unread' (blue titles)" delay={500} className="app-tooltip-lg">
+          <Tooltip label="Reset all articles to 'unread' (blue titles)" delay={500}>
             <Button
               onClick={handleResetArticles}
               size="sm"
