@@ -47,7 +47,7 @@ function toText(articles) {
 }
 
 const FORMATS = [
-  { id: 'ris',  label: 'RIS',       desc: 'For citation managers (Zotero, Mendeley, EndNote)', icon: BookMarked, ext: 'ris',  mime: 'application/x-research-info-systems' },
+  { id: 'ris',  label: 'RIS',       desc: 'For citations managers (ReadCube Papers, EndNote, etc.)', icon: BookMarked, ext: 'ris',  mime: 'application/x-research-info-systems' },
   { id: 'csv',  label: 'CSV',       desc: 'Spreadsheet / tabular data',                         icon: Table,      ext: 'csv',  mime: 'text/csv' },
   { id: 'text', label: 'Plain Text', desc: 'Simple human-readable summary',                     icon: FileText,   ext: 'txt',  mime: 'text/plain' },
 ];

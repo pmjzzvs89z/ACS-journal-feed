@@ -1,7 +1,29 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Share2, Mail } from 'lucide-react';
 
-export default function ShareButton({ title, url, authors, journal }) {
+function buildRIS({ title, authors, journal, doi, pubDate, url, abstract }) {
+  const lines = ['TY  - JOUR'];
+  if (title) lines.push(`TI  - ${title}`);
+  if (authors) {
+    authors.split(',').map(a => a.trim()).filter(Boolean).forEach(a => {
+      lines.push(`AU  - ${a}`);
+    });
+  }
+  if (journal) lines.push(`JO  - ${journal}`);
+  if (pubDate) {
+    const year = new Date(pubDate).getFullYear();
+    if (!isNaN(year)) lines.push(`PY  - ${year}`);
+    lines.push(`DA  - ${pubDate}`);
+  }
+  if (doi) lines.push(`DO  - ${doi}`);
+  if (url) lines.push(`UR  - ${url}`);
+  if (abstract) lines.push(`AB  - ${abstract}`);
+  lines.push('ER  - ');
+  lines.push('');
+  return lines.join('\n');
+}
+
+export default function ShareButton({ title, url, authors, journal, doi, pubDate, abstract }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
 
@@ -21,6 +43,31 @@ export default function ShareButton({ title, url, authors, journal }) {
 
   const teamsText = encodeURIComponent(`${title || ''}\n${url || ''}`);
   const teamsHref = `https://teams.microsoft.com/share?msgText=${teamsText}`;
+
+  // ReadCube Papers: download a one-paper RIS file. If the user has
+  // ReadCube Papers set as the default handler for .ris files (common
+  // on systems with the Papers desktop app installed), the OS will
+  // open the file in Papers and import the citation automatically.
+  // Otherwise the file just lands in Downloads and can be imported
+  // manually.
+  const readcubeHref = doi ? '#' : null;
+  const handleReadcubeClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!doi) return;
+    const ris = buildRIS({ title, authors, journal, doi, pubDate, url, abstract });
+    const blob = new Blob([ris], { type: 'application/x-research-info-systems' });
+    const blobUrl = URL.createObjectURL(blob);
+    const safeTitle = (title || 'article').replace(/[^a-z0-9]+/gi, '-').replace(/^-+|-+$/g, '').slice(0, 60) || 'article';
+    const a = document.createElement('a');
+    a.href = blobUrl;
+    a.download = `${safeTitle}.ris`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+    setOpen(false);
+  };
 
   const handleClick = (e) => {
     e.preventDefault();
@@ -55,11 +102,30 @@ export default function ShareButton({ title, url, authors, journal }) {
             onClick={(e) => e.stopPropagation()}
             className="flex items-center gap-2 px-3 py-1.5 text-xs text-foreground hover:bg-blue-50 dark:hover:bg-slate-700 transition-colors"
           >
-            <svg className="w-3.5 h-3.5 text-[#6264A7]" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M16.5 2a3.5 3.5 0 110 7 3.5 3.5 0 010-7zm4 7a2.5 2.5 0 110 5 2.5 2.5 0 010-5zm.5 6h-3a3 3 0 00-3 3v2h9v-2a3 3 0 00-3-3zm-7-6H7a3 3 0 00-3 3v5h16v-5a3 3 0 00-3-3zM8 2a4 4 0 110 8 4 4 0 010-8z" />
-            </svg>
+            <img
+              src="/teams-icon.svg"
+              alt=""
+              className="w-3.5 h-3.5 object-contain"
+            />
             Teams
           </a>
+          {readcubeHref && (
+            <a
+              href={readcubeHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={handleReadcubeClick}
+              title={`Download RIS citation for ReadCube Papers\n${doi}`}
+              className="flex items-center gap-2 px-3 py-1.5 text-xs text-foreground hover:bg-blue-50 dark:hover:bg-slate-700 transition-colors"
+            >
+              <img
+                src="/readcube-icon.ico"
+                alt=""
+                className="w-3.5 h-3.5 object-contain"
+              />
+              ReadCube
+            </a>
+          )}
         </div>
       )}
     </div>

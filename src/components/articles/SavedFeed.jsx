@@ -145,6 +145,9 @@ function SavedCard({ saved, onUnsave, selected, onToggleSelect }) {
                   url={saved.link}
                   authors={saved.authors}
                   journal={saved.journal_name || saved.journal_abbrev}
+                  doi={saved.doi || (saved.link ? (saved.link.match(/10\.\d{4,}\/[^\s?&#"'<>]+/) || [])[0] : null)}
+                  pubDate={saved.pub_date}
+                  abstract={saved.abstract}
                 />
               </div>
             </div>

@@ -16,25 +16,20 @@ function loadStoredFilters() {
     if (!raw) return null;
     const parsed = JSON.parse(raw);
     if (!parsed || typeof parsed !== 'object') return null;
-    const hasAny = parsed.keyword || parsed.journal || parsed.dateFrom || parsed.dateTo;
-    return hasAny ? parsed : null;
+    return parsed.journal ? { journal: parsed.journal } : null;
   } catch { return null; }
 }
 
 function saveStoredFilters(filters) {
   try {
-    const hasAny = filters.keyword || filters.journal || filters.dateFrom || filters.dateTo;
-    if (hasAny) localStorage.setItem(FILTERS_KEY, JSON.stringify(filters));
+    if (filters.journal) localStorage.setItem(FILTERS_KEY, JSON.stringify({ journal: filters.journal }));
     else localStorage.removeItem(FILTERS_KEY);
   } catch { /* ignore */ }
 }
 
 function filtersFromParams(params) {
   return {
-    keyword: params.get('keyword') || '',
     journal: params.get('journal') || '',
-    dateFrom: params.get('from') || '',
-    dateTo: params.get('to') || '',
   };
 }
 const GA_REQUIRED_IDS = new Set([
@@ -48,13 +43,6 @@ const GA_REQUIRED_IDS = new Set([
 const GA_HIDE_ON_FAIL_IDS = new Set([
   ...ELSEVIER_JOURNALS, ...SPRINGER_JOURNALS,
 ].map(j => j.id));
-
-const QUICK_FILTER_KEY = 'cjf_quick_filters';
-function loadQuickFilters() {
-  try { return JSON.parse(localStorage.getItem(QUICK_FILTER_KEY) || '{"enabled":false,"keywords":[],"authors":[]}'); }
-  catch { return { enabled: false, keywords: [], authors: [] }; }
-}
-
 
 function SkeletonCard() {
   return (
@@ -77,44 +65,37 @@ function SkeletonCard() {
 
 export default function ArticleFeed({ articles, isLoading, loadingProgress, onRefresh, followedCount, savedArticles = [], onSaveToggle, followedJournals = [] }) {
   const [searchParams, setSearchParams] = useSearchParams();
-  const filters = useMemo(() => filtersFromParams(searchParams), [searchParams]);
+  const [keyword, setKeyword] = useState('');
+  const urlFilters = useMemo(() => filtersFromParams(searchParams), [searchParams]);
+  const filters = useMemo(() => ({ keyword, journal: urlFilters.journal }), [keyword, urlFilters.journal]);
 
-  // Hydrate filters from localStorage on mount if URL has none
+  // Hydrate journal filter from localStorage on mount if URL has none
   // (e.g. returning from Journal Selector or Guide routes)
   useEffect(() => {
     const fromUrl = filtersFromParams(searchParams);
-    const hasUrlFilters = fromUrl.keyword || fromUrl.journal || fromUrl.dateFrom || fromUrl.dateTo;
-    if (hasUrlFilters) return;
+    if (fromUrl.journal) return;
     const stored = loadStoredFilters();
-    if (!stored) return;
+    if (!stored?.journal) return;
     setSearchParams(prev => {
       const next = new URLSearchParams(prev);
-      if (stored.keyword) next.set('keyword', stored.keyword);
-      if (stored.journal) next.set('journal', stored.journal);
-      if (stored.dateFrom) next.set('from', stored.dateFrom);
-      if (stored.dateTo) next.set('to', stored.dateTo);
+      next.set('journal', stored.journal);
       return next;
     }, { replace: true });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const setFilters = useCallback((newFilters) => {
-    saveStoredFilters(newFilters);
+    // Keyword stays in local state only — never written to URL.
+    setKeyword(newFilters.keyword || '');
+    // Only journal is persisted to URL + localStorage.
+    saveStoredFilters({ journal: newFilters.journal });
     setSearchParams(prev => {
       const next = new URLSearchParams(prev);
-      // Update or remove each filter param
-      if (newFilters.keyword) next.set('keyword', newFilters.keyword);
-      else next.delete('keyword');
       if (newFilters.journal) next.set('journal', newFilters.journal);
       else next.delete('journal');
-      if (newFilters.dateFrom) next.set('from', newFilters.dateFrom);
-      else next.delete('from');
-      if (newFilters.dateTo) next.set('to', newFilters.dateTo);
-      else next.delete('to');
       return next;
     }, { replace: true });
   }, [setSearchParams]);
-  const [quickFilters, setQuickFilters] = useState(loadQuickFilters);
   const [resetKey, setResetKey] = useState(0);
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [failedImageIds, setFailedImageIds] = useState(new Set());
@@ -134,7 +115,7 @@ export default function ArticleFeed({ articles, isLoading, loadingProgress, onRe
   // Reset visible count when filters change
   useEffect(() => {
     setVisibleCount(PAGE_SIZE);
-  }, [filters, quickFilters]);
+  }, [filters]);
 
   useEffect(() => {
     const onScroll = () => setShowBackToTop(window.scrollY > 400);
@@ -170,21 +151,6 @@ export default function ArticleFeed({ articles, isLoading, loadingProgress, onRe
 
       if (filters.journal && a.journalId !== filters.journal) return false;
 
-      if (filters.dateFrom && a.pubDate) {
-        if (new Date(a.pubDate) < new Date(filters.dateFrom)) return false;
-      }
-      if (filters.dateTo && a.pubDate) {
-        if (new Date(a.pubDate) > new Date(filters.dateTo + 'T23:59:59')) return false;
-      }
-
-      if (quickFilters.enabled && (quickFilters.keywords.length > 0 || quickFilters.authors.length > 0)) {
-        const haystack = [a.title || '', a.content || '', a.description || ''].join(' ').toLowerCase();
-        const aStr = (Array.isArray(a.author) ? a.author.join(' ') : a.author || '').toLowerCase();
-        const kwMatch = quickFilters.keywords.length === 0 || quickFilters.keywords.some(k => haystack.includes(k.toLowerCase()));
-        const auMatch = quickFilters.authors.length === 0 || quickFilters.authors.some(au => aStr.includes(au.toLowerCase()));
-        if (!kwMatch || !auMatch) return false;
-      }
-
       return true;
     });
 
@@ -196,7 +162,7 @@ export default function ArticleFeed({ articles, isLoading, loadingProgress, onRe
     });
 
     return results;
-  }, [articles, filters, quickFilters, failedImageIds]);
+  }, [articles, filters, failedImageIds]);
 
   // Slice for rendering — only mount what's needed
   const visibleArticles = useMemo(() => filtered.slice(0, visibleCount), [filtered, visibleCount]);
@@ -326,11 +292,8 @@ export default function ArticleFeed({ articles, isLoading, loadingProgress, onRe
       </div>
 
       <ArticleFilters
-        articles={articles}
         filters={filters}
         onChange={setFilters}
-        quickFilters={quickFilters}
-        onQuickFiltersChange={setQuickFilters}
       />
 
       <div className="space-y-4">

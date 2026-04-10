@@ -203,6 +203,12 @@ const ArticleCard = React.memo(React.forwardRef(function ArticleCard({ article, 
   const imageUrl = cachedImageUrl !== undefined ? cachedImageUrl : extractImage(article);
   const isSaved = !!savedRecord;
 
+  // DOI extraction — used in both the visible DOI row and the hidden
+  // citation metadata that reference-manager extensions (ReadCube Papers,
+  // Zotero Connector, Mendeley, etc.) scan for.
+  const doi = article.doi ||
+    (article.link ? (article.link.match(/10\.\d{4,}\/[^\s?&#"'<>]+/) || [])[0] : null);
+
   useEffect(() => {
     setImageFailed(false);
     setCurrentImageUrl(imageUrl);
@@ -281,8 +287,12 @@ const ArticleCard = React.memo(React.forwardRef(function ArticleCard({ article, 
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: Math.min(index * 0.03, 0.5), duration: 0.3 }}
-      className="group bg-card rounded-2xl border-[1.5px] border-border hover:shadow-xl hover:border-border transition-all duration-300 overflow-hidden"
+      className="group relative flex rounded-r-2xl hover:shadow-xl transition-all duration-300"
     >
+      {!hasBeenSeen && (
+        <div className="absolute left-0 inset-y-0 w-1 bg-blue-500 dark:bg-blue-400 z-10 pointer-events-none" />
+      )}
+      <div className="flex-1 bg-card rounded-r-2xl border-[1.5px] border-border overflow-hidden">
       <div className="flex items-stretch gap-0">
         {/* Graphical abstract — desktop */}
         <div className="hidden sm:flex flex-shrink-0 w-[405px] items-center justify-center bg-muted border-r border-border p-2" style={{ minHeight: '160px', maxHeight: '220px' }}>
@@ -360,16 +370,16 @@ const ArticleCard = React.memo(React.forwardRef(function ArticleCard({ article, 
               )}
 
               {/* DOI */}
-              {(() => {
-                const doi = article.doi ||
-                  (article.link ? (article.link.match(/10\.\d{4,}\/[^\s?&#"'<>]+/) || [])[0] : null);
-                return doi ? (
-                  <p className="text-xs text-muted-foreground mb-3">
-                    DOI: <a href={`https://doi.org/${doi}`} target="_blank" rel="noopener noreferrer"
-                      className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">{doi}</a>
-                  </p>
-                ) : null;
-              })()}
+              {doi && (
+                <p className="text-xs text-muted-foreground mb-3">
+                  DOI: <a
+                    href={`https://doi.org/${doi}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                  >{doi}</a>
+                </p>
+              )}
 
               {/* Save + Share buttons */}
               <div className="flex items-center gap-4 mt-1">
@@ -387,6 +397,9 @@ const ArticleCard = React.memo(React.forwardRef(function ArticleCard({ article, 
                   url={article.link}
                   authors={rawAuthorText}
                   journal={article.journalName || article.journalAbbrev}
+                  doi={doi}
+                  pubDate={article.pub_date}
+                  abstract={article.abstract}
                 />
               </div>
             </div>
@@ -397,6 +410,7 @@ const ArticleCard = React.memo(React.forwardRef(function ArticleCard({ article, 
             </a>
           </div>
         </div>
+      </div>
       </div>
 
       {/* Abstract Modal */}
