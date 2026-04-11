@@ -137,10 +137,8 @@ function JournalDropdown({ value, onChange, journals }) {
       </button>
       {open && (
         <div
-          className="absolute left-1/2 -translate-x-1/2 top-full mt-1 min-w-[220px] max-h-[90vh] overflow-y-auto rounded-xl py-1 shadow-2xl"
+          className="absolute left-1/2 -translate-x-1/2 top-full mt-1 min-w-[220px] max-h-[90vh] overflow-y-auto rounded-xl py-1 shadow-2xl bg-neutral-100 dark:bg-[rgb(28,30,38)] border border-neutral-300 dark:border-white/10"
           style={{
-            backgroundColor: 'rgb(28, 30, 38)',
-            border: '1px solid rgba(255, 255, 255, 0.12)',
             zIndex: 9999,
             isolation: 'isolate',
           }}
@@ -163,8 +161,7 @@ function JournalDropdown({ value, onChange, journals }) {
                 return (
                   <div
                     key={row.key}
-                    className="my-1 mx-3"
-                    style={{ borderTop: '1px solid rgba(255, 255, 255, 0.15)' }}
+                    className="my-1 mx-3 border-t border-slate-300 dark:border-white/15"
                   />
                 );
               }
@@ -178,8 +175,6 @@ function JournalDropdown({ value, onChange, journals }) {
               // buttons up by 0.2089rem reduces that gap to 0.2471rem —
               // a cumulative ~46% tightening (25% → 15% → 15%).
               const style = {
-                color: '#ffffff',
-                backgroundColor: 'transparent',
                 marginTop: row.isFirstInGroup ? undefined : '-0.2089rem',
               };
               return (
@@ -187,13 +182,11 @@ function JournalDropdown({ value, onChange, journals }) {
                   key={j.id || '__all'}
                   type="button"
                   onClick={() => { onChange(j.id); setOpen(false); }}
-                  className="w-full flex items-center gap-2 pl-3 pr-4 py-[0.228rem] text-sm text-left transition-colors"
+                  className="w-full flex items-center gap-2 pl-3 pr-4 py-[0.228rem] text-sm text-left transition-colors text-slate-900 dark:text-white hover:bg-black/5 dark:hover:bg-white/10"
                   style={style}
-                  onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.1)'; }}
-                  onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; }}
                 >
                   <span className="w-4 flex-shrink-0 flex items-center justify-center">
-                    {isSelected && <Check className="w-3.5 h-3.5" style={{ color: '#ffffff' }} />}
+                    {isSelected && <Check className="w-3.5 h-3.5" />}
                   </span>
                   <span
                     className="truncate"
