@@ -141,7 +141,7 @@ export default function Settings() {
                   onClick={toggleDark}
                   className="flex items-center justify-center w-8 h-8 rounded-lg border transition-colors bg-blue-50/60 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-blue-100 dark:border-slate-700 hover:bg-blue-100/60 dark:hover:bg-slate-700"
                 >
-                  {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+                  {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4 text-blue-500" />}
                 </button>
               </Tooltip>
               <Tooltip label="Log out" delay={500}>

@@ -63,7 +63,7 @@ export default function LoginPage() {
         className="fixed top-4 right-4 w-9 h-9 rounded-lg border flex items-center justify-center transition-colors bg-card/80 border-border text-muted-foreground hover:bg-accent"
         title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
       >
-        {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+        {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4 text-blue-500" />}
       </button>
 
       <div className="w-full max-w-sm">
