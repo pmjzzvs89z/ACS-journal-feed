@@ -3,10 +3,14 @@ import ReactDOM from 'react-dom/client'
 import App from '@/App.jsx'
 import '@/index.css'
 
-// Unregister any stale service workers left over from earlier deployments
+// Register the PWA service worker so browsers expose "Install" /
+// "Add to Home Screen". The worker is intentionally minimal and does
+// not cache assets — it exists only for installability.
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.getRegistrations().then(registrations => {
-    registrations.forEach(r => r.unregister());
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(() => {
+      // silent — registration failures are non-fatal; the app still works
+    });
   });
 }
 
