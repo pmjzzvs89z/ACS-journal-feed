@@ -30,8 +30,8 @@ function FilterDropdown({ value, onChange, options, allLabel, style }) {
       <button
         type="button"
         onClick={() => setOpen(o => !o)}
-        className="w-full flex items-center gap-2 rounded-lg border border-border px-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-foreground"
-        style={{ fontSize: '0.828rem', height: '2.013rem', backgroundColor: 'rgb(38, 42, 56)' }}
+        className="w-full flex items-center gap-2 rounded-lg border border-border px-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-foreground bg-slate-300 dark:bg-[rgb(38,42,56)]"
+        style={{ fontSize: '0.828rem', height: '2.013rem' }}
       >
         <span className="truncate flex-1 text-left">{label}</span>
         <ChevronDown className="w-3.5 h-3.5 opacity-70 flex-shrink-0" />
@@ -53,7 +53,7 @@ function FilterDropdown({ value, onChange, options, allLabel, style }) {
                 key={opt.value || '__all'}
                 type="button"
                 onClick={() => { onChange(opt.value); setOpen(false); }}
-                className="w-full flex items-center gap-2 pl-3 pr-4 py-1.5 text-sm text-left transition-colors"
+                className="w-full flex items-center gap-2 pl-3 pr-4 py-[0.192rem] text-sm text-left transition-colors"
                 style={{ color: '#ffffff', backgroundColor: 'transparent' }}
                 onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.1)'; }}
                 onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; }}
@@ -70,27 +70,6 @@ function FilterDropdown({ value, onChange, options, allLabel, style }) {
     </div>
   );
 }
-
-const CATEGORY_KEYWORDS = {
-  'General': ['general', 'chemistry', 'chemical', 'multidisciplinary'],
-  'Analytical Chemistry': ['analytical', 'analysis', 'sensor', 'spectroscopy', 'chromatography', 'measurement', 'detection', 'toxicology', 'toxic'],
-  'Biological/Medicinal Chemistry': ['biology', 'biological', 'medicinal', 'drug', 'pharmaceutical', 'biochemistry', 'medicine', 'biomedical', 'enzyme', 'protein', 'toxicology', 'toxic', 'pharmacology'],
-  'Physical/Theoretical Chemistry': ['physical', 'theoretical', 'computational', 'quantum', 'thermodynamics', 'kinetics', 'simulation'],
-  'Inorganic/Materials Chemistry': ['inorganic', 'materials', 'crystal', 'nanomaterial', 'solid state', 'coordination'],
-  'Polymers/Macromolecules': ['polymer', 'macromolecule', 'soft matter', 'rubber', 'plastic'],
-  'Organic Chemistry': ['organic', 'synthesis', 'catalysis', 'natural product', 'reaction'],
-  'Applied/Industrial Chemistry': ['applied', 'industrial', 'engineering', 'environment', 'energy', 'sustainable', 'green', 'toxicology', 'environmental'],
-  'Materials Science & Nanotechnology': ['materials', 'nano', 'nanotechnology', 'surface', 'thin film', 'semiconductor'],
-  'Analytical & Measurement Science': ['analytical', 'measurement', 'sensor', 'spectroscopy', 'detection', 'toxicology'],
-  'Sustainability & Green Chemistry': ['sustainability', 'green', 'environment', 'energy', 'renewable', 'carbon', 'toxicology'],
-  'Sensors & Diagnostics': ['sensor', 'diagnostic', 'biosensor', 'imaging', 'detection'],
-  'Polymers & Soft Matter': ['polymer', 'soft matter', 'colloid', 'gel', 'hydrogel'],
-  'Chemical Engineering': ['chemical engineering', 'process', 'reactor', 'fluid', 'heat transfer'],
-  'Reaction Engineering': ['reaction', 'kinetics', 'catalysis', 'reactor', 'combustion'],
-  'Separations': ['separation', 'membrane', 'chromatography', 'distillation', 'extraction'],
-  'Process Modeling & Simulation': ['modeling', 'simulation', 'computation', 'optimization', 'control'],
-  'Scale-up & Manufacturing Science': ['scale-up', 'manufacturing', 'pharmaceutical', 'production', 'formulation', 'toxicology'],
-};
 
 import {
   ACS_JOURNALS, RSC_JOURNALS, WILEY_JOURNALS, ELSEVIER_JOURNALS,
@@ -269,8 +248,10 @@ const JournalSelector = forwardRef(function JournalSelector({ followedJournals, 
           style={{ color: followed ? journal.color : '#94a3b8' }}
         />
         <div className="flex-1 min-w-0">
-          <p className="text-xs font-semibold text-foreground truncate">{journal.abbrev}</p>
-          <p className="text-xs text-muted-foreground truncate">{journal.name}</p>
+          <p className="text-xs truncate">
+            <span className="font-semibold text-foreground">{journal.abbrev}</span>
+            <span className="text-muted-foreground/80"> ({journal.name})</span>
+          </p>
         </div>
       </button>
     );
@@ -280,7 +261,7 @@ const JournalSelector = forwardRef(function JournalSelector({ followedJournals, 
     <div className="flex flex-col h-full min-h-0">
       {/* Fixed (non-scrolling) header: field tabs + search + filters */}
       <div className="flex-shrink-0 px-4 pt-2 pb-2 space-y-[5px] bg-card">
-      <div className="flex items-center gap-1 rounded-xl p-1" style={{ backgroundColor: 'rgb(38, 42, 56)' }}>
+      <div className="flex items-center gap-1 rounded-xl p-1 bg-slate-300 dark:bg-[rgb(38,42,56)]">
         <button
           onClick={() => handleFieldSwitch('chemistry')}
           className={cn(
@@ -349,7 +330,7 @@ const JournalSelector = forwardRef(function JournalSelector({ followedJournals, 
       </div>{/* end fixed header */}
 
       {/* Scrollable body */}
-      <div className="flex-1 min-h-0 overflow-y-auto journal-scroll px-4 pt-1 pb-4 space-y-2">
+      <div className="flex-1 min-h-0 overflow-y-auto journal-scroll px-4 pt-1 pb-4">
 
       {/* Results */}
       {isFiltering ? (
@@ -420,7 +401,7 @@ const JournalSelector = forwardRef(function JournalSelector({ followedJournals, 
                             <div key={category}>
                               <button
                                 onClick={() => toggleCategory(categoryKey)}
-                                className="w-full flex items-center gap-3 px-4 py-2.5 bg-card hover:bg-accent transition-colors"
+                                className="w-full flex items-center gap-3 px-4 py-[0.4rem] bg-card hover:bg-accent transition-colors"
                               >
                                 <span className="text-left text-sm text-foreground pl-2">{category}</span>
                                 <span className="text-[11px] text-muted-foreground font-normal ml-1">{categoryJournals.length}</span>

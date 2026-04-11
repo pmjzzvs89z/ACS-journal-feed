@@ -110,8 +110,8 @@ export default function JournalSearch({ allJournals, publishers, isFollowed, onT
           value={query}
           onChange={e => setQuery(e.target.value)}
           placeholder={placeholder}
-          className="w-full pl-9 pr-8 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-foreground placeholder:text-muted-foreground"
-          style={{ padding: '0.35rem 2rem 0.35rem 2.25rem', fontSize: '0.828rem', backgroundColor: 'rgb(38, 42, 56)' }}
+          className="w-full pl-9 pr-8 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-foreground placeholder:text-muted-foreground bg-slate-300 dark:bg-[rgb(38,42,56)]"
+          style={{ padding: '0.35rem 2rem 0.35rem 2.25rem', fontSize: '0.828rem' }}
         />
         {query && (
           <button

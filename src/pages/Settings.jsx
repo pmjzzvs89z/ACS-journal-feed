@@ -167,7 +167,7 @@ export default function Settings() {
                   <BookOpen className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h2 className="text-sm font-normal text-white">
+                  <h2 className="text-sm font-normal text-slate-900 dark:text-white">
                     {isLoading ? 'Loading…' : `${activeCount} journal${activeCount !== 1 ? 's' : ''} selected`}
                   </h2>
                 </div>
@@ -189,7 +189,7 @@ export default function Settings() {
         {/* Suggestions section */}
         <div className="flex justify-center mt-4">
           <div style={{ width: '620px' }} className="flex-shrink-0">
-            <div className="bg-card rounded-2xl border-[1.5px] border-border shadow-sm p-3">
+            <div className="bg-card rounded-2xl border-[1.5px] border-border shadow-sm px-3 py-[0.525rem]">
               <p className="text-sm text-foreground">
                 To share your comments and suggestions about this app{' '}
                 <a

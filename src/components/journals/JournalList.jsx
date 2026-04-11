@@ -4,6 +4,7 @@ export const CHEMISTRY_CATEGORIES = [
   'Analytical Chemistry',
   'Applied/Industrial Chemistry',
   'Biological/Medicinal Chemistry',
+  'Catalysis',
   'General',
   'Inorganic/Materials Chemistry',
   'Organic Chemistry',
@@ -68,14 +69,14 @@ export const ACS_JOURNALS = [
   { id: 'nanolett', name: 'Nano Letters', abbrev: 'Nano Lett.', rss_url: 'https://pubs.acs.org/action/showFeed?type=axatoc&feed=rss&jc=nalefd', color: '#6610f2', category: 'Inorganic/Materials Chemistry' },
 
   // Organic Chemistry
-  { id: 'acscatal', name: 'ACS Catalysis', abbrev: 'ACS Catal.', rss_url: 'https://pubs.acs.org/action/showFeed?type=axatoc&feed=rss&jc=accacs', color: '#dc3545', category: 'Organic Chemistry' },
+  { id: 'acscatal', name: 'ACS Catalysis', abbrev: 'ACS Catal.', rss_url: 'https://pubs.acs.org/action/showFeed?type=axatoc&feed=rss&jc=accacs', color: '#dc3545', category: 'Catalysis' },
   { id: 'acsorgsynthau', name: 'ACS Organic & Inorganic Au', abbrev: 'ACS Org. Inorg. Au', rss_url: 'https://pubs.acs.org/action/showFeed?type=axatoc&feed=rss&jc=aoiab5', color: '#c0392b', category: 'Organic Chemistry' },
   { id: 'acssynthbiol', name: 'ACS Synthetic Biology', abbrev: 'ACS Synth. Biol.', rss_url: 'https://pubs.acs.org/action/showFeed?type=axatoc&feed=rss&jc=asbcd6', color: '#e91e8c', category: 'Organic Chemistry' },
   { id: 'jnatprod', name: 'Journal of Natural Products', abbrev: 'J. Nat. Prod.', rss_url: 'https://pubs.acs.org/action/showFeed?type=axatoc&feed=rss&jc=jnprdf', color: '#27ae60', category: 'Organic Chemistry' },
   { id: 'joc', name: 'Journal of Organic Chemistry', abbrev: 'J. Org. Chem.', rss_url: 'https://pubs.acs.org/action/showFeed?type=axatoc&feed=rss&jc=joceah', color: '#6f42c1', category: 'Organic Chemistry' },
   { id: 'orglett', name: 'Organic Letters', abbrev: 'Org. Lett.', rss_url: 'https://pubs.acs.org/action/showFeed?type=axatoc&feed=rss&jc=orlef7', color: '#d63384', category: 'Organic Chemistry' },
   { id: 'orgprocess', name: 'Organic Process Research & Development', abbrev: 'Org. Process Res. Dev.', rss_url: 'https://pubs.acs.org/action/showFeed?type=axatoc&feed=rss&jc=oprdfk', color: '#c0392b', category: 'Organic Chemistry' },
-  { id: 'organometallics', name: 'Organometallics', abbrev: 'Organometallics', rss_url: 'https://pubs.acs.org/action/showFeed?type=axatoc&feed=rss&jc=orgnd7', color: '#8e44ad', category: 'Organic Chemistry' },
+  { id: 'organometallics', name: 'Organometallics', abbrev: 'Organometallics', rss_url: 'https://pubs.acs.org/action/showFeed?type=axatoc&feed=rss&jc=orgnd7', color: '#8e44ad', category: 'Catalysis' },
 
   // Applied/Industrial Chemistry
   { id: 'acsagriscitechau', name: 'ACS Agricultural Science & Technology', abbrev: 'ACS Agric. Sci. Technol.', rss_url: 'https://pubs.acs.org/action/showFeed?type=axatoc&feed=rss&jc=aastgj', color: '#198754', category: 'Applied/Industrial Chemistry' },
@@ -131,7 +132,7 @@ export const RSC_JOURNALS = [
   { id: 'rsc_nanoscalehoriz', name: 'Nanoscale Horizons', abbrev: 'Nanoscale Horiz.', rss_url: 'https://pubs.rsc.org/rss/nh', color: '#5b2d8e', category: 'Inorganic/Materials Chemistry' },
 
   // Organic Chemistry
-  { id: 'rsc_catal', name: 'Catalysis Science & Technology', abbrev: 'Catal. Sci. Technol.', rss_url: 'https://pubs.rsc.org/rss/cy', color: '#dc3545', category: 'Organic Chemistry' },
+  { id: 'rsc_catal', name: 'Catalysis Science & Technology', abbrev: 'Catal. Sci. Technol.', rss_url: 'https://pubs.rsc.org/rss/cy', color: '#dc3545', category: 'Catalysis' },
   { id: 'rsc_greenchem', name: 'Green Chemistry', abbrev: 'Green Chem.', rss_url: 'https://pubs.rsc.org/rss/gc', color: '#27ae60', category: 'Organic Chemistry' },
   { id: 'rsc_natprodreports', name: 'Natural Product Reports', abbrev: 'Nat. Prod. Rep.', rss_url: 'https://pubs.rsc.org/rss/np', color: '#c0392b', category: 'Organic Chemistry' },
   { id: 'rsc_orgbiomolchem', name: 'Organic & Biomolecular Chemistry', abbrev: 'Org. Biomol. Chem.', rss_url: 'https://pubs.rsc.org/rss/ob', color: '#d63384', category: 'Organic Chemistry' },
@@ -140,7 +141,7 @@ export const RSC_JOURNALS = [
 
   // Applied/Industrial Chemistry
   { id: 'rsc_eesbatt', name: 'EES Batteries', abbrev: 'EES Batteries', rss_url: 'https://pubs.rsc.org/rss/eb', color: '#ffc107', category: 'Applied/Industrial Chemistry' },
-  { id: 'rsc_eescatal', name: 'EES Catalysis', abbrev: 'EES Catalysis', rss_url: 'https://pubs.rsc.org/rss/ey', color: '#fd7e14', category: 'Applied/Industrial Chemistry' },
+  { id: 'rsc_eescatal', name: 'EES Catalysis', abbrev: 'EES Catalysis', rss_url: 'https://pubs.rsc.org/rss/ey', color: '#fd7e14', category: 'Catalysis' },
   { id: 'rsc_eessolar', name: 'EES Solar', abbrev: 'EES Solar', rss_url: 'https://pubs.rsc.org/rss/el', color: '#e67e22', category: 'Applied/Industrial Chemistry' },
   { id: 'rsc_energyenviron', name: 'Energy & Environmental Science', abbrev: 'Energy Environ. Sci.', rss_url: 'https://pubs.rsc.org/rss/ee', color: '#28a745', category: 'Applied/Industrial Chemistry' },
   { id: 'rsc_energyadv', name: 'Energy Advances', abbrev: 'Energy Adv.', rss_url: 'https://pubs.rsc.org/rss/ya', color: '#f39c12', category: 'Applied/Industrial Chemistry' },
@@ -243,8 +244,8 @@ export const ELSEVIER_JOURNALS = [
   { id: 'elsevier_matchemphys', name: 'Materials Chemistry and Physics', abbrev: 'Mater. Chem. Phys.', rss_url: 'https://rss.sciencedirect.com/publication/science/02540584', color: '#6610f2', category: 'Inorganic/Materials Chemistry' },
 
   // Organic Chemistry
-  { id: 'elsevier_catcomm', name: 'Catalysis Communications', abbrev: 'Catal. Commun.', rss_url: 'https://rss.sciencedirect.com/publication/science/15667367', color: '#dc3545', category: 'Organic Chemistry' },
-  { id: 'elsevier_jcatal', name: 'Journal of Catalysis', abbrev: 'J. Catal.', rss_url: 'https://rss.sciencedirect.com/publication/science/00219517', color: '#dc3545', category: 'Organic Chemistry' },
+  { id: 'elsevier_catcomm', name: 'Catalysis Communications', abbrev: 'Catal. Commun.', rss_url: 'https://rss.sciencedirect.com/publication/science/15667367', color: '#dc3545', category: 'Catalysis' },
+  { id: 'elsevier_jcatal', name: 'Journal of Catalysis', abbrev: 'J. Catal.', rss_url: 'https://rss.sciencedirect.com/publication/science/00219517', color: '#dc3545', category: 'Catalysis' },
   { id: 'elsevier_jorgchem', name: 'Journal of Organometallic Chemistry', abbrev: 'J. Organomet. Chem.', rss_url: 'https://rss.sciencedirect.com/publication/science/0022328X', color: '#c0392b', category: 'Organic Chemistry' },
   { id: 'elsevier_tet', name: 'Tetrahedron', abbrev: 'Tetrahedron', rss_url: 'https://rss.sciencedirect.com/publication/science/00404020', color: '#d63384', category: 'Organic Chemistry' },
   { id: 'elsevier_tetlett', name: 'Tetrahedron Letters', abbrev: 'Tetrahedron Lett.', rss_url: 'https://rss.sciencedirect.com/publication/science/00404039', color: '#6f42c1', category: 'Organic Chemistry' },
@@ -297,7 +298,7 @@ export const MDPI_JOURNALS = [
   { id: 'mdpi_synth', name: 'Synthesis (MDPI)', abbrev: 'Synth. (MDPI)', rss_url: 'https://www.mdpi.com/rss/journal/synthesis', color: '#6f42c1', category: 'Organic Chemistry' },
 
   // Applied/Industrial Chemistry
-  { id: 'mdpi_catalysts', name: 'Catalysts', abbrev: 'Catalysts', rss_url: 'https://www.mdpi.com/rss/journal/catalysts', color: '#28a745', category: 'Applied/Industrial Chemistry' },
+  { id: 'mdpi_catalysts', name: 'Catalysts', abbrev: 'Catalysts', rss_url: 'https://www.mdpi.com/rss/journal/catalysts', color: '#28a745', category: 'Catalysis' },
   { id: 'mdpi_foods', name: 'Foods', abbrev: 'Foods', rss_url: 'https://www.mdpi.com/rss/journal/foods', color: '#f1c40f', category: 'Applied/Industrial Chemistry' },
   { id: 'mdpi_macromol', name: 'Macromol', abbrev: 'Macromol (MDPI)', rss_url: 'https://www.mdpi.com/rss/journal/macromol', color: '#6f42c1', category: 'Polymers/Macromolecules' },
   { id: 'mdpi_polymers', name: 'Polymers', abbrev: 'Polymers', rss_url: 'https://www.mdpi.com/rss/journal/polymers', color: '#6c757d', category: 'Polymers/Macromolecules' },
@@ -308,7 +309,7 @@ export const MDPI_JOURNALS = [
 export const SPRINGER_JOURNALS = [
   // General
   { id: 'springer_commchem', name: 'Communications Chemistry', abbrev: 'Commun. Chem.', rss_url: 'https://www.nature.com/commschem.rss', color: '#f39c12', category: 'General' },
-  { id: 'springer_natcatal', name: 'Nature Catalysis', abbrev: 'Nat. Catal.', rss_url: 'https://www.nature.com/natcatal.rss', color: '#0066b3', category: 'General' },
+  { id: 'springer_natcatal', name: 'Nature Catalysis', abbrev: 'Nat. Catal.', rss_url: 'https://www.nature.com/natcatal.rss', color: '#0066b3', category: 'Catalysis' },
   { id: 'springer_natchem', name: 'Nature Chemistry', abbrev: 'Nat. Chem.', rss_url: 'https://www.nature.com/nchem.rss', color: '#e74c3c', category: 'General' },
   { id: 'springer_natrevchem', name: 'Nature Reviews Chemistry', abbrev: 'Nat. Rev. Chem.', rss_url: 'https://www.nature.com/natrevchem.rss', color: '#d63384', category: 'General' },
   { id: 'springer_natrevmater', name: 'Nature Reviews Materials', abbrev: 'Nat. Rev. Mater.', rss_url: 'https://www.nature.com/natrevmats.rss', color: '#7b2d8e', category: 'General' },

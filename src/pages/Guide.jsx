@@ -1,7 +1,9 @@
 import React from 'react';
 import { Settings, Bookmark, Rss, BookOpen, Moon, Sun, LogOut } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { createPageUrl } from '@/utils';
+import { entities } from '@/api/entities';
 import { useDarkMode } from '@/hooks/useDarkMode';
 import { useAuth } from '@/lib/AuthContext';
 import Tooltip from '@/components/ui/Tooltip';
@@ -19,6 +21,11 @@ export default function Guide() {
   const isGuideActive = location.pathname === createPageUrl('Guide');
   const [isDark, toggleDark] = useDarkMode();
   const { logout } = useAuth();
+
+  const { data: savedArticles = [] } = useQuery({
+    queryKey: ['savedArticles'],
+    queryFn: () => entities.SavedArticle.list(),
+  });
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-card to-muted dark:from-slate-950 dark:via-slate-900 dark:to-slate-900">
@@ -49,6 +56,9 @@ export default function Guide() {
                 <button className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-sm font-medium transition-colors bg-blue-50/60 dark:bg-slate-800 text-muted-foreground border-blue-100 dark:border-slate-700 hover:bg-blue-100/60 dark:hover:bg-slate-700">
                   <Bookmark className="w-4 h-4" />
                   <span className="hidden sm:inline">Saved</span>
+                  {savedArticles.length > 0 && (
+                    <span className="bg-amber-500 text-white text-xs rounded-full px-1.5 py-0.5 leading-none">{savedArticles.length}</span>
+                  )}
                 </button>
               </Link>
             </div>
@@ -89,7 +99,7 @@ export default function Guide() {
       </header>
 
       {/* Guide content */}
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <div className="max-w-[60rem] mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="bg-card rounded-2xl border-[1.5px] border-border shadow-sm p-8">
           <h1 className="text-2xl font-bold text-foreground mb-2">User Guide</h1>
           <p className="text-muted-foreground text-sm mb-8">Everything you need to know to get started with Literature Tracker.</p>
@@ -101,7 +111,7 @@ export default function Guide() {
           </p>
 
           <Section title="Feed">
-            <ul className="space-y-2 text-sm text-foreground list-disc list-inside">
+            <ul className="space-y-1 text-sm text-foreground list-disc list-inside">
               <li>Articles are sorted by <span className="font-medium">journal name A&ndash;Z</span>, with the newest articles first within each journal</li>
               <li>Each article card shows a <span className="font-medium">graphical abstract</span> (when available from the publisher), title, authors, date, DOI, and journal badge</li>
               <li><span className="font-medium">Unread articles</span> are marked with a <span className="text-blue-600 dark:text-blue-400 font-medium">blue vertical bar</span> on the left edge of the card and a blue title; once you scroll past an article, it becomes &ldquo;read&rdquo; — the bar disappears and the title turns gray</li>
@@ -114,7 +124,7 @@ export default function Guide() {
           </Section>
 
           <Section title="Saved Articles">
-            <ul className="space-y-2 text-sm text-foreground list-disc list-inside">
+            <ul className="space-y-1 text-sm text-foreground list-disc list-inside">
               <li>All your bookmarked articles in one place</li>
               <li>Select articles with checkboxes and <span className="font-medium">export</span> them as RIS (for ReadCube Papers, EndNote, etc.), CSV, or plain text</li>
               <li>Set up <span className="font-medium">Auto-Save Rules</span> to automatically bookmark articles matching specific keywords or authors — rules run every time the feed refreshes</li>
@@ -123,7 +133,7 @@ export default function Guide() {
           </Section>
 
           <Section title="Search & Filter">
-            <ul className="space-y-2 text-sm text-foreground list-disc list-inside mb-4">
+            <ul className="space-y-1 text-sm text-foreground list-disc list-inside mb-4">
               <li><span className="font-medium">Search bar</span> — filters article titles, abstracts, and authors in real time. A blue <span className="font-medium">Clear</span> link appears next to the input once you start typing</li>
               <li><span className="font-medium">Filter by journal</span> — use the dropdown above the feed to show only one journal. This selection is independent of the search bar</li>
             </ul>
@@ -133,7 +143,7 @@ export default function Guide() {
           </Section>
 
           <Section title="Journal Selector">
-            <ul className="space-y-2 text-sm text-foreground list-disc list-inside">
+            <ul className="space-y-1 text-sm text-foreground list-disc list-inside">
               <li>Switch between <span className="font-medium">Chemistry</span>, <span className="font-medium">Engineering</span>, and <span className="font-medium">Materials Science</span> fields using the tabs at the top</li>
               <li>Browse by publisher (e.g., ACS, RSC, Wiley) or by research category (e.g., Organic Chemistry, Catalysis)</li>
               <li>Search by journal name or keyword</li>
@@ -144,7 +154,7 @@ export default function Guide() {
           </Section>
 
           <Section title="Tips">
-            <ul className="space-y-2 text-sm text-foreground list-disc list-inside">
+            <ul className="space-y-1 text-sm text-foreground list-disc list-inside">
               <li>Read articles have a <span className="text-muted-foreground font-medium">gray</span> title with no left bar; unread ones have a <span className="text-blue-600 dark:text-blue-400 font-medium">blue</span> title with a blue left bar</li>
               <li>A banner appears after 30 minutes reminding you to refresh for the latest articles</li>
               <li>Articles are cached for 20 minutes — switching tabs and back is instant</li>
@@ -159,7 +169,7 @@ export default function Guide() {
 
         {/* Suggestions section */}
         <div className="mt-4">
-          <div className="bg-card rounded-2xl border-[1.5px] border-border shadow-sm p-3">
+          <div className="bg-card rounded-2xl border-[1.5px] border-border shadow-sm px-3 py-[0.525rem]">
             <p className="text-sm text-foreground">
               To share your comments and suggestions about this app{' '}
               <a
