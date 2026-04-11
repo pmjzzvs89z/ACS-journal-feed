@@ -6,7 +6,67 @@ import { Button } from '@/components/ui/button';
 import ArticleCard, { clearAllSeenArticles, getCachedImage } from './ArticleCard';
 import ArticleFilters from './ArticleFilters';
 import Tooltip from '@/components/ui/Tooltip';
-import { ALL_JOURNALS, ACS_JOURNALS, RSC_JOURNALS, WILEY_JOURNALS, ELSEVIER_JOURNALS, SPRINGER_JOURNALS } from '@/components/journals/JournalList';
+import {
+  ALL_JOURNALS, ACS_JOURNALS, RSC_JOURNALS, WILEY_JOURNALS, ELSEVIER_JOURNALS, SPRINGER_JOURNALS,
+  MDPI_JOURNALS, TAYLOR_JOURNALS, AAAS_JOURNALS,
+  ACS_MATERIALS_JOURNALS, RSC_MATERIALS_JOURNALS, WILEY_MATERIALS_JOURNALS,
+  ELSEVIER_MATERIALS_JOURNALS, MDPI_MATERIALS_JOURNALS, SPRINGER_MATERIALS_JOURNALS,
+  IOP_MATERIALS_JOURNALS,
+  ACS_ENGINEERING_JOURNALS, RSC_ENGINEERING_JOURNALS, WILEY_ENGINEERING_JOURNALS,
+  ELSEVIER_ENGINEERING_JOURNALS, SPRINGER_ENGINEERING_JOURNALS,
+  TAYLOR_ENGINEERING_JOURNALS, ASME_ENGINEERING_JOURNALS, ICHEMEE_ENGINEERING_JOURNALS,
+} from '@/components/journals/JournalList';
+
+// Distinct per-publisher accent colors used to underline journal names in
+// the "All Selected Journals" dropdown so the user can recognize at a
+// glance which publisher a journal belongs to.
+const PUBLISHER_COLORS = {
+  acs:      '#60a5fa', // blue-400 (brighter)
+  rsc:      '#e879f9', // fuchsia-400 (magenta)
+  wiley:    '#a3e635', // lime-400 (fresh lime)
+  elsevier: '#ff6c00', // orange
+  mdpi:     '#22d3ee', // cyan-400
+  springer: '#10b981', // emerald-500 (more saturated)
+  taylor:   '#eab308', // yellow
+  aaas:     '#ec4899', // pink
+  asme:     '#64748b', // slate
+  icheme:   '#64748b', // slate
+  iop:      '#64748b', // slate
+};
+
+const PUBLISHER_ID_MAP = (() => {
+  const map = new Map();
+  const add = (arr, key) => arr.forEach(j => map.set(j.id, key));
+  add(ACS_JOURNALS, 'acs');
+  add(ACS_MATERIALS_JOURNALS, 'acs');
+  add(ACS_ENGINEERING_JOURNALS, 'acs');
+  add(RSC_JOURNALS, 'rsc');
+  add(RSC_MATERIALS_JOURNALS, 'rsc');
+  add(RSC_ENGINEERING_JOURNALS, 'rsc');
+  add(WILEY_JOURNALS, 'wiley');
+  add(WILEY_MATERIALS_JOURNALS, 'wiley');
+  add(WILEY_ENGINEERING_JOURNALS, 'wiley');
+  add(ELSEVIER_JOURNALS, 'elsevier');
+  add(ELSEVIER_MATERIALS_JOURNALS, 'elsevier');
+  add(ELSEVIER_ENGINEERING_JOURNALS, 'elsevier');
+  add(MDPI_JOURNALS, 'mdpi');
+  add(MDPI_MATERIALS_JOURNALS, 'mdpi');
+  add(SPRINGER_JOURNALS, 'springer');
+  add(SPRINGER_MATERIALS_JOURNALS, 'springer');
+  add(SPRINGER_ENGINEERING_JOURNALS, 'springer');
+  add(TAYLOR_JOURNALS, 'taylor');
+  add(TAYLOR_ENGINEERING_JOURNALS, 'taylor');
+  add(AAAS_JOURNALS, 'aaas');
+  add(ASME_ENGINEERING_JOURNALS, 'asme');
+  add(ICHEMEE_ENGINEERING_JOURNALS, 'icheme');
+  add(IOP_MATERIALS_JOURNALS, 'iop');
+  return map;
+})();
+
+function publisherColorForJournalId(id) {
+  const key = PUBLISHER_ID_MAP.get(id);
+  return key ? PUBLISHER_COLORS[key] : '#64748b';
+}
 
 const FILTERS_KEY = 'cjf_feed_filters';
 
@@ -77,7 +137,7 @@ function JournalDropdown({ value, onChange, journals }) {
       </button>
       {open && (
         <div
-          className="absolute left-1/2 -translate-x-1/2 top-full mt-1 min-w-[220px] max-h-[60vh] overflow-y-auto rounded-xl py-1 shadow-2xl"
+          className="absolute left-1/2 -translate-x-1/2 top-full mt-1 min-w-[220px] max-h-[90vh] overflow-y-auto rounded-xl py-1 shadow-2xl"
           style={{
             backgroundColor: 'rgb(28, 30, 38)',
             border: '1px solid rgba(255, 255, 255, 0.12)',
@@ -85,25 +145,66 @@ function JournalDropdown({ value, onChange, journals }) {
             isolation: 'isolate',
           }}
         >
-          {[{ id: '', name: 'All Selected Journals' }, ...journals].map(j => {
-            const isSelected = j.id === value;
-            return (
-              <button
-                key={j.id || '__all'}
-                type="button"
-                onClick={() => { onChange(j.id); setOpen(false); }}
-                className="w-full flex items-center gap-2 pl-3 pr-4 py-1.5 text-sm text-left transition-colors"
-                style={{ color: '#ffffff', backgroundColor: 'transparent' }}
-                onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.1)'; }}
-                onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; }}
-              >
-                <span className="w-4 flex-shrink-0 flex items-center justify-center">
-                  {isSelected && <Check className="w-3.5 h-3.5" style={{ color: '#ffffff' }} />}
-                </span>
-                <span className="truncate">{j.name}</span>
-              </button>
-            );
-          })}
+          {(() => {
+            const rows = [];
+            rows.push({ type: 'item', journal: { id: '', name: 'All Selected Journals' }, isFirstInGroup: true });
+            let prevPub = null;
+            journals.forEach((j, idx) => {
+              const pub = PUBLISHER_ID_MAP.get(j.id) || 'other';
+              const isFirstInGroup = idx === 0 || pub !== prevPub;
+              if (isFirstInGroup) {
+                rows.push({ type: 'sep', key: `sep-${idx}-${pub}` });
+              }
+              rows.push({ type: 'item', journal: j, isFirstInGroup });
+              prevPub = pub;
+            });
+            return rows.map((row, i) => {
+              if (row.type === 'sep') {
+                return (
+                  <div
+                    key={row.key}
+                    className="my-1 mx-3"
+                    style={{ borderTop: '1px solid rgba(255, 255, 255, 0.15)' }}
+                  />
+                );
+              }
+              const j = row.journal;
+              const isSelected = j.id === value;
+              const publisherColor = j.id ? publisherColorForJournalId(j.id) : null;
+              // Tighten inter-journal spacing *within* a publisher group
+              // while preserving the distance between the first/last
+              // journal in a group and its separator line. Each button has
+              // py-[0.228rem] (base gap = 0.456rem). Pulling non-first
+              // buttons up by 0.2089rem reduces that gap to 0.2471rem —
+              // a cumulative ~46% tightening (25% → 15% → 15%).
+              const style = {
+                color: '#ffffff',
+                backgroundColor: 'transparent',
+                marginTop: row.isFirstInGroup ? undefined : '-0.2089rem',
+              };
+              return (
+                <button
+                  key={j.id || '__all'}
+                  type="button"
+                  onClick={() => { onChange(j.id); setOpen(false); }}
+                  className="w-full flex items-center gap-2 pl-3 pr-4 py-[0.228rem] text-sm text-left transition-colors"
+                  style={style}
+                  onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.1)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; }}
+                >
+                  <span className="w-4 flex-shrink-0 flex items-center justify-center">
+                    {isSelected && <Check className="w-3.5 h-3.5" style={{ color: '#ffffff' }} />}
+                  </span>
+                  <span
+                    className="truncate"
+                    style={publisherColor ? { color: publisherColor } : undefined}
+                  >
+                    {j.name}
+                  </span>
+                </button>
+              );
+            });
+          })()}
         </div>
       )}
     </div>
@@ -313,7 +414,21 @@ export default function ArticleFeed({ articles, isLoading, loadingProgress, onRe
       });
     }
   });
-  const journals = [...journalsFromArticles.values()].sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
+  // Group journals by publisher in a fixed priority order, then alphabetically
+  // within each group. A gray separator row is rendered between publishers in
+  // the dropdown to visually distinguish them.
+  const PUBLISHER_ORDER = ['acs', 'elsevier', 'rsc', 'wiley', 'mdpi', 'springer', 'taylor', 'aaas', 'asme', 'icheme', 'iop', 'other'];
+  const publisherIndex = (id) => {
+    const key = PUBLISHER_ID_MAP.get(id) || 'other';
+    const idx = PUBLISHER_ORDER.indexOf(key);
+    return idx === -1 ? PUBLISHER_ORDER.length : idx;
+  };
+  const journals = [...journalsFromArticles.values()].sort((a, b) => {
+    const pa = publisherIndex(a.id);
+    const pb = publisherIndex(b.id);
+    if (pa !== pb) return pa - pb;
+    return a.name.localeCompare(b.name, undefined, { sensitivity: 'base' });
+  });
 
   return (
     <div>
