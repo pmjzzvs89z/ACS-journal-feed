@@ -95,11 +95,11 @@
   background: transparent;
 }
 .journal-scroll::-webkit-scrollbar-thumb {
-  background: rgba(148, 163, 184, 0.4);
+  background: rgba(226, 232, 240, 0.55);
   border-radius: 3px;
 }
 .journal-scroll::-webkit-scrollbar-thumb:hover {
-  background: rgba(148, 163, 184, 0.6);
+  background: rgba(241, 245, 249, 0.8);
 }
 
 /* Register a custom property so it can be interpolated smoothly inside
@@ -112,12 +112,10 @@
 
 @keyframes gentle-pulse {
   0%, 100% {
-    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
-    --feed-pulse-opacity: 0.45;
+    box-shadow: 0 0 0 0 rgba(96, 165, 250, 0);
   }
   50% {
-    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.22);
-    --feed-pulse-opacity: 1;
+    box-shadow: 0 0 0 4.3px rgba(96, 165, 250, 0.275);
   }
 }
 
@@ -128,22 +126,19 @@
 /* Stronger variant — ~17% larger halo spread and alpha. */
 @keyframes gentle-pulse-strong {
   0%, 100% {
-    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
-    --feed-pulse-opacity: 0.45;
+    box-shadow: 0 0 0 0 rgba(96, 165, 250, 0);
   }
   50% {
-    box-shadow: 0 0 0 4.914px rgba(59, 130, 246, 0.27027);
-    --feed-pulse-opacity: 1;
+    box-shadow: 0 0 0 4.22604px rgba(96, 165, 250, 0.337838);
   }
 }
 .feed-pulse-strong {
   animation: gentle-pulse-strong 2.88s ease-in-out infinite;
 }
 
-/* Inner elements simply read the parent's animated variable, so they
-   are perfectly in sync with the box-shadow pulse — no separate timer. */
+/* Inner elements stay at normal brightness — only the outer halo pulses. */
 .feed-pulse-inner {
-  opacity: var(--feed-pulse-opacity, 1);
+  /* no-op; kept as a marker class in case we re-enable inner glow later */
 }
 
 /* Match the look of the native browser title tooltip — small font,

@@ -58,7 +58,7 @@ export default function AddCustomJournal({ onJournalAdded }) {
     <div className="rounded-xl border border-border overflow-hidden">
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full flex items-center gap-3 px-4 py-2 bg-secondary hover:bg-muted dark:bg-slate-800 dark:hover:bg-slate-700 transition-colors"
+        className="w-full flex items-center gap-3 px-4 py-[0.325rem] bg-secondary hover:bg-muted dark:bg-slate-800 dark:hover:bg-slate-700 transition-colors"
       >
         <div className="w-3 h-3 rounded-full flex-shrink-0 bg-muted-foreground/40" />
         <span className="font-normal text-foreground text-sm">Add Custom RSS</span>

@@ -1,9 +1,8 @@
 import React, { useState, useMemo, useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BookOpen, ChevronRight, ChevronDown, X, FlaskConical, Cog, Layers, Sparkles, Check } from 'lucide-react';
+import { BookOpen, ChevronRight, ChevronDown, X, FlaskConical, Cog, Layers, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { entities } from '@/api/entities';
-import JournalDiscover from './JournalDiscover';
 import JournalSearch from './JournalSearch';
 function FilterDropdown({ value, onChange, options, allLabel, style }) {
   const [open, setOpen] = useState(false);
@@ -31,8 +30,8 @@ function FilterDropdown({ value, onChange, options, allLabel, style }) {
       <button
         type="button"
         onClick={() => setOpen(o => !o)}
-        className="w-full flex items-center gap-2 rounded-lg border border-border bg-muted px-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-foreground"
-        style={{ fontSize: '0.828rem', height: '1.75rem' }}
+        className="w-full flex items-center gap-2 rounded-lg border border-border px-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-foreground"
+        style={{ fontSize: '0.828rem', height: '2.013rem', backgroundColor: 'rgb(38, 42, 56)' }}
       >
         <span className="truncate flex-1 text-left">{label}</span>
         <ChevronDown className="w-3.5 h-3.5 opacity-70 flex-shrink-0" />
@@ -139,7 +138,7 @@ const MATERIALS_PUBLISHERS = [
 ];
 
 const JournalSelector = forwardRef(function JournalSelector({ followedJournals, onToggleJournal, onCustomJournalAdded }, ref) {
-  const [activeField, setActiveField] = useState('chemistry'); // 'chemistry' | 'engineering' | 'materials' | 'discover'
+  const [activeField, setActiveField] = useState('chemistry'); // 'chemistry' | 'engineering' | 'materials'
   const [expandedPublisher, setExpandedPublisher] = useState(null);
   const [expandedCategories, setExpandedCategories] = useState(new Set());
   const [search, setSearch] = useState('');
@@ -245,8 +244,6 @@ const JournalSelector = forwardRef(function JournalSelector({ followedJournals, 
     setFilterPublisher('');
   };
 
-  const isDiscoverMode = activeField === 'discover';
-
   const renderJournal = (journal, publisher) => {
     const followed = isFollowed(journal.id);
     return (
@@ -280,10 +277,10 @@ const JournalSelector = forwardRef(function JournalSelector({ followedJournals, 
   };
 
   return (
-    <div className="space-y-3">
-      {/* Field Selector Toggle — sticky so it stays visible when scrolling */}
-      <div className="sticky top-0 z-10 bg-card pt-0 pb-1">
-      <div className="flex items-center gap-1 bg-muted rounded-xl p-1">
+    <div className="flex flex-col h-full min-h-0">
+      {/* Fixed (non-scrolling) header: field tabs + search + filters */}
+      <div className="flex-shrink-0 px-4 pt-2 pb-2 space-y-[5px] bg-card">
+      <div className="flex items-center gap-1 rounded-xl p-1" style={{ backgroundColor: 'rgb(38, 42, 56)' }}>
         <button
           onClick={() => handleFieldSwitch('chemistry')}
           className={cn(
@@ -322,30 +319,6 @@ const JournalSelector = forwardRef(function JournalSelector({ followedJournals, 
         </button>
       </div>
 
-      {/* Discover tab */}
-      <button
-        onClick={() => handleFieldSwitch(isDiscoverMode ? 'chemistry' : 'discover')}
-        className={cn(
-          "w-full flex items-center justify-center gap-2 px-3 rounded-lg text-sm font-medium transition-all border",
-          isDiscoverMode
-            ? "bg-purple-50 border-purple-200 text-purple-700 shadow-sm"
-            : "border-dashed border-slate-300 text-slate-500 hover:border-purple-300 hover:text-purple-600 hover:bg-purple-50"
-        )}
-        style={{ height: '2.1rem' }}
-      >
-        <Sparkles className="w-3.5 h-3.5 flex-shrink-0" />
-        <span>Discover Journals</span>
-      </button>
-      </div>{/* end sticky wrapper */}
-
-      {/* Discover panel */}
-      {isDiscoverMode && (
-        <JournalDiscover followedJournals={followedJournals} onToggleJournal={onToggleJournal} />
-      )}
-
-      {/* Search bar + filters + results (hidden in discover mode) */}
-      {!isDiscoverMode && (
-        <>
       {/* Keyword search — uses AI-indexed scopes */}
       <JournalSearch
         allJournals={allCurrentJournals}
@@ -355,14 +328,14 @@ const JournalSelector = forwardRef(function JournalSelector({ followedJournals, 
         placeholder="Search journals by topic, keyword, or method…"
       />
 
-      {/* Filters row */}
+      {/* Filters row — dropdowns span full width to match the search box above */}
       <div className="flex gap-2">
         <FilterDropdown
           value={filterPublisher}
           onChange={setFilterPublisher}
           options={PUBLISHERS.map(p => ({ value: p.id, label: p.label }))}
           allLabel="All Publishers"
-          style={{ flex: '1.3' }}
+          style={{ flex: '1 1 0', minWidth: 0 }}
         />
 
         <FilterDropdown
@@ -370,23 +343,18 @@ const JournalSelector = forwardRef(function JournalSelector({ followedJournals, 
           onChange={setFilterCategory}
           options={CATEGORIES.map(c => ({ value: c, label: c }))}
           allLabel="All Categories"
-          style={{ flex: '1.3' }}
+          style={{ flex: '1 1 0', minWidth: 0 }}
         />
-
-        {isFiltering && (
-          <button
-            onClick={clearFilters}
-            className="text-sm text-blue-600 hover:text-blue-800 font-medium whitespace-nowrap px-1 animate-pulse"
-          >
-            Close
-          </button>
-        )}
       </div>
+      </div>{/* end fixed header */}
+
+      {/* Scrollable body */}
+      <div className="flex-1 min-h-0 overflow-y-auto journal-scroll px-4 pt-1 pb-4 space-y-2">
 
       {/* Results */}
       {isFiltering ? (
         /* Flat filtered list grouped by publisher */
-        <div className="space-y-2">
+        <div className="space-y-[5px]">
           {filteredPublishers.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center py-6">No journals found.</p>
           ) : (
@@ -394,7 +362,7 @@ const JournalSelector = forwardRef(function JournalSelector({ followedJournals, 
               <div key={publisher.id} className="rounded-xl border border-border overflow-hidden">
                 <div className="flex items-center gap-2 px-4 py-2 bg-muted border-b border-border">
                   <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: publisher.color }} />
-                  <span className="text-xs font-semibold text-muted-foreground">{publisher.label}</span>
+                  <span className="text-xs font-normal text-muted-foreground">{publisher.label}</span>
                   <span className="ml-auto text-xs text-muted-foreground">{publisher.journals.length} journal{publisher.journals.length !== 1 ? 's' : ''}</span>
                 </div>
                 <div className="py-1 px-3 space-y-0.5 bg-muted">
@@ -406,7 +374,7 @@ const JournalSelector = forwardRef(function JournalSelector({ followedJournals, 
         </div>
       ) : (
         /* Normal accordion view */
-        <div className="space-y-2">
+        <div className="space-y-[5px]">
           {PUBLISHERS.map((publisher) => {
             const isPublisherOpen = expandedPublisher === publisher.id;
             const publisherSelected = publisher.journals.filter(j => isFollowed(j.id)).length;
@@ -415,10 +383,10 @@ const JournalSelector = forwardRef(function JournalSelector({ followedJournals, 
               <div key={publisher.id} className="rounded-xl border border-border overflow-hidden">
                 <button
                   onClick={() => togglePublisher(publisher.id)}
-                  className="w-full flex items-center gap-3 px-4 py-[0.478rem] bg-muted hover:bg-accent transition-colors"
+                  className="w-full flex items-center gap-3 px-4 py-[0.325rem] bg-muted hover:bg-accent transition-colors"
                 >
                   <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: publisher.color }} />
-                  <span className="font-semibold text-foreground text-sm">{publisher.label}</span>
+                  <span className="font-normal text-foreground text-sm">{publisher.label}</span>
                   <span className="text-[11px] text-muted-foreground font-normal ml-1">{publisher.journals.length}</span>
                   <span className="flex-1" />
                   {publisherSelected > 0 && (
@@ -508,7 +476,7 @@ const JournalSelector = forwardRef(function JournalSelector({ followedJournals, 
                   className="w-full flex items-center gap-3 px-4 py-2 bg-purple-50 hover:bg-purple-100 transition-colors"
                 >
                   <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: color }} />
-                  <span className="font-semibold text-foreground text-sm">Journals Added Manually</span>
+                  <span className="font-normal text-foreground text-sm">Journals Added Manually</span>
                   <span className="text-[11px] text-muted-foreground font-normal ml-1">{customJournals.length}</span>
                   <span className="flex-1" />
                   {selectedCount > 0 && (
@@ -579,8 +547,8 @@ const JournalSelector = forwardRef(function JournalSelector({ followedJournals, 
             );
           })()}
         </div>
-      )}</>
       )}
+      </div>{/* end scrollable body */}
     </div>
   );
 });

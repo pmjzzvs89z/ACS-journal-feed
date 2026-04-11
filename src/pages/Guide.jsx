@@ -40,7 +40,7 @@ export default function Guide() {
 
             <div className="flex items-center gap-4">
               <Link to={createPageUrl('Home')}>
-                <button className="feed-pulse flex items-center gap-1.5 px-4 py-1 rounded-lg border text-sm font-semibold transition-colors bg-blue-50/60 dark:bg-slate-800 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-700 hover:bg-blue-100/60 dark:hover:bg-slate-700">
+                <button className="feed-pulse flex items-center gap-1.5 px-4 py-1 rounded-lg border text-sm font-semibold transition-colors bg-blue-50/60 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-700 hover:bg-blue-100/60 dark:hover:bg-blue-900/40">
                   <Rss className="w-4 h-4" />
                   <span className="hidden sm:inline">Feed</span>
                 </button>

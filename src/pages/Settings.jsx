@@ -34,6 +34,11 @@ export default function Settings() {
     queryFn: () => entities.FollowedJournal.list(),
   });
 
+  const { data: savedArticles = [] } = useQuery({
+    queryKey: ['savedArticles'],
+    queryFn: () => entities.SavedArticle.list(),
+  });
+
   const toggleJournalMutation = useMutation({
     mutationFn: async (journal) => {
       const existing = followedJournals.find(j => j.journal_id === journal.id);
@@ -103,7 +108,7 @@ export default function Settings() {
             {/* Tab nav */}
             <div className="flex items-center gap-4">
               <Link to={createPageUrl('Home') + '?tab=feed'}>
-                <button className="feed-pulse flex items-center gap-1.5 px-4 py-1 rounded-lg border text-sm font-semibold transition-colors bg-blue-50/60 dark:bg-slate-800 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-700 hover:bg-blue-100/60 dark:hover:bg-slate-700">
+                <button className="feed-pulse flex items-center gap-1.5 px-4 py-1 rounded-lg border text-sm font-semibold transition-colors bg-blue-50/60 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-700 hover:bg-blue-100/60 dark:hover:bg-blue-900/40">
                   <Rss className="w-4 h-4 feed-pulse-inner" />
                   <span className="hidden sm:inline feed-pulse-inner">Feed</span>
                 </button>
@@ -112,6 +117,9 @@ export default function Settings() {
                 <button className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-sm font-medium transition-colors bg-blue-50/60 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-blue-100 dark:border-slate-700 hover:bg-blue-100/60 dark:hover:bg-slate-700">
                   <Bookmark className="w-4 h-4" />
                   <span className="hidden sm:inline">Saved</span>
+                  {savedArticles.length > 0 && (
+                    <span className="bg-amber-500 text-white text-xs rounded-full px-1.5 py-0.5 leading-none">{savedArticles.length}</span>
+                  )}
                 </button>
               </Link>
             </div>
@@ -154,7 +162,7 @@ export default function Settings() {
           <div ref={journalCardRef} style={{ width: '620px' }} className="flex-shrink-0">
             <div className="bg-card rounded-2xl border-[1.5px] border-border shadow-sm overflow-hidden flex flex-col" style={{ maxHeight: 'calc(100vh - 130px)' }}>
               {/* Box header — always visible */}
-              <div className="flex-shrink-0 flex items-center gap-3 px-4 py-3 border-b border-border bg-muted">
+              <div className="flex-shrink-0 flex items-center gap-3 px-4 py-[0.225rem] border-b border-border bg-muted">
                 <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center">
                   <BookOpen className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                 </div>
@@ -165,16 +173,14 @@ export default function Settings() {
                 </div>
               </div>
 
-              {/* Scrollable journal list */}
-              <div className="flex-1 overflow-y-auto journal-scroll">
-                <div className="p-4">
-                  <JournalSelector
-                    ref={journalSelectorRef}
-                    followedJournals={followedJournals}
-                    onToggleJournal={(journal) => toggleJournalMutation.mutate(journal)}
-                    onCustomJournalAdded={() => queryClient.invalidateQueries({ queryKey: ['followedJournals'] })}
-                  />
-                </div>
+              {/* Journal list — JournalSelector manages its own fixed header + scrollable body */}
+              <div className="flex-1 min-h-0 flex flex-col">
+                <JournalSelector
+                  ref={journalSelectorRef}
+                  followedJournals={followedJournals}
+                  onToggleJournal={(journal) => toggleJournalMutation.mutate(journal)}
+                  onCustomJournalAdded={() => queryClient.invalidateQueries({ queryKey: ['followedJournals'] })}
+                />
               </div>
             </div>
           </div>
