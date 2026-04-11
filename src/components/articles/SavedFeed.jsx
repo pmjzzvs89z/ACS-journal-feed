@@ -38,11 +38,6 @@ function renderAuthors(text) {
   });
 }
 
-// Module-level set tracking which saved cards have already played their
-// entry animation in the current session. Prevents the saved feed from
-// "blinking" (re-fading in) when the user navigates away and returns.
-const animatedSavedKeys = new Set();
-
 function SavedCard({ saved, onUnsave, selected, onToggleSelect }) {
   const [removing, setRemoving] = useState(false);
 
@@ -56,17 +51,11 @@ function SavedCard({ saved, onUnsave, selected, onToggleSelect }) {
     try { return format(new Date(d), 'MMM d, yyyy'); } catch { return d; }
   };
 
-  const alreadyAnimated = animatedSavedKeys.has(saved.id);
-  useEffect(() => {
-    if (saved.id) animatedSavedKeys.add(saved.id);
-  }, [saved.id]);
-
   return (
     <motion.article
-      initial={alreadyAnimated ? false : { opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
+      initial={false}
+      animate={false}
       exit={{ opacity: 0, scale: 0.97 }}
-      transition={alreadyAnimated ? { duration: 0 } : undefined}
       className={`group bg-card rounded-2xl border-[1.5px] transition-all duration-300 overflow-hidden ${selected ? 'border-blue-400 dark:border-blue-500 shadow-md' : 'border-border hover:shadow-xl hover:border-border'}`}
     >
       <div className="flex items-stretch gap-0">

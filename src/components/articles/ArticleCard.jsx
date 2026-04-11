@@ -3,12 +3,6 @@ import { motion } from 'framer-motion';
 import { ExternalLink, Calendar, BookOpen, Users, Bookmark, BookmarkCheck } from 'lucide-react';
 import ShareButton from './ShareButton';
 
-// Module-level set tracking which articles have already played their entry
-// animation in the current session. Prevents the feed from "blinking" (fading
-// in from opacity 0) when the user navigates away (e.g. to Journal Selector
-// or Guide) and then returns — cards the user has already seen appear
-// instantly instead of replaying the stagger animation on every remount.
-const animatedArticleKeys = new Set();
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { format } from 'date-fns';
@@ -288,20 +282,14 @@ const ArticleCard = React.memo(React.forwardRef(function ArticleCard({ article, 
 
   const showImage = !imageFailed && !!currentImageUrl;
 
-  // Only play the fade-in entry animation the first time this article is
-  // rendered in the session. On subsequent remounts (e.g. returning to Feed
-  // from Journal Selector), the card appears instantly — no blink.
-  const alreadyAnimated = animatedArticleKeys.has(article.link);
-  useEffect(() => {
-    if (article.link) animatedArticleKeys.add(article.link);
-  }, [article.link]);
-
+  // Render cards instantly with no entry animation. The previous
+  // staggered fade-in caused a visible "blink" on every refresh and on
+  // every tab-switch remount, which outweighed its aesthetic value.
   return (
     <motion.article
       ref={articleRef}
-      initial={alreadyAnimated ? false : { opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={alreadyAnimated ? { duration: 0 } : { delay: Math.min(index * 0.03, 0.5), duration: 0.3 }}
+      initial={false}
+      animate={false}
       className="group relative flex rounded-r-2xl hover:shadow-xl transition-all duration-300"
     >
       {!hasBeenSeen && (
