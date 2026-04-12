@@ -423,7 +423,7 @@ export default function ArticleFeed({ articles, failedJournals = [], isLoading, 
           RSC, Wiley, Elsevier, Springer Nature, and more.
         </p>
         <Link to={createPageUrl('Settings')}>
-          <button className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg border text-welcome-cta font-medium transition-colors bg-blue-50/60 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-blue-200 dark:border-slate-700 hover:bg-blue-100/60 dark:hover:bg-slate-700 shadow-sm">
+          <button className="feed-pulse inline-flex items-center gap-1.5 px-3 py-1 rounded-lg border text-welcome-cta font-semibold transition-colors bg-blue-50/60 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-700 hover:bg-blue-100/60 dark:hover:bg-blue-900/40 shadow-sm">
             <Settings className="w-4 h-4" />
             <span>Journal Selector</span>
           </button>

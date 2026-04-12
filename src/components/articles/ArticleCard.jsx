@@ -184,7 +184,7 @@ const ArticleCard = React.memo(React.forwardRef(function ArticleCard({ article, 
                     <Calendar className="w-3 h-3" />
                     {formatDate(article.pubDate)}
                     {!hasBeenSeen && (
-                      <span className="w-[7px] h-[7px] rounded-full bg-amber-500 dark:bg-amber-400 flex-shrink-0" title="Unread" />
+                      <span className="w-[7px] h-[7px] rounded-full bg-blue-600 dark:bg-blue-400 flex-shrink-0" title="Unread" />
                     )}
                   </span>
                 )}

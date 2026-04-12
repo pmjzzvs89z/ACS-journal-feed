@@ -341,7 +341,7 @@ const JournalSelector = forwardRef(function JournalSelector({ followedJournals, 
           ) : (
             filteredPublishers.map(publisher => (
               <div key={publisher.id} className="rounded-xl border border-border overflow-hidden">
-                <div className="flex items-center gap-2 px-4 py-2 bg-muted border-b border-border">
+                <div className="flex items-center gap-2 px-4 py-2 border-b border-border" style={{ backgroundColor: `${publisher.color}10` }}>
                   <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: publisher.color }} />
                   <span className="text-xs font-normal text-muted-foreground">{publisher.label}</span>
                   <span className="ml-auto text-xs text-muted-foreground">{publisher.journals.length} journal{publisher.journals.length !== 1 ? 's' : ''}</span>
@@ -364,7 +364,10 @@ const JournalSelector = forwardRef(function JournalSelector({ followedJournals, 
               <div key={publisher.id} className="rounded-xl border border-border overflow-hidden">
                 <button
                   onClick={() => togglePublisher(publisher.id)}
-                  className="w-full flex items-center gap-3 px-4 py-[0.325rem] bg-muted hover:bg-accent transition-colors"
+                  className="w-full flex items-center gap-3 px-4 py-[0.325rem] transition-colors"
+                  style={{ backgroundColor: `${publisher.color}10` }}
+                  onMouseEnter={e => { e.currentTarget.style.backgroundColor = `${publisher.color}1a`; }}
+                  onMouseLeave={e => { e.currentTarget.style.backgroundColor = `${publisher.color}10`; }}
                 >
                   <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: publisher.color }} />
                   <span className="font-normal text-foreground text-sm">{publisher.label}</span>
