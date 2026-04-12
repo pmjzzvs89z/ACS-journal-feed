@@ -83,20 +83,22 @@ export const entities = {
     }
   },
 
-  // Admin queries — return cross-user data if RLS permits; fall back to current user's data.
+  // Admin queries — return cross-user data if RLS permits.
+  // Throw on error so React Query surfaces it instead of silently
+  // returning an empty dashboard.
   Admin: {
     getAllFollowedJournals: async () => {
       const { data, error } = await supabase
         .from('followed_journals')
         .select('user_id, journal_id, journal_name, is_active, created_at');
-      if (error) return [];
+      if (error) throw error;
       return data || [];
     },
     getAllSavedArticles: async () => {
       const { data, error } = await supabase
         .from('saved_articles')
         .select('user_id, journal_name, journal_abbrev, journal_color, created_at, title, link');
-      if (error) return [];
+      if (error) throw error;
       return data || [];
     },
   }

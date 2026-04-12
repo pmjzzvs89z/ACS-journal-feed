@@ -128,10 +128,19 @@ export default function RecommendedFeed({ followedJournals, savedArticles, onSav
     setIsLoading(false);
   };
 
+  // Stable key based on actual active journal IDs, not just the count.
+  // Without this, toggling one journal off and another on (same count)
+  // would silently skip a refresh.
+  const activeJournalKey = followedJournals
+    .filter(j => j.is_active)
+    .map(j => j.journal_id || j.id)
+    .sort()
+    .join(',');
+
   useEffect(() => {
     if (followedJournals.length > 0) fetchRecommendations();
-     
-  }, [followedJournals.length, selectedKeywords.length]);
+
+  }, [activeJournalKey, selectedKeywords.length]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSaveToggle = async (e, article) => {
     e.preventDefault();

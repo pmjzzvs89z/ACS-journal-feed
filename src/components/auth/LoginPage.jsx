@@ -33,22 +33,27 @@ export default function LoginPage() {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
       } else {
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: { emailRedirectTo: `${window.location.origin}/confirm` },
         });
         if (error) throw error;
-        setMessage('Account created! Check your email to confirm your account, then log in.');
-        setIsLogin(true);
-        setPassword('');
+        // Supabase returns user with an empty `identities` array when the
+        // email already has an account. This is much more reliable than
+        // pattern-matching error messages.
+        if (data.user?.identities?.length === 0) {
+          setEmailInUse(true);
+        } else {
+          setMessage('Account created! Check your email to confirm your account, then log in.');
+          setIsLogin(true);
+          setPassword('');
+        }
       }
     } catch (err) {
       const msg = err?.message || '';
-      // Supabase returns "email rate limit exceeded" or "User already
-      // registered" when signing up with an address that already has an
-      // account. Translate both into a single friendly message and offer
-      // the password-reset flow.
+      // Fallback: some Supabase versions surface existing-email as an
+      // error rather than via the identities check above.
       const looksLikeExisting = !isLogin && (
         /rate limit/i.test(msg) ||
         /already registered/i.test(msg) ||

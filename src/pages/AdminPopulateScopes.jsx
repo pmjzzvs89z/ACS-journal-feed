@@ -45,13 +45,13 @@ function MiniBar({ label, value, max, color }) {
 export default function AdminDashboard() {
   const [isDark, toggleDark] = useDarkMode();
 
-  const { data: followedData = [], isLoading: loadingFollowed } = useQuery({
+  const { data: followedData = [], isLoading: loadingFollowed, isError: errorFollowed } = useQuery({
     queryKey: ['admin-followed'],
     queryFn: entities.Admin.getAllFollowedJournals,
     staleTime: 5 * 60 * 1000,
   });
 
-  const { data: savedData = [], isLoading: loadingSaved } = useQuery({
+  const { data: savedData = [], isLoading: loadingSaved, isError: errorSaved } = useQuery({
     queryKey: ['admin-saved'],
     queryFn: entities.Admin.getAllSavedArticles,
     staleTime: 5 * 60 * 1000,
@@ -155,8 +155,16 @@ export default function AdminDashboard() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
 
+        {/* Query-level error banner — surfaces RLS/network failures */}
+        {(errorFollowed || errorSaved) && !isLoading && (
+          <div className="flex items-start gap-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-xl p-4 text-sm text-red-800 dark:text-red-300">
+            <Info className="w-4 h-4 mt-0.5 flex-shrink-0" />
+            <p>Failed to load {errorFollowed && errorSaved ? 'followed journals and saved articles' : errorFollowed ? 'followed journals' : 'saved articles'}. Check Supabase RLS policies and network connectivity.</p>
+          </div>
+        )}
+
         {/* RLS notice if only seeing own data */}
-        {isOwnDataOnly && !isLoading && (
+        {isOwnDataOnly && !isLoading && !(errorFollowed || errorSaved) && (
           <div className="flex items-start gap-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-xl p-4 text-sm text-amber-800 dark:text-amber-300">
             <Info className="w-4 h-4 mt-0.5 flex-shrink-0" />
             <p>Showing your account's data only. To see all users' statistics, enable cross-user read access in Supabase Row Level Security for <code className="font-mono bg-amber-100 dark:bg-amber-900/40 px-1 rounded">followed_journals</code> and <code className="font-mono bg-amber-100 dark:bg-amber-900/40 px-1 rounded">saved_articles</code>.</p>

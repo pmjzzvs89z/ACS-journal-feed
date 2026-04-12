@@ -73,6 +73,8 @@ export default function Home() {
   const [isDark, toggleDark] = useDarkMode();
   const { logout, user } = useAuth();
   const userId = user?.id;
+  const userIdRef = useRef(userId);
+  userIdRef.current = userId;
   const queryClient = useQueryClient();
 
   const location = useLocation();
@@ -102,13 +104,16 @@ export default function Home() {
     return ['articles', ids || 'none'];
   }, [followedJournals]);
 
-  // RSS fetch function for TanStack Query
+  // RSS fetch function for TanStack Query.
+  // Returns { articles, failedJournals } so ArticleFeed can surface
+  // per-journal failure banners instead of showing a silent empty feed.
   const fetchArticlesQuery = useCallback(async () => {
     const activeJournals = followedJournals.filter(j => j.is_active);
-    if (activeJournals.length === 0) return [];
+    if (activeJournals.length === 0) return { articles: [], failedJournals: [] };
 
     progressSetterRef.current({ done: 0, total: activeJournals.length });
     const allArticles = [];
+    const failedJournals = [];
 
     const BATCH_SIZE = 6;
     for (let i = 0; i < activeJournals.length; i += BATCH_SIZE) {
@@ -128,9 +133,11 @@ export default function Home() {
                 journalColor: journalInfo?.color || '#0066b3',
               }));
               allArticles.push(...journalArticles);
+            } else {
+              failedJournals.push(journalInfo?.abbrev || journal.journal_name);
             }
-          } catch (error) {
-            console.error(`Error fetching ${journal.journal_name}:`, error);
+          } catch (_error) {
+            failedJournals.push(journalInfo?.abbrev || journal.journal_name);
           }
         })
       );
@@ -138,7 +145,7 @@ export default function Home() {
     }
 
     allArticles.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
-    return allArticles;
+    return { articles: allArticles, failedJournals };
   }, [followedJournals]);
 
   // Cached RSS query — stays fresh for 20 minutes
@@ -147,7 +154,7 @@ export default function Home() {
   // so journalQueryKey is stable and the articles cache is served instantly.
   const hasJournalData = followedJournals.length > 0;
   const {
-    data: articles = [],
+    data: feedResult,
     isLoading: isLoadingArticles,
     dataUpdatedAt,
     refetch: refetchArticles,
@@ -158,6 +165,9 @@ export default function Home() {
     gcTime: 30 * 60 * 1000,
     enabled: hasJournalData || !isLoadingJournals,
   });
+
+  const articles = feedResult?.articles ?? [];
+  const failedJournals = feedResult?.failedJournals ?? [];
 
   // Auto-save side effect — runs whenever articles change or the
   // authenticated user changes. Guarded by userId so a logged-out state
@@ -171,6 +181,12 @@ export default function Home() {
     (async () => {
       try {
         const currentSaved = await entities.SavedArticle.list();
+        // After the async gap, verify the authenticated user hasn't
+        // changed mid-flight (e.g. logout + re-login during the fetch).
+        // entities.SavedArticle.create() stamps the *current* auth user,
+        // so without this guard a stale effect could attribute articles
+        // that matched User A's rules to User B's account.
+        if (userIdRef.current !== userId) return;
         const savedIds = new Set(currentSaved.map(s => s.article_id));
         const toSave = articles.filter(a => !savedIds.has(a.link) && articleMatchesRules(a, rules));
         if (toSave.length > 0) {
@@ -370,6 +386,7 @@ export default function Home() {
             {activeTab === 'feed' ? (
               <ArticleFeed
                 articles={articles}
+                failedJournals={failedJournals}
                 isLoading={isLoadingArticles || isLoadingJournals}
                 loadingProgress={loadingProgress}
                 onRefresh={handleRefresh}

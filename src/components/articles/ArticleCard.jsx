@@ -273,7 +273,14 @@ const ArticleCard = React.memo(React.forwardRef(function ArticleCard({ article, 
       }
     }, { threshold: 0.1 });
     if (articleRef.current) observer.observe(articleRef.current);
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      // Mark as seen on unmount if the card was ever visible — covers the
+      // edge case where a short filtered list never scrolls past the card.
+      if (wasEverVisibleRef.current) {
+        markArticleSeen(article.link);
+      }
+    };
   }, [article.link]);
 
   const handleSaveToggle = async (e) => {

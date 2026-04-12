@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Inbox, RotateCcw, Settings, ArrowUp, Check, ChevronDown } from 'lucide-react';
+import { Inbox, RotateCcw, Settings, ArrowUp, Check, ChevronDown, AlertTriangle, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { createPageUrl } from '@/utils';
 import ArticleCard, { clearAllSeenArticles, getCachedImage } from './ArticleCard';
@@ -224,7 +224,7 @@ function SkeletonCard() {
   );
 }
 
-export default function ArticleFeed({ articles, isLoading, loadingProgress, onRefresh, followedCount, savedArticles = [], onSaveToggle, followedJournals = [] }) {
+export default function ArticleFeed({ articles, failedJournals = [], isLoading, loadingProgress, onRefresh, followedCount, savedArticles = [], onSaveToggle, followedJournals = [] }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const [keyword, setKeyword] = useState('');
   const urlFilters = useMemo(() => filtersFromParams(searchParams), [searchParams]);
@@ -474,6 +474,27 @@ export default function ArticleFeed({ articles, isLoading, loadingProgress, onRe
         </div>
       </div>
 
+      {/* Per-journal failure banner — visible when some feeds failed */}
+      {failedJournals.length > 0 && !isLoading && (
+        <div className="flex items-start gap-3 mb-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-xl px-4 py-3 text-sm text-amber-800 dark:text-amber-300">
+          <AlertTriangle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+          <div className="flex-1 min-w-0">
+            <span>
+              {failedJournals.length === 1
+                ? `Couldn't reach ${failedJournals[0]}.`
+                : `Couldn't reach ${failedJournals.length} journal${failedJournals.length > 1 ? 's' : ''}: ${failedJournals.slice(0, 5).join(', ')}${failedJournals.length > 5 ? `, +${failedJournals.length - 5} more` : ''}.`}
+            </span>
+          </div>
+          <button
+            onClick={onRefresh}
+            className="flex items-center gap-1 text-amber-700 dark:text-amber-400 hover:text-amber-900 dark:hover:text-amber-200 font-medium flex-shrink-0"
+          >
+            <RefreshCw className="w-3.5 h-3.5" />
+            Retry
+          </button>
+        </div>
+      )}
+
       <ArticleFilters
         filters={filters}
         onChange={setFilters}
@@ -509,8 +530,21 @@ export default function ArticleFeed({ articles, isLoading, loadingProgress, onRe
           </div>
           <h3 className="text-xl font-semibold text-slate-800 dark:text-slate-200 mb-2">No articles found</h3>
           <p className="text-slate-500 dark:text-slate-400 max-w-md">
-            We couldn't fetch articles right now. Try refreshing or check back later.
+            {(filters.keyword || filters.journal)
+              ? 'No articles match your current filters. Try clearing the search or changing the journal filter.'
+              : failedJournals.length > 0
+                ? 'All feeds failed to load. Check your connection and try again.'
+                : 'We couldn\'t fetch articles right now. Try refreshing or check back later.'}
           </p>
+          {failedJournals.length > 0 && !filters.keyword && !filters.journal && (
+            <button
+              onClick={onRefresh}
+              className="mt-4 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-sm font-medium transition-colors bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-700 hover:bg-amber-100 dark:hover:bg-amber-900/50"
+            >
+              <RefreshCw className="w-3.5 h-3.5" />
+              Retry
+            </button>
+          )}
         </motion.div>
       )}
 
