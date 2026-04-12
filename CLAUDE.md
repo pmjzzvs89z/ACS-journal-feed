@@ -137,11 +137,39 @@ IChemE → IOP → Other, with thin gray separators between groups.
 ### Typography & layout
 - Journal names render **inline** as `<abbrev> (<full name>)`, with the full
   name at 80% opacity (`text-muted-foreground/80`).
-- Settings and Guide content cards are a fixed **620 px wide**, centered.
+- Settings and Guide content cards are **max-width 620 px**, centered, and
+  responsive on mobile (`maxWidth: '620px'` + `w-full`).
 - Category rows in the Journal Selector use tight vertical padding
   (`py-[0.4rem]`); the Feed dropdown uses `py-[0.228rem]` with a small
   negative `marginTop` on non-first-in-group items to tighten intra-group
   spacing without touching separator distance.
+
+### Card borders
+
+Two intentional border styles:
+
+| Context | Classes | Where |
+|---------|---------|-------|
+| **Article cards** (Feed, Saved, skeleton loader, search box) | `border-[1.125px] border-slate-400/80 dark:border-slate-600` | ArticleCard, SavedCard, SkeletonCard, ArticleFilters |
+| **Container cards** (Settings, Guide, Admin, Auto-Save Rules) | `border-[1.5px] border-border` | Settings.jsx, Guide.jsx, AdminPopulateScopes, AutoSaveRules |
+
+New article-like cards should use the thinner slate style. New
+container/section cards should use the thicker `border-border` style.
+
+### Per-user localStorage keys
+
+All user-specific localStorage state is namespaced by Supabase user id so
+it cannot bleed between accounts on the same browser:
+
+| Key pattern | Purpose | Managed in |
+|-------------|---------|------------|
+| `cjf_autosave_rules:<userId>` | Auto-save keywords & authors | SavedFeed.jsx, Home.jsx |
+| `seenArticles:<userId>` | Read/unread article history | ArticleCard.jsx, Home.jsx |
+| `darkMode` | Theme preference (per-browser, not per-user — intentional) | useDarkMode.js |
+
+**Never add a new un-namespaced localStorage key for per-user data.** The
+legacy un-namespaced `cjf_autosave_rules` and `seenArticles` keys are
+purged on mount in SavedFeed.jsx / ArticleCard.jsx — do not reintroduce.
 
 ### Categories
 Chemistry has 9 subfields. **Catalysis is its own category** — it includes
@@ -158,7 +186,8 @@ J. Catalysis, Catalysts (MDPI), Nature Catalysis, and **Organometallics**
   and on hard refresh. Both components intentionally use
   `initial={false} animate={false}`.
 - **Never hand-edit `src/components/ui/`** — those are shadcn primitives.
-  Regenerate instead.
+  Regenerate instead. Exception: `Tooltip.jsx` and `ToggleSwitch.jsx` are
+  custom (non-shadcn) components that live in `ui/` for convenience.
 - **`vercel.json` is required.** It contains the SPA rewrite that lets
   `/Settings`, `/Guide`, etc. survive a browser refresh. Don't delete it.
 - **Supabase RLS matters for the Admin dashboard.** Cross-user reads need
@@ -179,5 +208,8 @@ J. Catalysis, Catalysts (MDPI), Nature Catalysis, and **Organometallics**
 
 - **Commit messages:** short imperative subject, no emoji, optional body.
 - **Branch:** `main`. Vercel auto-deploys on every push.
-- **Pre-commit:** `npm run lint && npm run typecheck`.
+- **Pre-commit:** `npm run lint && npm run typecheck`. Note: `typecheck`
+  has pre-existing errors in `Settings.jsx` (Supabase return types aren't
+  inferrable in `.jsx`) — these are known and accepted. Verify that your
+  changes don't introduce *new* errors beyond that baseline.
 - **Deploy target:** https://literature-tracker.app (Vercel).

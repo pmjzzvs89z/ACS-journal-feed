@@ -87,13 +87,13 @@ export default function ExportModal({ open, onClose, articles }) {
                 key={fmt.id}
                 onClick={() => setSelected(fmt.id)}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl border-2 transition-all text-left ${
-                  active ? 'border-blue-500 bg-blue-50' : 'border-border hover:border-border bg-card'
+                  active ? 'border-blue-500 dark:border-blue-400 bg-blue-50 dark:bg-blue-900/30' : 'border-border hover:border-border bg-card'
                 }`}
               >
-                <Icon className={`w-5 h-5 flex-shrink-0 ${active ? 'text-blue-600' : 'text-slate-400'}`} />
+                <Icon className={`w-5 h-5 flex-shrink-0 ${active ? 'text-blue-600 dark:text-blue-400' : 'text-slate-400 dark:text-slate-500'}`} />
                 <div>
-                  <p className={`text-sm font-semibold ${active ? 'text-blue-700' : 'text-slate-800'}`}>{fmt.label}</p>
-                  <p className="text-xs text-slate-500">{fmt.desc}</p>
+                  <p className={`text-sm font-semibold ${active ? 'text-blue-700 dark:text-blue-300' : 'text-slate-800 dark:text-slate-200'}`}>{fmt.label}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">{fmt.desc}</p>
                 </div>
               </button>
             );
@@ -101,7 +101,7 @@ export default function ExportModal({ open, onClose, articles }) {
         </div>
         <div className="mt-6 flex gap-3 justify-end">
           <Button variant="outline" onClick={onClose}>Cancel</Button>
-          <Button onClick={handleExport} className="gap-2 bg-blue-600 hover:bg-blue-700 text-white">
+          <Button onClick={handleExport} className="gap-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600 text-white">
             <Download className="w-4 h-4" />
             Download
           </Button>

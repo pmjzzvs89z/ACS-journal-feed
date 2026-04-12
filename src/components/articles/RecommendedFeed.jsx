@@ -410,7 +410,7 @@ export default function RecommendedFeed({ followedJournals, savedArticles, onSav
                         href={article.link}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex-shrink-0 w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-blue-600 hover:text-white transition-all duration-200"
+                        className="flex-shrink-0 w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:bg-blue-600 hover:text-white dark:hover:bg-blue-600 dark:hover:text-white transition-all duration-200"
                       >
                         <ExternalLink className="w-4 h-4" />
                       </a>

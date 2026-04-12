@@ -207,7 +207,7 @@ function JournalDropdown({ value, onChange, journals }) {
 
 function SkeletonCard() {
   return (
-    <div className="bg-card rounded-2xl border-[1.5px] border-border overflow-hidden animate-pulse">
+    <div className="bg-card rounded-2xl border-[1.125px] border-slate-400/80 dark:border-slate-600 overflow-hidden animate-pulse">
       <div className="flex items-stretch gap-0">
         <div className="hidden sm:flex flex-shrink-0 w-[405px] bg-slate-200 dark:bg-slate-700" style={{ minHeight: '160px' }} />
         <div className="flex-1 py-5 pr-5 pl-10 space-y-3">

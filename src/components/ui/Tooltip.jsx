@@ -4,8 +4,10 @@ import React, { useState, useRef, useEffect } from 'react';
  * Lightweight hover tooltip with a configurable appear delay.
  * Wraps a single child (typically a button) and shows `label` after
  * `delay` ms of sustained hover.
+ *
+ * @param {{ label: any, delay?: number, children: any, side?: string, className?: string, style?: React.CSSProperties }} props
  */
-export default function Tooltip({ label, delay = 500, children, side = 'bottom', className = '', style }) {
+export default function Tooltip({ label, delay = 500, children, side = 'bottom', className = '', style = undefined }) {
   const [show, setShow] = useState(false);
   const timerRef = useRef(null);
 

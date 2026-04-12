@@ -69,7 +69,7 @@ function SavedCard({ saved, onUnsave, selected, onToggleSelect }) {
       initial={false}
       animate={false}
       exit={{ opacity: 0, scale: 0.97 }}
-      className={`group bg-card rounded-2xl border-[1.5px] transition-all duration-300 overflow-hidden ${selected ? 'border-blue-400 dark:border-blue-500 shadow-md' : 'border-border hover:shadow-xl hover:border-border'}`}
+      className={`group bg-card rounded-2xl border-[1.125px] transition-all duration-300 overflow-hidden ${selected ? 'border-blue-400 dark:border-blue-500 shadow-md' : 'border-slate-400/80 dark:border-slate-600 hover:shadow-xl'}`}
     >
       <div className="flex items-stretch gap-0">
         {/* Checkbox */}
@@ -287,7 +287,7 @@ export default function SavedFeed({ savedArticles, onRefresh, articles = [] }) {
         </div>
         <Button
           onClick={() => setExportOpen(true)}
-          className="gap-2 bg-blue-600 hover:bg-blue-700 text-white"
+          className="gap-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600 text-white"
           size="sm"
         >
           <Download className="w-4 h-4" />
