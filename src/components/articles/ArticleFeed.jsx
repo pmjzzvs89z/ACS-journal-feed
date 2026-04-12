@@ -617,7 +617,7 @@ export default function ArticleFeed({ articles, failedJournals = [], isLoading, 
             exit={{ opacity: 0, y: 16 }}
             transition={{ duration: 0.2 }}
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex items-center gap-1.5 px-2.5 py-1 bg-slate-700 hover:bg-slate-600 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl border border-slate-600 transition-colors"
+            className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex items-center gap-1.5 px-2.5 py-1 bg-white hover:bg-slate-100 text-slate-900 dark:bg-slate-100 dark:hover:bg-slate-200 dark:text-slate-900 text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl border border-slate-300 dark:border-slate-400 transition-colors"
             aria-label="Back to top"
           >
             <ArrowUp className="w-4 h-4" />
@@ -626,23 +626,6 @@ export default function ArticleFeed({ articles, failedJournals = [], isLoading, 
         )}
       </AnimatePresence>
 
-      {/* Floating up-arrow on the right edge — mid-screen vertical */}
-      <AnimatePresence>
-        {showBackToTop && (
-          <motion.button
-            initial={{ opacity: 0, x: 16 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 16 }}
-            transition={{ duration: 0.2 }}
-            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            className="fixed right-[max(0.5rem,calc(50vw-41.75rem))] top-1/2 -translate-y-1/2 z-50 flex items-center justify-center w-7 h-11 rounded-lg bg-slate-700 hover:bg-slate-600 text-white shadow-lg hover:shadow-xl border border-slate-600 transition-colors"
-            aria-label="Back to top"
-            title="Back to top"
-          >
-            <ArrowUp className="w-5 h-5" />
-          </motion.button>
-        )}
-      </AnimatePresence>
     </div>
   );
 }
