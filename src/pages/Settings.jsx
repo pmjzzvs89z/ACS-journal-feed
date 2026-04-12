@@ -111,13 +111,13 @@ export default function Settings() {
             {/* Tab nav */}
             <div className="flex items-center gap-4">
               <Link to={createPageUrl('Home') + '?tab=feed'}>
-                <button className="feed-pulse flex items-center gap-1.5 px-4 py-1 rounded-lg border text-sm font-semibold transition-colors bg-blue-50/60 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-700 hover:bg-blue-100/60 dark:hover:bg-blue-900/40">
+                <button className="feed-pulse flex items-center gap-1.5 px-4 py-1 rounded-lg border text-sm font-semibold transition-colors bg-slate-200/80 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-700 hover:bg-slate-300/80 dark:hover:bg-blue-900/40">
                   <Rss className="w-4 h-4 feed-pulse-inner" />
                   <span className="hidden sm:inline feed-pulse-inner">Feed</span>
                 </button>
               </Link>
               <Link to={createPageUrl('Home') + '?tab=saved'}>
-                <button className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-sm font-medium transition-colors bg-blue-50/60 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-blue-100 dark:border-slate-700 hover:bg-blue-100/60 dark:hover:bg-slate-700">
+                <button className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-sm font-medium transition-colors bg-slate-200/80 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700 hover:bg-slate-300/80 dark:hover:bg-slate-700">
                   <Bookmark className="w-4 h-4" />
                   <span className="hidden sm:inline">Saved</span>
                   {savedArticles.length > 0 && (
@@ -128,13 +128,13 @@ export default function Settings() {
             </div>
 
             <div className="flex-1 flex items-center gap-2 justify-end">
-              <button className="flex items-center gap-1.5 px-3 py-1 rounded-lg border text-sm font-medium transition-colors bg-blue-50/60 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-700">
+              <button className="flex items-center gap-1.5 px-3 py-1 rounded-lg border text-sm font-medium transition-colors bg-slate-200/80 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-700">
                 <SettingsIcon className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                 <span className="hidden sm:inline">Journal Selector</span>
               </button>
               <Tooltip label="User Guide" delay={500}>
                 <Link to={createPageUrl('Guide')}>
-                  <button className={`flex items-center gap-1.5 px-3 py-1 rounded-lg border text-sm font-medium transition-colors ${isGuideActive ? 'bg-blue-50/60 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-700' : 'bg-blue-50/60 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-blue-100 dark:border-slate-700 hover:bg-blue-100/60 dark:hover:bg-slate-700'}`}>
+                  <button className={`flex items-center gap-1.5 px-3 py-1 rounded-lg border text-sm font-medium transition-colors ${isGuideActive ? 'bg-slate-200/80 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-700' : 'bg-slate-200/80 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700 hover:bg-slate-300/80 dark:hover:bg-slate-700'}`}>
                     <BookOpen className={`w-4 h-4 ${isGuideActive ? 'text-blue-600 dark:text-blue-400' : ''}`} />
                   </button>
                 </Link>
@@ -142,7 +142,7 @@ export default function Settings() {
               <Tooltip label={isDark ? 'Switch to light mode' : 'Switch to dark mode'} delay={500}>
                 <button
                   onClick={toggleDark}
-                  className="flex items-center justify-center w-8 h-8 rounded-lg border transition-colors bg-blue-50/60 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-blue-100 dark:border-slate-700 hover:bg-blue-100/60 dark:hover:bg-slate-700"
+                  className="flex items-center justify-center w-8 h-8 rounded-lg border transition-colors bg-slate-200/80 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700 hover:bg-slate-300/80 dark:hover:bg-slate-700"
                 >
                   {isDark ? <Sun className="w-4 h-4 text-orange-400" /> : <Moon className="w-4 h-4 text-blue-500" />}
                 </button>
@@ -150,7 +150,7 @@ export default function Settings() {
               <Tooltip label="Log out" delay={500}>
                 <button
                   onClick={logout}
-                  className="flex items-center justify-center w-8 h-8 rounded-lg border transition-colors bg-blue-50/60 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-blue-100 dark:border-slate-700 hover:bg-red-100/60 dark:hover:bg-red-900/30 hover:text-red-600 dark:hover:text-red-400"
+                  className="flex items-center justify-center w-8 h-8 rounded-lg border transition-colors bg-slate-200/80 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700 hover:bg-red-100/60 dark:hover:bg-red-900/30 hover:text-red-600 dark:hover:text-red-400"
                 >
                   <LogOut className="w-4 h-4" />
                 </button>

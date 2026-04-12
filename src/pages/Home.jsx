@@ -206,8 +206,8 @@ export default function Home() {
                 onClick={() => setActiveTab('feed')}
                 className={`flex items-center gap-1.5 px-4 py-1 rounded-lg border text-sm font-semibold transition-colors ${
                   activeTab === 'feed'
-                    ? 'bg-blue-50/60 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-700'
-                    : 'feed-pulse bg-blue-50/60 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-700 hover:bg-blue-100/60 dark:hover:bg-blue-900/40'
+                    ? 'bg-slate-200/80 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-700'
+                    : 'feed-pulse bg-slate-200/80 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-700 hover:bg-slate-300/80 dark:hover:bg-blue-900/40'
                 }`}
               >
                 <Rss className={`w-4 h-4 ${activeTab === 'feed' ? 'text-blue-600 dark:text-blue-400' : ''}`} />
@@ -217,8 +217,8 @@ export default function Home() {
                 onClick={() => setActiveTab('saved')}
                 className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-sm font-medium transition-colors ${
                   activeTab === 'saved'
-                    ? 'bg-blue-50/60 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-700'
-                    : 'bg-blue-50/60 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-blue-100 dark:border-slate-700 hover:bg-blue-100/60 dark:hover:bg-slate-700'
+                    ? 'bg-slate-200/80 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-700'
+                    : 'bg-slate-200/80 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700 hover:bg-slate-300/80 dark:hover:bg-slate-700'
                 }`}
               >
                 <Bookmark className={`w-4 h-4 ${activeTab === 'saved' ? 'text-blue-600 dark:text-blue-400' : ''}`} />
@@ -233,8 +233,8 @@ export default function Home() {
               <Link to={createPageUrl('Settings')}>
                 <button className={`flex items-center gap-1.5 px-3 py-1 rounded-lg border text-sm font-medium transition-colors ${
                   isSettingsActive
-                    ? 'bg-blue-50/60 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-700'
-                    : 'bg-blue-50/60 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-blue-100 dark:border-slate-700 hover:bg-blue-100/60 dark:hover:bg-slate-700'
+                    ? 'bg-slate-200/80 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-700'
+                    : 'bg-slate-200/80 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700 hover:bg-slate-300/80 dark:hover:bg-slate-700'
                 }`}>
                   <Settings className={`w-4 h-4 ${isSettingsActive ? 'text-blue-600 dark:text-blue-400' : ''}`} />
                   <span className="hidden sm:inline">Journal Selector</span>
@@ -244,8 +244,8 @@ export default function Home() {
                 <Link to={createPageUrl('Guide')}>
                   <button className={`flex items-center gap-1.5 px-3 py-1 rounded-lg border text-sm font-medium transition-colors ${
                     isGuideActive
-                      ? 'bg-blue-50/60 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-700'
-                      : 'bg-blue-50/60 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-blue-100 dark:border-slate-700 hover:bg-blue-100/60 dark:hover:bg-slate-700'
+                      ? 'bg-slate-200/80 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-700'
+                      : 'bg-slate-200/80 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700 hover:bg-slate-300/80 dark:hover:bg-slate-700'
                   }`}>
                     <BookOpen className={`w-4 h-4 ${isGuideActive ? 'text-blue-600 dark:text-blue-400' : ''}`} />
                   </button>
@@ -254,7 +254,7 @@ export default function Home() {
               <Tooltip label={isDark ? 'Switch to light mode' : 'Switch to dark mode'} delay={500}>
                 <button
                   onClick={toggleDark}
-                  className="flex items-center justify-center w-8 h-8 rounded-lg border transition-colors bg-blue-50/60 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-blue-100 dark:border-slate-700 hover:bg-blue-100/60 dark:hover:bg-slate-700"
+                  className="flex items-center justify-center w-8 h-8 rounded-lg border transition-colors bg-slate-200/80 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700 hover:bg-slate-300/80 dark:hover:bg-slate-700"
                 >
                   {isDark ? <Sun className="w-4 h-4 text-orange-400" /> : <Moon className="w-4 h-4 text-blue-500" />}
                 </button>
@@ -262,7 +262,7 @@ export default function Home() {
               <Tooltip label={`Log out from ${user?.email}`} delay={500}>
                 <button
                   onClick={logout}
-                  className="flex items-center justify-center w-8 h-8 rounded-lg border transition-colors bg-blue-50/60 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-blue-100 dark:border-slate-700 hover:bg-red-100/60 dark:hover:bg-red-900/30 hover:text-red-600 dark:hover:text-red-400"
+                  className="flex items-center justify-center w-8 h-8 rounded-lg border transition-colors bg-slate-200/80 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700 hover:bg-red-100/60 dark:hover:bg-red-900/30 hover:text-red-600 dark:hover:text-red-400"
                 >
                   <LogOut className="w-4 h-4" />
                 </button>
