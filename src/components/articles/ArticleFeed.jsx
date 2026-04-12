@@ -1,8 +1,9 @@
 import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Inbox, RotateCcw, Settings, ArrowUp, Check, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { createPageUrl } from '@/utils';
 import ArticleCard, { clearAllSeenArticles, getCachedImage } from './ArticleCard';
 import ArticleFilters from './ArticleFilters';
 import Tooltip from '@/components/ui/Tooltip';
@@ -241,7 +242,7 @@ export default function ArticleFeed({ articles, isLoading, loadingProgress, onRe
       next.set('journal', stored.journal);
       return next;
     }, { replace: true });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, []);
 
   const setFilters = useCallback((newFilters) => {
@@ -344,20 +345,33 @@ export default function ArticleFeed({ articles, isLoading, loadingProgress, onRe
   if (followedCount === 0) {
     return (
       <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="flex flex-col items-center justify-center py-20 text-center"
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: 'easeOut' }}
+        className="flex flex-col items-center text-center px-4 pb-20"
+        style={{ paddingTop: '13.46vh' }}
       >
-        <div className="w-20 h-20 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-6">
-          <Inbox className="w-10 h-10 text-slate-400 dark:text-slate-500" />
-        </div>
-        <h3 className="text-2xl font-bold text-white mb-3">Welcome to Literature Tracker</h3>
-        <p className="text-lg text-blue-600 dark:text-blue-400 max-w-lg flex flex-wrap items-center justify-center gap-x-1">
-          <span>To get started, select your favorite journals in</span>
-          <span className="inline-flex items-center gap-1"><Settings className="w-4 h-4 font-bold" /><strong>Journal Selector</strong></span>
-          <span>and view them in the</span>
-          <strong>Feed</strong>
+        <img
+          src="/logo.svg"
+          alt="Literature Tracker"
+          className="w-24 h-24 object-contain mb-6 drop-shadow-lg"
+        />
+        <h3 className="text-[22px] sm:text-[26.4px] font-bold text-slate-900 dark:text-white mb-3">
+          Welcome to Literature Tracker
+        </h3>
+        <p className="text-[17.6px] text-blue-600 dark:text-blue-400 max-w-xl mb-6 leading-relaxed">
+          This literature tracker allows you to follow any of the hundreds of
+          journals across <span className="text-yellow-700 dark:text-yellow-500">Chemistry</span>,{' '}
+          <span className="text-yellow-700 dark:text-yellow-500">Engineering</span>, and{' '}
+          <span className="text-yellow-700 dark:text-yellow-500">Materials Science</span> — from ACS,
+          RSC, Wiley, Elsevier, Springer Nature, and more.
         </p>
+        <Link to={createPageUrl('Settings')}>
+          <button className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg border text-[15.4px] font-medium transition-colors bg-blue-50/60 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-blue-200 dark:border-slate-700 hover:bg-blue-100/60 dark:hover:bg-slate-700 shadow-sm">
+            <Settings className="w-4 h-4" />
+            <span>Journal Selector</span>
+          </button>
+        </Link>
       </motion.div>
     );
   }
@@ -451,7 +465,7 @@ export default function ArticleFeed({ articles, isLoading, loadingProgress, onRe
               onClick={handleResetArticles}
               size="sm"
               variant="outline"
-              className="text-xs border border-blue-100 dark:border-slate-600 rounded-lg bg-blue-50/60 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-blue-100/60 dark:hover:bg-slate-700 hover:text-slate-600 dark:hover:text-slate-300"
+              className="text-xs border border-blue-100 dark:border-slate-600 rounded-lg bg-blue-50/60 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-blue-100/60 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white"
             >
               <RotateCcw className="w-3.5 h-3.5 mr-1.5" />
               Reset

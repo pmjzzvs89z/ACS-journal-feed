@@ -130,7 +130,7 @@ export default function RecommendedFeed({ followedJournals, savedArticles, onSav
 
   useEffect(() => {
     if (followedJournals.length > 0) fetchRecommendations();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [followedJournals.length, selectedKeywords.length]);
 
   const handleSaveToggle = async (e, article) => {

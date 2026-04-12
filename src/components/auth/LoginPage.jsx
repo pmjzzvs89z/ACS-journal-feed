@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { supabase } from '@/api/supabaseClient';
-import { Loader2, BookOpen, Moon, Sun } from 'lucide-react';
+import { Loader2, Moon, Sun } from 'lucide-react';
 import { useDarkMode } from '@/hooks/useDarkMode';
 
 export default function LoginPage() {
@@ -11,12 +11,14 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
+  const [emailInUse, setEmailInUse] = useState(false);
   const [isDark, toggleDark] = useDarkMode();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setMessage('');
+    setEmailInUse(false);
     setIsLoading(true);
 
     try {
@@ -37,12 +39,26 @@ export default function LoginPage() {
           options: { emailRedirectTo: `${window.location.origin}/confirm` },
         });
         if (error) throw error;
-        setMessage('Account created! Please check your email to confirm your account, then log in.');
+        setMessage('Account created! Check your email to confirm your account, then log in.');
         setIsLogin(true);
         setPassword('');
       }
     } catch (err) {
-      setError(err.message || 'Something went wrong. Please try again.');
+      const msg = err?.message || '';
+      // Supabase returns "email rate limit exceeded" or "User already
+      // registered" when signing up with an address that already has an
+      // account. Translate both into a single friendly message and offer
+      // the password-reset flow.
+      const looksLikeExisting = !isLogin && (
+        /rate limit/i.test(msg) ||
+        /already registered/i.test(msg) ||
+        /user already/i.test(msg)
+      );
+      if (looksLikeExisting) {
+        setEmailInUse(true);
+      } else {
+        setError(msg || 'Something went wrong. Please try again.');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -53,6 +69,7 @@ export default function LoginPage() {
     setIsForgotPassword(mode === 'forgot');
     setError('');
     setMessage('');
+    setEmailInUse(false);
   };
 
   return (
@@ -70,9 +87,11 @@ export default function LoginPage() {
 
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">
-          <div className="w-14 h-14 rounded-2xl bg-blue-600 flex items-center justify-center mb-4 shadow-lg">
-            <BookOpen className="w-7 h-7 text-white" />
-          </div>
+          <img
+            src="/logo.svg"
+            alt="Literature Tracker"
+            className="w-16 h-16 object-contain mb-4"
+          />
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Literature Tracker</h1>
           <p className="text-sm text-muted-foreground mt-1">Follow your favorite journals</p>
         </div>
@@ -89,7 +108,7 @@ export default function LoginPage() {
               <input
                 type="email"
                 value={email}
-                onChange={e => setEmail(e.target.value)}
+                onChange={e => { setEmail(e.target.value); if (emailInUse) setEmailInUse(false); }}
                 placeholder="you@example.com"
                 required
                 className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-card text-foreground placeholder:text-muted-foreground"
@@ -114,8 +133,21 @@ export default function LoginPage() {
               <p className="text-xs text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/30 px-3 py-2 rounded-lg">{error}</p>
             )}
 
+            {emailInUse && (
+              <div className="text-xs bg-red-50 dark:bg-red-900/30 px-3 py-2 rounded-lg">
+                <p className="text-red-600 dark:text-red-400 mb-1.5">This email is already in use.</p>
+                <button
+                  type="button"
+                  onClick={() => switchMode('forgot')}
+                  className="text-amber-600 dark:text-amber-400 hover:underline font-semibold"
+                >
+                  Forgot your password? Reset it
+                </button>
+              </div>
+            )}
+
             {message && (
-              <p className="text-xs text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-900/30 px-3 py-2 rounded-lg">{message}</p>
+              <p className="text-xs font-semibold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/30 px-3 py-2 rounded-lg">{message}</p>
             )}
 
             <button
@@ -132,7 +164,7 @@ export default function LoginPage() {
             {!isForgotPassword && (
               <button
                 onClick={() => switchMode(isLogin ? 'signup' : 'login')}
-                className="block w-full text-xs text-blue-600 dark:text-blue-400 hover:underline"
+                className="block w-full text-[13.2px] text-amber-600 dark:text-amber-400 hover:underline"
               >
                 {isLogin ? "Don't have an account? Sign up" : 'Already have an account? Sign in'}
               </button>

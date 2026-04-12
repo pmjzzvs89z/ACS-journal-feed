@@ -6,6 +6,7 @@ import { Settings, Bookmark, Rss, BookOpen, RefreshCw, Moon, Sun, LogOut } from 
 import ArticleFeed from '@/components/articles/ArticleFeed';
 import SavedFeed from '@/components/articles/SavedFeed';
 import RecommendedFeed from '@/components/articles/RecommendedFeed';
+import { setSeenArticlesUser, getSeenArticleIds } from '@/components/articles/ArticleCard';
 import { ALL_JOURNALS } from '@/components/journals/JournalList';
 import Tooltip from '@/components/ui/Tooltip';
 import { Link, useLocation, useSearchParams } from 'react-router-dom';
@@ -13,10 +14,16 @@ import { createPageUrl } from '@/utils';
 import { useDarkMode } from '@/hooks/useDarkMode';
 import { useAuth } from '@/lib/AuthContext';
 
-const RULES_KEY = 'cjf_autosave_rules';
+// Auto-save rules live in localStorage namespaced by user id — see
+// SavedFeed.jsx for the read/write side. This helper mirrors that scheme
+// so the auto-save side effect below only ever reads the current user's
+// rules. Without a userId we return an empty object, which disables
+// auto-save entirely.
+const RULES_KEY_BASE = 'cjf_autosave_rules';
 
-function getAutoSaveRules() {
-  try { return JSON.parse(localStorage.getItem(RULES_KEY) || '{}'); }
+function getAutoSaveRules(userId) {
+  if (!userId) return {};
+  try { return JSON.parse(localStorage.getItem(`${RULES_KEY_BASE}:${userId}`) || '{}'); }
   catch { return {}; }
 }
 
@@ -64,7 +71,8 @@ export default function Home() {
   const [selectedKeywords, setSelectedKeywords] = useState([]);
   const [filterEnabled, setFilterEnabled] = useState(false);
   const [isDark, toggleDark] = useDarkMode();
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
+  const userId = user?.id;
   const queryClient = useQueryClient();
 
   const location = useLocation();
@@ -151,10 +159,13 @@ export default function Home() {
     enabled: hasJournalData || !isLoadingJournals,
   });
 
-  // Auto-save side effect — runs whenever articles change
+  // Auto-save side effect — runs whenever articles change or the
+  // authenticated user changes. Guarded by userId so a logged-out state
+  // or an account switch cannot apply stale rules to a different user.
   useEffect(() => {
     if (!articles.length) return;
-    const rules = getAutoSaveRules();
+    if (!userId) return;
+    const rules = getAutoSaveRules(userId);
     if (!rules.enabled) return;
 
     (async () => {
@@ -210,16 +221,27 @@ export default function Home() {
         console.error('Auto-save error:', e);
       }
     })();
-  }, [articles]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [articles, userId]);  
 
-  // Unread badge count
+  // Propagate the signed-in user id to the seen-articles module so that
+  // every read/write (including those inside ArticleCard) uses the
+  // per-user storage key. Must run before the unread-count effect so the
+  // count reflects the correct user's read history after an account
+  // switch.
+  useEffect(() => {
+    setSeenArticlesUser(userId);
+  }, [userId]);
+
+  // Unread badge count — re-computes whenever articles or the signed-in
+  // user changes, so switching accounts immediately reflects the new
+  // user's reading history.
   useEffect(() => {
     if (!articles.length) { setUnreadCount(0); return; }
     try {
-      const seen = new Set(JSON.parse(localStorage.getItem('seenArticles') || '[]'));
+      const seen = getSeenArticleIds();
       setUnreadCount(articles.filter(a => !seen.has(a.link)).length);
-    } catch {}
-  }, [articles]);
+    } catch { /* ignore */ }
+  }, [articles, userId]);
 
   // "New articles available" banner — show after 30 min since last fetch
   useEffect(() => {
@@ -273,7 +295,7 @@ export default function Home() {
                 className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-sm font-medium transition-colors ${
                   activeTab === 'saved'
                     ? 'bg-blue-50/60 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-700'
-                    : 'bg-blue-50/60 dark:bg-slate-800 text-muted-foreground border-blue-100 dark:border-slate-700 hover:bg-blue-100/60 dark:hover:bg-slate-700'
+                    : 'bg-blue-50/60 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-blue-100 dark:border-slate-700 hover:bg-blue-100/60 dark:hover:bg-slate-700'
                 }`}
               >
                 <Bookmark className={`w-4 h-4 ${activeTab === 'saved' ? 'text-blue-600 dark:text-blue-400' : ''}`} />
@@ -289,7 +311,7 @@ export default function Home() {
                 <button className={`flex items-center gap-1.5 px-3 py-1 rounded-lg border text-sm font-medium transition-colors ${
                   isSettingsActive
                     ? 'bg-blue-50/60 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-700'
-                    : 'bg-blue-50/60 dark:bg-slate-800 text-muted-foreground border-blue-100 dark:border-slate-700 hover:bg-blue-100/60 dark:hover:bg-slate-700'
+                    : 'bg-blue-50/60 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-blue-100 dark:border-slate-700 hover:bg-blue-100/60 dark:hover:bg-slate-700'
                 }`}>
                   <Settings className={`w-4 h-4 ${isSettingsActive ? 'text-blue-600 dark:text-blue-400' : ''}`} />
                   <span className="hidden sm:inline">Journal Selector</span>
@@ -300,7 +322,7 @@ export default function Home() {
                   <button className={`flex items-center gap-1.5 px-3 py-1 rounded-lg border text-sm font-medium transition-colors ${
                     isGuideActive
                       ? 'bg-blue-50/60 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-700'
-                      : 'bg-blue-50/60 dark:bg-slate-800 text-muted-foreground border-blue-100 dark:border-slate-700 hover:bg-blue-100/60 dark:hover:bg-slate-700'
+                      : 'bg-blue-50/60 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-blue-100 dark:border-slate-700 hover:bg-blue-100/60 dark:hover:bg-slate-700'
                   }`}>
                     <BookOpen className={`w-4 h-4 ${isGuideActive ? 'text-blue-600 dark:text-blue-400' : ''}`} />
                   </button>
@@ -309,7 +331,7 @@ export default function Home() {
               <Tooltip label={isDark ? 'Switch to light mode' : 'Switch to dark mode'} delay={500}>
                 <button
                   onClick={toggleDark}
-                  className="flex items-center justify-center w-8 h-8 rounded-lg border transition-colors bg-blue-50/60 dark:bg-slate-800 text-muted-foreground border-blue-100 dark:border-slate-700 hover:bg-blue-100/60 dark:hover:bg-slate-700"
+                  className="flex items-center justify-center w-8 h-8 rounded-lg border transition-colors bg-blue-50/60 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-blue-100 dark:border-slate-700 hover:bg-blue-100/60 dark:hover:bg-slate-700"
                 >
                   {isDark ? <Sun className="w-4 h-4 text-orange-400" /> : <Moon className="w-4 h-4 text-blue-500" />}
                 </button>
@@ -317,7 +339,7 @@ export default function Home() {
               <Tooltip label="Log out" delay={500}>
                 <button
                   onClick={logout}
-                  className="flex items-center justify-center w-8 h-8 rounded-lg border transition-colors bg-blue-50/60 dark:bg-slate-800 text-muted-foreground border-blue-100 dark:border-slate-700 hover:bg-red-100/60 dark:hover:bg-red-900/30 hover:text-red-600 dark:hover:text-red-400"
+                  className="flex items-center justify-center w-8 h-8 rounded-lg border transition-colors bg-blue-50/60 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-blue-100 dark:border-slate-700 hover:bg-red-100/60 dark:hover:bg-red-900/30 hover:text-red-600 dark:hover:text-red-400"
                 >
                   <LogOut className="w-4 h-4" />
                 </button>

@@ -3,23 +3,36 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Bookmark, Trash2, ExternalLink, BookOpen, Calendar, Users, Download, ChevronDown, Zap } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { entities } from '@/api/entities';
 import { format } from 'date-fns';
 import ExportModal from './ExportModal';
 import AutoSaveRules from './AutoSaveRules';
 import ShareButton from './ShareButton';
+import { useAuth } from '@/lib/AuthContext';
 
-const RULES_KEY = 'cjf_autosave_rules';
+// Auto-save rules are per-user. The storage key is namespaced by the
+// authenticated user's id so rules cannot bleed between accounts on the
+// same browser. The legacy un-namespaced key `cjf_autosave_rules` is
+// purged on mount (see useEffect below) to eliminate any carry-over.
+const RULES_KEY_BASE = 'cjf_autosave_rules';
+const LEGACY_RULES_KEY = 'cjf_autosave_rules';
 const defaultRules = { enabled: false, keywords: [], authors: [] };
 
-function loadRules() {
-  try { return { ...defaultRules, ...JSON.parse(localStorage.getItem(RULES_KEY) || '{}') }; }
+function rulesKeyFor(userId) {
+  return userId ? `${RULES_KEY_BASE}:${userId}` : null;
+}
+
+function loadRules(userId) {
+  const key = rulesKeyFor(userId);
+  if (!key) return defaultRules;
+  try { return { ...defaultRules, ...JSON.parse(localStorage.getItem(key) || '{}') }; }
   catch { return defaultRules; }
 }
 
-function saveRules(rules) {
-  localStorage.setItem(RULES_KEY, JSON.stringify(rules));
+function saveRules(userId, rules) {
+  const key = rulesKeyFor(userId);
+  if (!key) return;
+  localStorage.setItem(key, JSON.stringify(rules));
 }
 
 function renderAuthors(text) {
@@ -163,14 +176,29 @@ function SavedCard({ saved, onUnsave, selected, onToggleSelect }) {
 }
 
 export default function SavedFeed({ savedArticles, onRefresh, articles = [] }) {
+  const { user } = useAuth();
+  const userId = user?.id;
   const [selectedIds, setSelectedIds] = useState(new Set());
   const [exportOpen, setExportOpen] = useState(false);
   const [rulesExpanded, setRulesExpanded] = useState(false);
-  const [rules, setRulesState] = useState(() => loadRules());
+  const [rules, setRulesState] = useState(() => loadRules(userId));
+
+  // One-time cleanup: purge the legacy un-namespaced rules key so it can
+  // never bleed into a different account again.
+  useEffect(() => {
+    localStorage.removeItem(LEGACY_RULES_KEY);
+  }, []);
+
+  // Reload rules whenever the signed-in user changes (login / logout /
+  // account switch without a full page reload). On logout userId becomes
+  // undefined and rules reset to defaults.
+  useEffect(() => {
+    setRulesState(loadRules(userId));
+  }, [userId]);
 
   const handleRulesChange = (newRules) => {
     setRulesState(newRules);
-    saveRules(newRules);
+    saveRules(userId, newRules);
   };
 
   const toggleSelect = (id) => {
