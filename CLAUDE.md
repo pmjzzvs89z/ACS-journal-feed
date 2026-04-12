@@ -100,6 +100,11 @@ When you need to change…
 - **Supabase CRUD** → `src/api/entities.js`
 - **Auth state** → `src/lib/AuthContext.jsx` (`useAuth()`)
 - **RSS fetching** → `src/utils/fetchRss.js`
+- **Article metadata helpers** (extractAbstract, extractImage, etc.) →
+  `src/utils/articleMeta.js`
+- **Seen/unread article tracking** → `src/utils/seenArticles.js`
+- **Auto-save rule matching** → `src/utils/articleMatch.js`
+- **Auto-save hook** → `src/hooks/useAutoSave.js`
 - **Dark-mode toggle** → `src/hooks/useDarkMode.js`
 
 ---
@@ -148,13 +153,14 @@ IChemE → IOP → Other, with thin gray separators between groups.
 
 Two intentional border styles:
 
-| Context | Classes | Where |
-|---------|---------|-------|
-| **Article cards** (Feed, Saved, skeleton loader, search box) | `border-[1.125px] border-slate-400/80 dark:border-slate-600` | ArticleCard, SavedCard, SkeletonCard, ArticleFilters |
-| **Container cards** (Settings, Guide, Admin, Auto-Save Rules) | `border-[1.5px] border-border` | Settings.jsx, Guide.jsx, AdminPopulateScopes, AutoSaveRules |
+| Context | Token class | Raw value | Where |
+|---------|-------------|-----------|-------|
+| **Article cards** (Feed, Saved, skeleton loader, search box) | `border-card border-slate-400/80 dark:border-slate-600` | 1.125px | ArticleCard, SavedCard, SkeletonCard, ArticleFilters |
+| **Container cards** (Settings, Guide, Admin, Auto-Save Rules) | `border-container border-border` | 1.5px | Settings.jsx, Guide.jsx, AdminPopulateScopes, AutoSaveRules |
 
-New article-like cards should use the thinner slate style. New
-container/section cards should use the thicker `border-border` style.
+Tokens `border-card` and `border-container` are defined in `tailwind.config.js`
+under `theme.extend.borderWidth`. New article-like cards should use
+`border-card`. New container/section cards should use `border-container`.
 
 ### Per-user localStorage keys
 

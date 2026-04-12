@@ -4,7 +4,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Inbox, RotateCcw, Settings, ArrowUp, Check, ChevronDown, AlertTriangle, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { createPageUrl } from '@/utils';
-import ArticleCard, { clearAllSeenArticles, getCachedImage } from './ArticleCard';
+import ArticleCard from './ArticleCard';
+import { clearAllSeenArticles } from '@/utils/seenArticles';
+import { getCachedImage } from '@/utils/articleMeta';
 import ArticleFilters from './ArticleFilters';
 import Tooltip from '@/components/ui/Tooltip';
 import { useAuth } from '@/lib/AuthContext';
@@ -22,6 +24,10 @@ import {
 // Distinct per-publisher accent colors used to underline journal names in
 // the "All Selected Journals" dropdown so the user can recognize at a
 // glance which publisher a journal belongs to.
+//
+// ⚠️  KEEP IN SYNC with the publisher color table in CLAUDE.md (section
+//     "Publisher colors").  If you change a hex value here, update CLAUDE.md
+//     and vice-versa so future sessions don't get conflicting guidance.
 const PUBLISHER_COLORS = {
   acs:      '#60a5fa', // blue-400 (brighter)
   rsc:      '#e879f9', // fuchsia-400 (magenta)
@@ -220,7 +226,7 @@ function JournalDropdown({ value, onChange, journals }) {
 
 function SkeletonCard() {
   return (
-    <div className="bg-card rounded-2xl border-[1.125px] border-slate-400/80 dark:border-slate-600 overflow-hidden animate-pulse">
+    <div className="bg-card rounded-2xl border-card border-slate-400/80 dark:border-slate-600 overflow-hidden animate-pulse">
       <div className="flex items-stretch gap-0">
         <div className="hidden sm:flex flex-shrink-0 w-[405px] bg-slate-200 dark:bg-slate-700" style={{ minHeight: '160px' }} />
         <div className="flex-1 py-5 pr-5 pl-10 space-y-3">
@@ -396,6 +402,9 @@ export default function ArticleFeed({ articles, failedJournals = [], isLoading, 
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: 'easeOut' }}
         className="flex flex-col items-center text-center px-4 pb-20"
+        // 13.46vh ≈ vertically centers the block against the viewport
+        // minus the sticky header. Tuned visually — do not change without
+        // checking both short (no-scroll) and tall viewports.
         style={{ paddingTop: '13.46vh' }}
       >
         <img
@@ -403,18 +412,18 @@ export default function ArticleFeed({ articles, failedJournals = [], isLoading, 
           alt="Literature Tracker"
           className="w-24 h-24 object-contain mb-6 drop-shadow-lg"
         />
-        <h3 className="text-[22px] sm:text-[26.4px] font-bold text-slate-900 dark:text-white mb-3">
+        <h3 className="text-welcome sm:text-welcome-lg font-bold text-slate-900 dark:text-white mb-3">
           Welcome to Literature Tracker
         </h3>
-        <p className="text-[17.6px] text-blue-600 dark:text-blue-400 max-w-xl mb-6 leading-relaxed">
+        <p className="text-welcome-body text-blue-600 dark:text-blue-400 max-w-xl mb-6 leading-relaxed">
           This literature tracker allows you to follow any of the hundreds of
-          journals across <span className="text-yellow-700 dark:text-yellow-500">Chemistry</span>,{' '}
-          <span className="text-yellow-700 dark:text-yellow-500">Engineering</span>, and{' '}
-          <span className="text-yellow-700 dark:text-yellow-500">Materials Science</span> — from ACS,
+          journals across <span className="text-yellow-800 dark:text-yellow-500">Chemistry</span>,{' '}
+          <span className="text-yellow-800 dark:text-yellow-500">Engineering</span>, and{' '}
+          <span className="text-yellow-800 dark:text-yellow-500">Materials Science</span> — from ACS,
           RSC, Wiley, Elsevier, Springer Nature, and more.
         </p>
         <Link to={createPageUrl('Settings')}>
-          <button className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg border text-[15.4px] font-medium transition-colors bg-blue-50/60 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-blue-200 dark:border-slate-700 hover:bg-blue-100/60 dark:hover:bg-slate-700 shadow-sm">
+          <button className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg border text-welcome-cta font-medium transition-colors bg-blue-50/60 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-blue-200 dark:border-slate-700 hover:bg-blue-100/60 dark:hover:bg-slate-700 shadow-sm">
             <Settings className="w-4 h-4" />
             <span>Journal Selector</span>
           </button>

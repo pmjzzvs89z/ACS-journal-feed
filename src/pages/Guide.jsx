@@ -102,7 +102,7 @@ export default function Guide() {
 
       {/* Guide content */}
       <div className="max-w-[60rem] mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        <div className="bg-card rounded-2xl border-[1.5px] border-border shadow-sm p-8">
+        <div className="bg-card rounded-2xl border-container border-border shadow-sm p-8">
           <h1 className="text-2xl font-bold text-foreground mb-2">User Guide</h1>
           <p className="text-muted-foreground text-sm mb-8">Everything you need to know to get started with Literature Tracker.</p>
 
@@ -162,7 +162,7 @@ export default function Guide() {
               <li>Articles are cached for 20 minutes — switching tabs and back is instant</li>
               <li>The <span className="font-medium">Feed</span> button gently pulses when you're on another tab, as a reminder to return to your articles</li>
               <li>Hover over the <span className="font-medium">User Guide</span>, <span className="font-medium">theme toggle</span>, <span className="font-medium">Log out</span>, or <span className="font-medium">Reset</span> buttons for a short reminder tooltip</li>
-              <li>Auto-save rules are stored locally in your browser and persist across sessions</li>
+              <li>Auto-save rules and read/unread history are stored <span className="font-medium">per account</span> — switching accounts on the same browser keeps everything separate</li>
               <li>Use the <span className="font-medium">moon/sun</span> icon in the header to toggle between dark and light mode</li>
               <li>Use the <span className="font-medium">logout</span> button (top-right) to sign out of your account</li>
             </ul>
@@ -171,7 +171,7 @@ export default function Guide() {
 
         {/* Suggestions section */}
         <div className="mt-4">
-          <div className="bg-card rounded-2xl border-[1.5px] border-border shadow-sm px-3 py-[0.525rem]">
+          <div className="bg-card rounded-2xl border-container border-border shadow-sm px-3 py-[0.525rem]">
             <p className="text-sm text-foreground">
               To share your comments and suggestions about this app{' '}
               <a

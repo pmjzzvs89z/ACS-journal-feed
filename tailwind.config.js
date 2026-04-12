@@ -4,6 +4,20 @@ module.exports = {
     content: ["./index.html", "./src/**/*.{ts,tsx,js,jsx}"],
   theme: {
   	extend: {
+  		// ── App-specific design tokens ─────────────────────────────────
+  		// Promoted from one-off arbitrary values so intent is named, not
+  		// a bare number.  See CLAUDE.md "Card borders" and "Typography".
+  		borderWidth: {
+  			'card':      '1.125px',  // article cards, skeleton, search box
+  			'container': '1.5px',    // Settings, Guide, Admin, Auto-Save, Login
+  		},
+  		fontSize: {
+  			'2xs':          ['0.6875rem', { lineHeight: '1rem' }],     // 11px — journal count badges
+  			'welcome':      ['1.375rem',  { lineHeight: '1.75rem' }],  // 22px — welcome heading
+  			'welcome-lg':   ['1.65rem',   { lineHeight: '2rem' }],     // 26.4px — welcome heading (sm+)
+  			'welcome-body': ['1.1rem',    { lineHeight: '1.625rem' }], // 17.6px — welcome description
+  			'welcome-cta':  ['0.9625rem', { lineHeight: '1.375rem' }], // 15.4px — welcome CTA button
+  		},
   		borderRadius: {
   			lg: 'var(--radius)',
   			md: 'calc(var(--radius) - 2px)',

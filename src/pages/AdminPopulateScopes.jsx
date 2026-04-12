@@ -16,7 +16,7 @@ function StatCard({ icon: Icon, label, value, sub, color = 'blue' }) {
     purple: 'bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400',
   };
   return (
-    <div className="bg-card rounded-2xl border-[1.5px] border-border p-5 shadow-sm">
+    <div className="bg-card rounded-2xl border-container border-border p-5 shadow-sm">
       <div className="flex items-center gap-3 mb-3">
         <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${colorMap[color]}`}>
           <Icon className="w-5 h-5" />
@@ -181,7 +181,7 @@ export default function AdminDashboard() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Most followed journals */}
-          <div className="bg-card rounded-2xl border-[1.5px] border-border shadow-sm p-5">
+          <div className="bg-card rounded-2xl border-container border-border shadow-sm p-5">
             <div className="flex items-center gap-2 mb-4">
               <BarChart2 className="w-4 h-4 text-blue-500" />
               <h3 className="text-sm font-bold text-foreground">Most Followed Journals</h3>
@@ -200,7 +200,7 @@ export default function AdminDashboard() {
           </div>
 
           {/* Most saved journals */}
-          <div className="bg-card rounded-2xl border-[1.5px] border-border shadow-sm p-5">
+          <div className="bg-card rounded-2xl border-container border-border shadow-sm p-5">
             <div className="flex items-center gap-2 mb-4">
               <Bookmark className="w-4 h-4 text-amber-500" />
               <h3 className="text-sm font-bold text-foreground">Most Saved Journals</h3>
@@ -220,7 +220,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* Activity chart — saves per day */}
-        <div className="bg-card rounded-2xl border-[1.5px] border-border shadow-sm p-5">
+        <div className="bg-card rounded-2xl border-container border-border shadow-sm p-5">
           <div className="flex items-center gap-2 mb-4">
             <TrendingUp className="w-4 h-4 text-green-500" />
             <h3 className="text-sm font-bold text-foreground">Saves per Day (last 14 days)</h3>
@@ -249,7 +249,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* Recent saves */}
-        <div className="bg-card rounded-2xl border-[1.5px] border-border shadow-sm p-5">
+        <div className="bg-card rounded-2xl border-container border-border shadow-sm p-5">
           <h3 className="text-sm font-bold text-foreground mb-4">Recent Saves</h3>
           {isLoading ? (
             <div className="space-y-3">{Array.from({ length: 4 }).map((_, i) => <div key={i} className="h-10 bg-muted rounded animate-pulse" />)}</div>

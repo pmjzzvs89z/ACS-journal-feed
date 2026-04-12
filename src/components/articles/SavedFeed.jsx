@@ -69,7 +69,7 @@ function SavedCard({ saved, onUnsave, selected, onToggleSelect }) {
       initial={false}
       animate={false}
       exit={{ opacity: 0, scale: 0.97 }}
-      className={`group bg-card rounded-2xl border-[1.125px] transition-all duration-300 overflow-hidden ${selected ? 'border-blue-400 dark:border-blue-500 shadow-md' : 'border-slate-400/80 dark:border-slate-600 hover:shadow-xl'}`}
+      className={`group bg-card rounded-2xl border-card transition-all duration-300 overflow-hidden ${selected ? 'border-blue-400 dark:border-blue-500 shadow-md' : 'border-slate-400/80 dark:border-slate-600 hover:shadow-xl'}`}
     >
       <div className="flex items-stretch gap-0">
         {/* Checkbox */}
@@ -224,7 +224,7 @@ export default function SavedFeed({ savedArticles, onRefresh, articles = [] }) {
   const RulesToggle = () => (
     <button
       onClick={() => setRulesExpanded(!rulesExpanded)}
-      className="w-full bg-card rounded-2xl border-[1.5px] border-border shadow-sm px-4 py-2 mb-4 flex items-center justify-between hover:shadow-md transition-shadow"
+      className="w-full bg-card rounded-2xl border-container border-border shadow-sm px-4 py-2 mb-4 flex items-center justify-between hover:shadow-md transition-shadow"
     >
       <div className="flex items-center gap-3 flex-1 text-left min-w-0">
         <div className="w-8 h-8 rounded-lg bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center flex-shrink-0">
@@ -258,7 +258,7 @@ export default function SavedFeed({ savedArticles, onRefresh, articles = [] }) {
             transition={{ duration: 0.2 }}
             className="overflow-hidden mb-4"
           >
-            <AutoSaveRules rules={rules} onRulesChange={handleRulesChange} />
+            <AutoSaveRules rules={rules} onRulesChange={handleRulesChange} articles={articles} />
           </motion.div>
         )}
         <div className="flex flex-col items-center justify-center py-20 text-center">
@@ -310,7 +310,7 @@ export default function SavedFeed({ savedArticles, onRefresh, articles = [] }) {
           transition={{ duration: 0.2 }}
           className="overflow-hidden mb-4"
         >
-          <AutoSaveRules rules={rules} onRulesChange={handleRulesChange} />
+          <AutoSaveRules rules={rules} onRulesChange={handleRulesChange} articles={articles} />
         </motion.div>
       )}
 

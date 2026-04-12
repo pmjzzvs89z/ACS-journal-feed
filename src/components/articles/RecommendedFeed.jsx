@@ -176,8 +176,8 @@ export default function RecommendedFeed({ followedJournals, savedArticles, onSav
         <div className="w-20 h-20 rounded-full bg-purple-50 flex items-center justify-center mb-6">
           <Sparkles className="w-10 h-10 text-purple-300" />
         </div>
-        <h3 className="text-xl font-semibold text-slate-800 mb-2">No recommendations yet</h3>
-        <p className="text-slate-500 max-w-md">Follow some journals in Settings to get personalized article recommendations.</p>
+        <h3 className="text-xl font-semibold text-slate-800 dark:text-slate-200 mb-2">No recommendations yet</h3>
+        <p className="text-slate-500 dark:text-slate-400 max-w-md">Follow some journals in Settings to get personalized article recommendations.</p>
       </motion.div>
     );
   }
@@ -186,11 +186,11 @@ export default function RecommendedFeed({ followedJournals, savedArticles, onSav
     <div>
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h2 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
             <Sparkles className="w-6 h-6 text-purple-500" />
             Recommended Articles
           </h2>
-          <p className="text-sm text-slate-500 mt-1">
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
             {isLoading ? 'Finding articles for you…' : `${recommendations.length} articles selected for you based on your interest (e.g., selected journals, saved articles, selected keywords and authors)`}
           </p>
         </div>
@@ -207,9 +207,9 @@ export default function RecommendedFeed({ followedJournals, savedArticles, onSav
             <Sparkles className="w-4 h-4 text-purple-500" />
           </div>
           <div className="min-w-0">
-            <h3 className="text-sm font-semibold text-slate-700">Keywords & Authors <span className="font-normal text-slate-500">(optional)</span></h3>
+            <h3 className="text-sm font-semibold text-foreground">Keywords & Authors <span className="font-normal text-muted-foreground">(optional)</span></h3>
             {filterEnabled && (
-              <p className="text-xs text-slate-400 mt-0.5">Enabled · {selectedKeywords.length} keyword{selectedKeywords.length !== 1 ? 's' : ''}, {selectedAuthors.length} author{selectedAuthors.length !== 1 ? 's' : ''}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">Enabled · {selectedKeywords.length} keyword{selectedKeywords.length !== 1 ? 's' : ''}, {selectedAuthors.length} author{selectedAuthors.length !== 1 ? 's' : ''}</p>
             )}
           </div>
         </div>
@@ -230,8 +230,8 @@ export default function RecommendedFeed({ followedJournals, savedArticles, onSav
             {/* Header with toggle */}
             <div className="flex items-start justify-between">
               <div>
-                <h4 className="text-sm font-semibold text-slate-800">Keywords & Authors</h4>
-                <p className="text-xs text-slate-400 mt-0.5">Find articles matching your interests</p>
+                <h4 className="text-sm font-semibold text-foreground">Keywords & Authors</h4>
+                <p className="text-xs text-muted-foreground mt-0.5">Find articles matching your interests</p>
               </div>
               <ToggleSwitch
                 checked={filterEnabled}
@@ -260,15 +260,23 @@ export default function RecommendedFeed({ followedJournals, savedArticles, onSav
                   </Button>
                 </div>
                 {selectedKeywords.length > 0 && (
-                  <div className="flex flex-wrap gap-1.5">
+                  <div className="flex flex-wrap gap-1.5 items-center">
                     {selectedKeywords.map(kw => (
-                      <Badge key={kw} variant="secondary" className="gap-1 pr-1 bg-purple-50 text-purple-700 border border-purple-200">
+                      <Badge key={kw} variant="secondary" className="gap-1 pr-1 bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-700">
                         {kw}
                         <button onClick={() => removeKeyword(kw)} className="hover:text-red-500 transition-colors ml-0.5">
                           <X className="w-3 h-3" />
                         </button>
                       </Badge>
                     ))}
+                    {selectedKeywords.length > 1 && (
+                      <button
+                        onClick={() => { setSelectedKeywords([]); fetchRecommendations([]); }}
+                        className="text-xs text-muted-foreground hover:text-red-500 transition-colors ml-1"
+                      >
+                        Clear all
+                      </button>
+                    )}
                   </div>
                 )}
               </div>
@@ -292,15 +300,23 @@ export default function RecommendedFeed({ followedJournals, savedArticles, onSav
                   </Button>
                 </div>
                 {selectedAuthors.length > 0 && (
-                  <div className="flex flex-wrap gap-1.5">
+                  <div className="flex flex-wrap gap-1.5 items-center">
                     {selectedAuthors.map(au => (
-                      <Badge key={au} variant="secondary" className="gap-1 pr-1 bg-blue-50 text-blue-700 border border-blue-200">
+                      <Badge key={au} variant="secondary" className="gap-1 pr-1 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-700">
                         {au}
                         <button onClick={() => removeAuthor(au)} className="hover:text-red-500 transition-colors ml-0.5">
                           <X className="w-3 h-3" />
                         </button>
                       </Badge>
                     ))}
+                    {selectedAuthors.length > 1 && (
+                      <button
+                        onClick={() => setSelectedAuthors([])}
+                        className="text-xs text-muted-foreground hover:text-red-500 transition-colors ml-1"
+                      >
+                        Clear all
+                      </button>
+                    )}
                   </div>
                 )}
               </div>
@@ -382,7 +398,7 @@ export default function RecommendedFeed({ followedJournals, savedArticles, onSav
                         </div>
 
                         <a href={article.link} target="_blank" rel="noopener noreferrer">
-                          <h3 className="text-base font-semibold text-slate-900 leading-snug mb-2 hover:text-blue-600 transition-colors line-clamp-2">
+                          <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100 leading-snug mb-2 hover:text-blue-600 dark:hover:text-blue-400 transition-colors line-clamp-2">
                             {article.title}
                           </h3>
                         </a>

@@ -163,7 +163,7 @@ export default function Settings() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-8">
         <div className="flex justify-center">
           <div ref={journalCardRef} style={{ maxWidth: '620px' }} className="w-full">
-            <div className="bg-card rounded-2xl border-[1.5px] border-border shadow-sm overflow-hidden flex flex-col" style={{ maxHeight: 'calc(100vh - 162px)' }}>
+            <div className="bg-card rounded-2xl border-container border-border shadow-sm overflow-hidden flex flex-col" style={{ maxHeight: 'calc(100vh - 162px)' }}>
               {/* Box header — always visible */}
               <div className="flex-shrink-0 flex items-center gap-3 px-4 py-[0.225rem] border-b border-border bg-muted">
                 <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center">
@@ -192,7 +192,7 @@ export default function Settings() {
         {/* Suggestions section */}
         <div className="flex justify-center mt-4">
           <div style={{ maxWidth: '620px' }} className="w-full">
-            <div className="bg-card rounded-2xl border-[1.5px] border-border shadow-sm px-3 py-[0.525rem]">
+            <div className="bg-card rounded-2xl border-container border-border shadow-sm px-3 py-[0.525rem]">
               <p className="text-sm text-foreground">
                 To share your comments and suggestions about this app{' '}
                 <a
