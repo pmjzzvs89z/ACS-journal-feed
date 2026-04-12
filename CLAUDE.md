@@ -106,6 +106,8 @@ When you need to change…
 - **Auto-save rule matching** → `src/utils/articleMatch.js`
 - **Auto-save hook** → `src/hooks/useAutoSave.js`
 - **Dark-mode toggle** → `src/hooks/useDarkMode.js`
+- **Shared IntersectionObserver** → `src/hooks/useSharedObserver.js`
+  (singleton observer for large article lists — avoids 500+ individual observers)
 
 ---
 
@@ -171,6 +173,7 @@ it cannot bleed between accounts on the same browser:
 |-------------|---------|------------|
 | `cjf_autosave_rules:<userId>` | Auto-save keywords & authors | SavedFeed.jsx, Home.jsx |
 | `seenArticles:<userId>` | Read/unread article history | ArticleCard.jsx, Home.jsx |
+| `cjf_feed_filters:<userId>` | Feed journal filter selection | ArticleFeed.jsx |
 | `darkMode` | Theme preference (per-browser, not per-user — intentional) | useDarkMode.js |
 
 **Never add a new un-namespaced localStorage key for per-user data.** The

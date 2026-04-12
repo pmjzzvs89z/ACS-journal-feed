@@ -35,7 +35,7 @@ function saveRules(userId, rules) {
   localStorage.setItem(key, JSON.stringify(rules));
 }
 
-function SavedCard({ saved, onUnsave, selected, onToggleSelect }) {
+const SavedCard = React.memo(function SavedCard({ saved, onUnsave, selected, onToggleSelect }) {
   const handleUnsave = () => {
     onUnsave(saved.id);
   };
@@ -152,7 +152,7 @@ function SavedCard({ saved, onUnsave, selected, onToggleSelect }) {
       </div>
     </motion.article>
   );
-}
+});
 
 export default function SavedFeed({ savedArticles, onRefresh, articles = [] }) {
   const { user } = useAuth();

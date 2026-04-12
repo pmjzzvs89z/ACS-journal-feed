@@ -154,9 +154,14 @@ export function extractImage(article) {
 
 // ── Image URL cache — avoids re-running expensive regex extraction ─────────
 const _imageCache = new Map();
+const IMAGE_CACHE_MAX = 5000;
 export function getCachedImage(article) {
   const key = article.link;
   if (_imageCache.has(key)) return _imageCache.get(key);
+  if (_imageCache.size >= IMAGE_CACHE_MAX) {
+    const firstKey = _imageCache.keys().next().value;
+    _imageCache.delete(firstKey);
+  }
   const url = extractImage(article);
   _imageCache.set(key, url);
   return url;

@@ -1,5 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { supabase } from '@/api/supabaseClient';
+import { queryClientInstance } from '@/lib/query-client';
 
 const AuthContext = createContext(/** @type {any} */ (null));
 
@@ -26,6 +27,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     await supabase.auth.signOut();
+    queryClientInstance.clear();
   };
 
   return (

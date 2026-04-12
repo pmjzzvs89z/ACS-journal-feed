@@ -395,6 +395,25 @@ export default function ArticleFeed({ articles, failedJournals = [], isLoading, 
     return () => observer.disconnect();
   }, [hasMore]);
 
+  // Build journal list from both loaded articles AND all active followed journals
+  const journalsFromArticles = useMemo(() => {
+    const map = new Map(
+      articles.map(a => [a.journalId, { id: a.journalId, name: a.journalAbbrev, color: a.journalColor }])
+    );
+    const activeFollowed = followedJournals.filter(j => j.is_active);
+    activeFollowed.forEach(j => {
+      if (!map.has(j.journal_id)) {
+        const meta = ALL_JOURNALS.find(x => x.id === j.journal_id);
+        map.set(j.journal_id, {
+          id: j.journal_id,
+          name: meta?.abbrev || j.journal_name,
+          color: meta?.color || '#0066b3',
+        });
+      }
+    });
+    return map;
+  }, [articles, followedJournals]);
+
   if (followedCount === 0) {
     return (
       <motion.div
@@ -462,21 +481,6 @@ export default function ArticleFeed({ articles, failedJournals = [], isLoading, 
     );
   }
 
-  // Build journal list from both loaded articles AND all active followed journals
-  const journalsFromArticles = new Map(
-    articles.map(a => [a.journalId, { id: a.journalId, name: a.journalAbbrev, color: a.journalColor }])
-  );
-  const activeFollowed = followedJournals.filter(j => j.is_active);
-  activeFollowed.forEach(j => {
-    if (!journalsFromArticles.has(j.journal_id)) {
-      const meta = ALL_JOURNALS.find(x => x.id === j.journal_id);
-      journalsFromArticles.set(j.journal_id, {
-        id: j.journal_id,
-        name: meta?.abbrev || j.journal_name,
-        color: meta?.color || '#0066b3',
-      });
-    }
-  });
   // Group journals by publisher in a fixed priority order, then alphabetically
   // within each group. A gray separator row is rendered between publishers in
   // the dropdown to visually distinguish them.
