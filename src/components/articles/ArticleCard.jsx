@@ -295,10 +295,10 @@ const ArticleCard = React.memo(React.forwardRef(function ArticleCard({ article, 
       {!hasBeenSeen && (
         <div className="absolute left-0 inset-y-0 w-1 bg-blue-500 dark:bg-blue-400 z-10 pointer-events-none" />
       )}
-      <div className="flex-1 bg-card rounded-r-2xl border-[1.5px] border-border overflow-hidden">
+      <div className="flex-1 bg-card rounded-r-2xl border-[1.125px] border-slate-400/80 dark:border-slate-600 overflow-hidden">
       <div className="flex items-stretch gap-0">
         {/* Graphical abstract — desktop */}
-        <div className="hidden sm:flex flex-shrink-0 w-[405px] items-center justify-center bg-muted border-r border-border p-2" style={{ minHeight: '160px', maxHeight: '220px' }}>
+        <div className="hidden sm:flex flex-shrink-0 w-[405px] items-center justify-center bg-card border-r border-border p-2" style={{ minHeight: '160px', maxHeight: '220px' }}>
           {showImage ? (
             <img
               src={currentImageUrl}
@@ -318,7 +318,7 @@ const ArticleCard = React.memo(React.forwardRef(function ArticleCard({ article, 
         <div className="flex-1 min-w-0 py-5 pr-5 pl-10">
           {/* Mobile image */}
           {showImage && (
-            <div className="sm:hidden w-full mb-4 rounded-xl overflow-hidden bg-muted border border-border">
+            <div className="sm:hidden w-full mb-4 rounded-xl overflow-hidden bg-card border border-border">
               <img
                 src={currentImageUrl}
                 alt="Graphical abstract"
