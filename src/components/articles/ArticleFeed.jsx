@@ -29,17 +29,17 @@ import {
 //     "Publisher colors").  If you change a hex value here, update CLAUDE.md
 //     and vice-versa so future sessions don't get conflicting guidance.
 const PUBLISHER_COLORS = {
-  acs:      '#60a5fa', // blue-400 (brighter)
-  rsc:      '#e879f9', // fuchsia-400 (magenta)
-  wiley:    '#a3e635', // lime-400 (fresh lime)
-  elsevier: '#ff6c00', // orange
-  mdpi:     '#22d3ee', // cyan-400
-  springer: '#10b981', // emerald-500 (more saturated)
-  taylor:   '#eab308', // yellow
-  aaas:     '#ec4899', // pink
-  asme:     '#64748b', // slate
-  icheme:   '#64748b', // slate
-  iop:      '#64748b', // slate
+  acs:      '#2563eb', // blue-600
+  elsevier: '#ea580c', // orange-600
+  rsc:      '#c026d3', // fuchsia-600
+  wiley:    '#16a34a', // green-600
+  aaas:     '#dc2626', // red-600
+  mdpi:     '#0891b2', // cyan-600
+  springer: '#ca8a04', // yellow-600
+  taylor:   '#7c3aed', // violet-600
+  asme:     '#475569', // slate-600
+  icheme:   '#475569', // slate-600
+  iop:      '#475569', // slate-600
 };
 
 const PUBLISHER_ID_MAP = (() => {

@@ -121,19 +121,19 @@ When you need to change…
   **Do not remove it.**
 - Theme toggle icons: **Sun is `text-orange-400`**, **Moon is `text-blue-500`**.
 
-### Publisher colors (used in Feed journal dropdown)
+### Publisher colors (used in Feed dropdown and Journal Selector)
 
 | Publisher          | Hex        | Tailwind        |
 |--------------------|------------|-----------------|
-| ACS                | `#60a5fa`  | blue-400        |
-| RSC                | `#e879f9`  | fuchsia-400     |
-| Wiley              | `#a3e635`  | lime-400        |
-| Elsevier           | `#ff6c00`  | orange          |
-| MDPI               | `#22d3ee`  | cyan-400        |
-| Springer Nature    | `#10b981`  | emerald-500     |
-| Taylor & Francis   | `#eab308`  | yellow-500      |
-| AAAS               | `#ec4899`  | pink-500        |
-| ASME/IChemE/IOP    | `#64748b`  | slate-500       |
+| ACS                | `#2563eb`  | blue-600        |
+| Elsevier           | `#ea580c`  | orange-600      |
+| RSC                | `#c026d3`  | fuchsia-600     |
+| Wiley              | `#16a34a`  | green-600       |
+| AAAS               | `#dc2626`  | red-600         |
+| MDPI               | `#0891b2`  | cyan-600        |
+| Springer Nature    | `#ca8a04`  | yellow-600      |
+| Taylor & Francis   | `#7c3aed`  | violet-600      |
+| ASME/IChemE/IOP    | `#475569`  | slate-600       |
 
 **Dropdown order** (grouped, not alphabetical):
 ACS → Elsevier → RSC → Wiley → MDPI → Springer → Taylor → AAAS → ASME →
@@ -202,7 +202,7 @@ J. Catalysis, Catalysts (MDPI), Nature Catalysis, and **Organometallics**
 - **Never commit `.env*` or Supabase service-role keys.** The *publishable*
   key in `supabaseClient.js` is safe to commit; the service-role key is not.
 - **Caches:** React Query `staleTime` = 5 min globally. Feed cache ≈ 20 min.
-  A "refresh reminder" banner appears after 30 min.
+  A "refresh reminder" banner appears after 90 min.
 - **URL-based filters:** the Feed stores its search term and journal
   selection in the URL so that refresh, bookmark, and browser back/forward
   all work. Preserve this behavior when touching feed filters.

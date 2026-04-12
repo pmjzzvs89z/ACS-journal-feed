@@ -166,10 +166,10 @@ export default function Home() {
     } catch { /* ignore */ }
   }, [articles, userId]);
 
-  // "New articles available" banner — show after 30 min since last fetch
+  // "New articles available" banner — show after 90 min since last fetch
   useEffect(() => {
     if (!dataUpdatedAt) { setShowRefreshBanner(false); return; }
-    const check = () => setShowRefreshBanner(Date.now() - dataUpdatedAt > 30 * 60 * 1000);
+    const check = () => setShowRefreshBanner(Date.now() - dataUpdatedAt > 90 * 60 * 1000);
     check();
     const interval = setInterval(check, 60 * 1000);
     return () => clearInterval(interval);
@@ -273,7 +273,7 @@ export default function Home() {
       </header>
 
       {/* New articles available banner */}
-      {showRefreshBanner && activeTab === 'feed' && (
+      {showRefreshBanner && activeTab === 'feed' && activeJournalCount > 0 && (
         <div className="bg-blue-600 dark:bg-blue-700 text-white text-sm py-2 px-4 flex items-center justify-center gap-3">
           <span>New articles may be available.</span>
           <button

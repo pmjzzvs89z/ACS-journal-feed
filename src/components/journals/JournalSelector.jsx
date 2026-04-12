@@ -84,36 +84,39 @@ import {
 } from './JournalList';
 import AddCustomJournal from './AddCustomJournal';
 
+// ⚠️  Publisher colors — keep in sync with PUBLISHER_COLORS in
+//     ArticleFeed.jsx and the table in CLAUDE.md.
+//     Chosen so adjacent publishers in the list have maximally distinct hues.
 const CHEMISTRY_PUBLISHERS = [
-  { id: 'acs',      label: 'ACS',             journals: ACS_JOURNALS,      color: '#0066b3' },
-  { id: 'elsevier', label: 'Elsevier',        journals: ELSEVIER_JOURNALS, color: '#ff6c00' },
-  { id: 'rsc',      label: 'RSC',             journals: RSC_JOURNALS,      color: '#e63946' },
-  { id: 'wiley',    label: 'Wiley',           journals: WILEY_JOURNALS,    color: '#d63384' },
-  { id: 'aaas',     label: 'AAAS',            journals: AAAS_JOURNALS,     color: '#c0392b' },
-  { id: 'mdpi',     label: 'MDPI',            journals: MDPI_JOURNALS,     color: '#0a9396' },
-  { id: 'springer', label: 'Springer Nature', journals: SPRINGER_JOURNALS, color: '#e9a000' },
-  { id: 'taylor',   label: 'Taylor & Francis',journals: TAYLOR_JOURNALS,  color: '#6f42c1' },
+  { id: 'acs',      label: 'ACS',             journals: ACS_JOURNALS,      color: '#2563eb' },
+  { id: 'elsevier', label: 'Elsevier',        journals: ELSEVIER_JOURNALS, color: '#ea580c' },
+  { id: 'rsc',      label: 'RSC',             journals: RSC_JOURNALS,      color: '#c026d3' },
+  { id: 'wiley',    label: 'Wiley',           journals: WILEY_JOURNALS,    color: '#16a34a' },
+  { id: 'aaas',     label: 'AAAS',            journals: AAAS_JOURNALS,     color: '#dc2626' },
+  { id: 'mdpi',     label: 'MDPI',            journals: MDPI_JOURNALS,     color: '#0891b2' },
+  { id: 'springer', label: 'Springer Nature', journals: SPRINGER_JOURNALS, color: '#ca8a04' },
+  { id: 'taylor',   label: 'Taylor & Francis',journals: TAYLOR_JOURNALS,  color: '#7c3aed' },
 ];
 
 const ENGINEERING_PUBLISHERS = [
-  { id: 'eng_acs',      label: 'ACS',             journals: ACS_ENGINEERING_JOURNALS,      color: '#0066b3' },
-  { id: 'eng_elsevier', label: 'Elsevier',        journals: ELSEVIER_ENGINEERING_JOURNALS, color: '#ff6c00' },
-  { id: 'eng_rsc',      label: 'RSC',             journals: RSC_ENGINEERING_JOURNALS,      color: '#e63946' },
-  { id: 'eng_wiley',    label: 'Wiley',           journals: WILEY_ENGINEERING_JOURNALS,    color: '#d63384' },
-  { id: 'eng_springer', label: 'Springer Nature', journals: SPRINGER_ENGINEERING_JOURNALS, color: '#e9a000' },
-  { id: 'eng_taylor',   label: 'Taylor & Francis', journals: TAYLOR_ENGINEERING_JOURNALS,  color: '#6f42c1' },
-  { id: 'eng_asme',     label: 'ASME',            journals: ASME_ENGINEERING_JOURNALS,     color: '#004B87' },
-  { id: 'eng_icheme',   label: 'IChemE',          journals: ICHEMEE_ENGINEERING_JOURNALS,  color: '#005A9C' },
+  { id: 'eng_acs',      label: 'ACS',             journals: ACS_ENGINEERING_JOURNALS,      color: '#2563eb' },
+  { id: 'eng_elsevier', label: 'Elsevier',        journals: ELSEVIER_ENGINEERING_JOURNALS, color: '#ea580c' },
+  { id: 'eng_rsc',      label: 'RSC',             journals: RSC_ENGINEERING_JOURNALS,      color: '#c026d3' },
+  { id: 'eng_wiley',    label: 'Wiley',           journals: WILEY_ENGINEERING_JOURNALS,    color: '#16a34a' },
+  { id: 'eng_springer', label: 'Springer Nature', journals: SPRINGER_ENGINEERING_JOURNALS, color: '#ca8a04' },
+  { id: 'eng_taylor',   label: 'Taylor & Francis', journals: TAYLOR_ENGINEERING_JOURNALS,  color: '#7c3aed' },
+  { id: 'eng_asme',     label: 'ASME',            journals: ASME_ENGINEERING_JOURNALS,     color: '#475569' },
+  { id: 'eng_icheme',   label: 'IChemE',          journals: ICHEMEE_ENGINEERING_JOURNALS,  color: '#475569' },
 ];
 
 const MATERIALS_PUBLISHERS = [
-  { id: 'mat_acs',      label: 'ACS',             journals: ACS_MATERIALS_JOURNALS,      color: '#0066b3' },
-  { id: 'mat_rsc',      label: 'RSC',             journals: RSC_MATERIALS_JOURNALS,      color: '#e63946' },
-  { id: 'mat_wiley',    label: 'Wiley',           journals: WILEY_MATERIALS_JOURNALS,    color: '#d63384' },
-  { id: 'mat_elsevier', label: 'Elsevier',        journals: ELSEVIER_MATERIALS_JOURNALS, color: '#ff6c00' },
-  { id: 'mat_mdpi',     label: 'MDPI',            journals: MDPI_MATERIALS_JOURNALS,     color: '#0a9396' },
-  { id: 'mat_springer', label: 'Springer Nature', journals: SPRINGER_MATERIALS_JOURNALS, color: '#e9a000' },
-  { id: 'mat_iop',      label: 'IOP Publishing',  journals: IOP_MATERIALS_JOURNALS,      color: '#C8102E' },
+  { id: 'mat_acs',      label: 'ACS',             journals: ACS_MATERIALS_JOURNALS,      color: '#2563eb' },
+  { id: 'mat_rsc',      label: 'RSC',             journals: RSC_MATERIALS_JOURNALS,      color: '#c026d3' },
+  { id: 'mat_wiley',    label: 'Wiley',           journals: WILEY_MATERIALS_JOURNALS,    color: '#16a34a' },
+  { id: 'mat_elsevier', label: 'Elsevier',        journals: ELSEVIER_MATERIALS_JOURNALS, color: '#ea580c' },
+  { id: 'mat_mdpi',     label: 'MDPI',            journals: MDPI_MATERIALS_JOURNALS,     color: '#0891b2' },
+  { id: 'mat_springer', label: 'Springer Nature', journals: SPRINGER_MATERIALS_JOURNALS, color: '#ca8a04' },
+  { id: 'mat_iop',      label: 'IOP Publishing',  journals: IOP_MATERIALS_JOURNALS,      color: '#475569' },
 ];
 
 const JournalSelector = forwardRef(function JournalSelector({ followedJournals, onToggleJournal, onCustomJournalAdded }, ref) {
