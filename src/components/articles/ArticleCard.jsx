@@ -19,13 +19,21 @@ const ArticleCard = React.memo(React.forwardRef(function ArticleCard({ article, 
   const [saving, setSaving] = useState(false);
   const [hasBeenSeen, setHasBeenSeen] = React.useState(() => isArticleSeen(article.link));
   const [currentImageUrl, setCurrentImageUrl] = useState(null);
+  // Optimistic save state — flips instantly on click, reconciles when
+  // the server round-trip completes and savedRecord prop updates.
+  const [optimisticSaved, setOptimisticSaved] = useState(null); // null = follow prop
 
   const articleRef = React.useRef(null);
   const wasEverVisibleRef = React.useRef(false);
 
   const abstractText = extractAbstract(article);
   const imageUrl = cachedImageUrl !== undefined ? cachedImageUrl : extractImage(article);
-  const isSaved = !!savedRecord;
+  const isSaved = optimisticSaved !== null ? optimisticSaved : !!savedRecord;
+
+  // Reset optimistic state once the prop catches up
+  useEffect(() => {
+    setOptimisticSaved(null);
+  }, [savedRecord]);
 
   // DOI extraction — used in both the visible DOI row and the hidden
   // citation metadata that reference-manager extensions (ReadCube Papers,
@@ -77,15 +85,20 @@ const ArticleCard = React.memo(React.forwardRef(function ArticleCard({ article, 
     };
   }, [article.link]);
 
-  const handleSaveToggle = async (e) => {
+  const handleSaveToggle = (e) => {
     e.preventDefault();
     e.stopPropagation();
+    if (saving) return;
+
+    const wasSaved = isSaved;
+    // Flip the UI immediately — no waiting for the network.
+    setOptimisticSaved(!wasSaved);
+    showToast(wasSaved ? 'Article removed' : 'Article saved');
     setSaving(true);
-    try {
-      if (isSaved) {
-        await entities.SavedArticle.delete(savedRecord.id);
-      } else {
-        await entities.SavedArticle.create({
+
+    const promise = wasSaved
+      ? entities.SavedArticle.delete(savedRecord.id)
+      : entities.SavedArticle.create({
           article_id: article.link,
           title: article.title,
           link: article.link,
@@ -97,15 +110,15 @@ const ArticleCard = React.memo(React.forwardRef(function ArticleCard({ article, 
           thumbnail: currentImageUrl || '',
           abstract: abstractText || '',
         });
-      }
-      showToast(isSaved ? 'Article removed' : 'Article saved');
-      if (onSaveToggle) onSaveToggle();
-    } catch (err) {
-      console.error('Failed to save/unsave article:', err);
-      showToast('Something went wrong');
-    } finally {
-      setSaving(false);
-    }
+
+    promise
+      .then(() => { if (onSaveToggle) onSaveToggle(); })
+      .catch((err) => {
+        console.error('Failed to save/unsave article:', err);
+        setOptimisticSaved(null); // revert to server state
+        showToast('Something went wrong');
+      })
+      .finally(() => setSaving(false));
   };
 
   const formatDate = (dateString) => {

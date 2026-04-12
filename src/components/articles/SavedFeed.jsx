@@ -52,12 +52,8 @@ function renderAuthors(text) {
 }
 
 function SavedCard({ saved, onUnsave, selected, onToggleSelect }) {
-  const [removing, setRemoving] = useState(false);
-
-  const handleUnsave = async () => {
-    setRemoving(true);
-    await entities.SavedArticle.delete(saved.id);
-    onUnsave();
+  const handleUnsave = () => {
+    onUnsave(saved.id);
   };
 
   const formatDate = (d) => {
@@ -147,7 +143,6 @@ function SavedCard({ saved, onUnsave, selected, onToggleSelect }) {
               <div className="flex items-center gap-4 mt-1">
                 <button
                   onClick={handleUnsave}
-                  disabled={removing}
                   className="flex items-center gap-1 text-xs font-semibold text-amber-500 hover:text-red-500 transition-colors"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
@@ -182,6 +177,28 @@ export default function SavedFeed({ savedArticles, onRefresh, articles = [] }) {
   const [exportOpen, setExportOpen] = useState(false);
   const [rulesExpanded, setRulesExpanded] = useState(false);
   const [rules, setRulesState] = useState(() => loadRules(userId));
+  // Optimistic removal — IDs added here vanish from the list instantly
+  // while the API call runs in the background.
+  const [removingIds, setRemovingIds] = useState(new Set());
+
+  // Filter out optimistically removed articles so the card disappears
+  // immediately on click.
+  const visibleArticles = removingIds.size > 0
+    ? savedArticles.filter(a => !removingIds.has(a.id))
+    : savedArticles;
+
+  const handleOptimisticUnsave = (id) => {
+    setRemovingIds(prev => new Set(prev).add(id));
+    entities.SavedArticle.delete(id)
+      .then(() => onRefresh())
+      .catch(() => {
+        // Revert on failure
+        setRemovingIds(prev => { const next = new Set(prev); next.delete(id); return next; });
+      })
+      .finally(() => {
+        setRemovingIds(prev => { const next = new Set(prev); next.delete(id); return next; });
+      });
+  };
 
   // One-time cleanup: purge the legacy un-namespaced rules key so it can
   // never bleed into a different account again.
@@ -210,16 +227,16 @@ export default function SavedFeed({ savedArticles, onRefresh, articles = [] }) {
     });
   };
 
-  const allSelected = savedArticles.length > 0 && selectedIds.size === savedArticles.length;
+  const allSelected = visibleArticles.length > 0 && selectedIds.size === visibleArticles.length;
 
   const toggleAll = () => {
     if (allSelected) setSelectedIds(new Set());
-    else setSelectedIds(new Set(savedArticles.map(a => a.id)));
+    else setSelectedIds(new Set(visibleArticles.map(a => a.id)));
   };
 
   const articlesToExport = selectedIds.size > 0
-    ? savedArticles.filter(a => selectedIds.has(a.id))
-    : savedArticles;
+    ? visibleArticles.filter(a => selectedIds.has(a.id))
+    : visibleArticles;
 
   const RulesToggle = () => (
     <button
@@ -246,7 +263,7 @@ export default function SavedFeed({ savedArticles, onRefresh, articles = [] }) {
     </button>
   );
 
-  if (savedArticles.length === 0) {
+  if (visibleArticles.length === 0) {
     return (
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
         <RulesToggle />
@@ -285,7 +302,7 @@ export default function SavedFeed({ savedArticles, onRefresh, articles = [] }) {
           <div>
             <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Saved Articles</h2>
             <p className="text-sm text-muted-foreground mt-0.5">
-              {savedArticles.length} article{savedArticles.length !== 1 ? 's' : ''}
+              {visibleArticles.length} article{visibleArticles.length !== 1 ? 's' : ''}
               {selectedIds.size > 0 && ` · ${selectedIds.size} selected`}
             </p>
           </div>
@@ -316,11 +333,11 @@ export default function SavedFeed({ savedArticles, onRefresh, articles = [] }) {
 
       <div className="space-y-4">
         <AnimatePresence mode="popLayout">
-          {savedArticles.map((saved) => (
+          {visibleArticles.map((saved) => (
             <SavedCard
               key={saved.id}
               saved={saved}
-              onUnsave={onRefresh}
+              onUnsave={handleOptimisticUnsave}
               selected={selectedIds.has(saved.id)}
               onToggleSelect={toggleSelect}
             />
