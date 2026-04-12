@@ -158,7 +158,7 @@ export default function Guide() {
           <Section title="Tips">
             <ul className="space-y-1 text-sm text-foreground list-disc list-inside">
               <li>Read articles have a <span className="text-muted-foreground font-medium">gray</span> title with no left bar; unread ones have a <span className="text-blue-600 dark:text-blue-400 font-medium">blue</span> title with a blue left bar</li>
-              <li>A banner appears after 30 minutes reminding you to refresh for the latest articles</li>
+              <li>A banner appears after 90 minutes reminding you to refresh for the latest articles</li>
               <li>Articles are cached for 20 minutes — switching tabs and back is instant</li>
               <li>The <span className="font-medium">Feed</span> button gently pulses when you're on another tab, as a reminder to return to your articles</li>
               <li>Hover over the <span className="font-medium">User Guide</span>, <span className="font-medium">theme toggle</span>, <span className="font-medium">Log out</span>, or <span className="font-medium">Reset</span> buttons for a short reminder tooltip</li>

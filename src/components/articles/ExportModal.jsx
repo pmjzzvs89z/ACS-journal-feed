@@ -76,7 +76,7 @@ export default function ExportModal({ open, onClose, articles }) {
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-lg font-semibold text-slate-900">Export {articles.length} Article{articles.length !== 1 ? 's' : ''}</DialogTitle>
+          <DialogTitle className="text-lg font-semibold text-foreground">Export {articles.length} Article{articles.length !== 1 ? 's' : ''}</DialogTitle>
         </DialogHeader>
         <div className="mt-4 space-y-3">
           {FORMATS.map(fmt => {

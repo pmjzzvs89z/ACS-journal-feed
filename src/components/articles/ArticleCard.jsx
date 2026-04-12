@@ -251,8 +251,8 @@ const ArticleCard = React.memo(React.forwardRef(function ArticleCard({ article, 
                   authors={rawAuthorText}
                   journal={article.journalName || article.journalAbbrev}
                   doi={doi}
-                  pubDate={article.pub_date}
-                  abstract={article.abstract}
+                  pubDate={article.pubDate}
+                  abstract={abstractText}
                 />
               </div>
             </div>

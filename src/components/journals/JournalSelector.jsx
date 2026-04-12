@@ -38,10 +38,8 @@ function FilterDropdown({ value, onChange, options, allLabel, style }) {
       </button>
       {open && (
         <div
-          className="absolute left-0 top-full mt-1 min-w-full max-h-[60vh] overflow-y-auto rounded-xl py-1 shadow-2xl"
+          className="absolute left-0 top-full mt-1 min-w-full max-h-[60vh] overflow-y-auto rounded-xl py-1 shadow-2xl bg-white dark:bg-[rgb(28,30,38)] border border-border"
           style={{
-            backgroundColor: 'rgb(28, 30, 38)',
-            border: '1px solid rgba(255, 255, 255, 0.12)',
             zIndex: 9999,
             isolation: 'isolate',
           }}
@@ -53,13 +51,10 @@ function FilterDropdown({ value, onChange, options, allLabel, style }) {
                 key={opt.value || '__all'}
                 type="button"
                 onClick={() => { onChange(opt.value); setOpen(false); }}
-                className="w-full flex items-center gap-2 pl-3 pr-4 py-[0.192rem] text-sm text-left transition-colors"
-                style={{ color: '#ffffff', backgroundColor: 'transparent' }}
-                onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.1)'; }}
-                onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; }}
+                className="w-full flex items-center gap-2 pl-3 pr-4 py-[0.192rem] text-sm text-left transition-colors text-foreground hover:bg-slate-100 dark:hover:bg-white/10"
               >
                 <span className="w-4 flex-shrink-0 flex items-center justify-center">
-                  {isSelected && <Check className="w-3.5 h-3.5" style={{ color: '#ffffff' }} />}
+                  {isSelected && <Check className="w-3.5 h-3.5 text-foreground" />}
                 </span>
                 <span className="truncate">{opt.label}</span>
               </button>
@@ -270,7 +265,7 @@ const JournalSelector = forwardRef(function JournalSelector({ followedJournals, 
           className={cn(
             "flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-lg text-sm font-medium transition-all",
             activeField === 'chemistry'
-              ? "bg-card shadow text-blue-700 border border-blue-100"
+              ? "bg-card shadow text-blue-700 dark:text-blue-400 border border-blue-100 dark:border-blue-800"
               : "text-muted-foreground hover:text-foreground"
           )}
         >
@@ -282,7 +277,7 @@ const JournalSelector = forwardRef(function JournalSelector({ followedJournals, 
           className={cn(
             "flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-lg text-sm font-medium transition-all",
             activeField === 'engineering'
-              ? "bg-card shadow text-orange-700 border border-orange-100"
+              ? "bg-card shadow text-orange-700 dark:text-orange-400 border border-orange-100 dark:border-orange-800"
               : "text-muted-foreground hover:text-foreground"
           )}
         >
@@ -294,7 +289,7 @@ const JournalSelector = forwardRef(function JournalSelector({ followedJournals, 
           className={cn(
             "flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-lg text-sm font-medium transition-all",
             activeField === 'materials'
-              ? "bg-card shadow text-emerald-700 border border-emerald-100"
+              ? "bg-card shadow text-emerald-700 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-800"
               : "text-muted-foreground hover:text-foreground"
           )}
         >
@@ -457,10 +452,10 @@ const JournalSelector = forwardRef(function JournalSelector({ followedJournals, 
             const selectedCount = customJournals.filter(j => j.is_active).length;
             const color = '#7c3aed';
             return (
-              <div className="rounded-xl border border-purple-200 overflow-hidden">
+              <div className="rounded-xl border border-purple-200 dark:border-purple-800 overflow-hidden">
                 <button
                   onClick={() => togglePublisher('__custom__')}
-                  className="w-full flex items-center gap-3 px-4 py-2 bg-purple-50 hover:bg-purple-100 transition-colors"
+                  className="w-full flex items-center gap-3 px-4 py-2 bg-purple-50 dark:bg-purple-900/20 hover:bg-purple-100 dark:hover:bg-purple-900/30 transition-colors"
                 >
                   <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: color }} />
                   <span className="font-normal text-foreground text-sm">Journals Added Manually</span>
@@ -482,7 +477,7 @@ const JournalSelector = forwardRef(function JournalSelector({ followedJournals, 
                       animate={{ height: 'auto', opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
                       transition={{ duration: 0.2 }}
-                      className="overflow-hidden border-t border-purple-100"
+                      className="overflow-hidden border-t border-purple-100 dark:border-purple-800"
                     >
                       <div className="py-1 px-3 space-y-0.5 bg-muted">
                         {customJournals.map(j => {

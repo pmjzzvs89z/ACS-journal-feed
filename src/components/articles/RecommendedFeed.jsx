@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Sparkles, Loader2, ExternalLink, Calendar, BookOpen, Users, Bookmark, BookmarkCheck, Plus, X, Tag, User, ChevronDown } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -147,38 +147,43 @@ export default function RecommendedFeed({ followedJournals, savedArticles, onSav
     e.stopPropagation();
     const id = article.link;
     setSavingIds(prev => new Set(prev).add(id));
-    const savedRecord = savedArticles.find(s => s.article_id === article.link);
-    if (savedRecord) {
-      await entities.SavedArticle.delete(savedRecord.id);
-    } else {
-      await entities.SavedArticle.create({
-        article_id: article.link,
-        title: article.title,
-        link: article.link,
-        authors: Array.isArray(article.author) ? article.author.join(', ') : (article.author || ''),
-        pub_date: article.pubDate || '',
-        journal_name: article.journalName || '',
-        journal_abbrev: article.journalAbbrev || '',
-        journal_color: article.journalColor || '#0066b3',
-        thumbnail: article.enclosure?.link || article.thumbnail || '',
-        abstract: '',
-      });
+    try {
+      const savedRecord = savedArticles.find(s => s.article_id === article.link);
+      if (savedRecord) {
+        await entities.SavedArticle.delete(savedRecord.id);
+      } else {
+        await entities.SavedArticle.create({
+          article_id: article.link,
+          title: article.title,
+          link: article.link,
+          authors: Array.isArray(article.author) ? article.author.join(', ') : (article.author || ''),
+          pub_date: article.pubDate || '',
+          journal_name: article.journalName || '',
+          journal_abbrev: article.journalAbbrev || '',
+          journal_color: article.journalColor || '#0066b3',
+          thumbnail: article.enclosure?.link || article.thumbnail || '',
+          abstract: '',
+        });
+      }
+      if (onSaveToggle) onSaveToggle();
+    } catch (err) {
+      console.error('Failed to save/unsave article:', err);
+    } finally {
+      setSavingIds(prev => { const next = new Set(prev); next.delete(id); return next; });
     }
-    if (onSaveToggle) onSaveToggle();
-    setSavingIds(prev => { const next = new Set(prev); next.delete(id); return next; });
   };
 
   const formatDate = (d) => { try { return format(new Date(d), 'MMM d, yyyy'); } catch { return d; } };
 
   if (followedJournals.filter(j => j.is_active).length === 0) {
     return (
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col items-center justify-center py-20 text-center">
-        <div className="w-20 h-20 rounded-full bg-purple-50 flex items-center justify-center mb-6">
+      <div className="flex flex-col items-center justify-center py-20 text-center">
+        <div className="w-20 h-20 rounded-full bg-purple-50 dark:bg-purple-900/20 flex items-center justify-center mb-6">
           <Sparkles className="w-10 h-10 text-purple-300" />
         </div>
-        <h3 className="text-xl font-semibold text-slate-800 dark:text-slate-200 mb-2">No recommendations yet</h3>
+        <h3 className="text-xl font-semibold text-foreground mb-2">No recommendations yet</h3>
         <p className="text-slate-500 dark:text-slate-400 max-w-md">Follow some journals in Settings to get personalized article recommendations.</p>
-      </motion.div>
+      </div>
     );
   }
 
@@ -203,7 +208,7 @@ export default function RecommendedFeed({ followedJournals, savedArticles, onSav
         className="w-full bg-card rounded-2xl border border-border shadow-sm px-4 py-3 mb-4 flex items-center justify-between hover:shadow-md transition-shadow"
       >
         <div className="flex items-center gap-3 flex-1 text-left min-w-0">
-          <div className="w-8 h-8 rounded-lg bg-purple-50 flex items-center justify-center flex-shrink-0">
+          <div className="w-8 h-8 rounded-lg bg-purple-50 dark:bg-purple-900/20 flex items-center justify-center flex-shrink-0">
             <Sparkles className="w-4 h-4 text-purple-500" />
           </div>
           <div className="min-w-0">
@@ -245,7 +250,7 @@ export default function RecommendedFeed({ followedJournals, savedArticles, onSav
               <div>
                 <div className="flex items-center gap-1.5 mb-2">
                   <Tag className="w-3.5 h-3.5 text-slate-400" />
-                  <label className="text-xs font-semibold text-slate-600 uppercase tracking-wide">Keywords</label>
+                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Keywords</label>
                 </div>
                 <div className="flex gap-2 mb-2">
                   <Input
@@ -285,7 +290,7 @@ export default function RecommendedFeed({ followedJournals, savedArticles, onSav
               <div>
                 <div className="flex items-center gap-1.5 mb-2">
                   <User className="w-3.5 h-3.5 text-slate-400" />
-                  <label className="text-xs font-semibold text-slate-600 uppercase tracking-wide">Authors</label>
+                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Authors</label>
                 </div>
                 <div className="flex gap-2 mb-2">
                   <Input
@@ -333,21 +338,17 @@ export default function RecommendedFeed({ followedJournals, savedArticles, onSav
       {isLoading ? (
         <div className="flex flex-col items-center justify-center py-20">
           <Loader2 className="w-10 h-10 text-purple-500 animate-spin mb-4" />
-          <p className="text-slate-500">Analyzing your interests…</p>
+          <p className="text-slate-500 dark:text-slate-400">Analyzing your interests…</p>
         </div>
       ) : (
         <div className="space-y-4">
-          <AnimatePresence mode="popLayout">
             {recommendations.map((article, index) => {
               const isSaved = savedIds.has(article.link);
               const saving = savingIds.has(article.link);
               const authorText = Array.isArray(article.author) ? article.author.join(', ') : article.author;
               return (
-                <motion.article
+                <article
                   key={article.link}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: Math.min(index * 0.03, 0.4), duration: 0.3 }}
                   className="group bg-card rounded-2xl border border-border hover:shadow-xl hover:border-border transition-all duration-300 overflow-hidden"
                 >
                   <div className="flex items-stretch gap-0">
@@ -364,7 +365,7 @@ export default function RecommendedFeed({ followedJournals, savedArticles, onSav
                             style={{ maxHeight: '210px' }}
                           />
                         ) : (
-                          <div className="flex flex-col items-center justify-center text-slate-300 gap-2">
+                          <div className="flex flex-col items-center justify-center text-slate-200 dark:text-slate-700 gap-2">
                             <BookOpen className="w-10 h-10" />
                             <span className="text-xs">No image</span>
                           </div>
@@ -391,7 +392,7 @@ export default function RecommendedFeed({ followedJournals, savedArticles, onSav
                             </span>
                           )}
                           {article._score >= 4 && (
-                            <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-purple-100 text-purple-600 flex items-center gap-1">
+                            <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-300 flex items-center gap-1">
                               <Sparkles className="w-3 h-3" /> Strong match
                             </span>
                           )}
@@ -433,10 +434,9 @@ export default function RecommendedFeed({ followedJournals, savedArticles, onSav
                     </div>
                   </div>
                   </div>
-                </motion.article>
+                </article>
               );
             })}
-          </AnimatePresence>
         </div>
       )}
     </div>

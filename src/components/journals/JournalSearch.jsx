@@ -150,11 +150,11 @@ export default function JournalSearch({ allJournals, publishers, isFollowed, onT
                   </div>
                   <BookOpen className="w-3.5 h-3.5 flex-shrink-0" style={{ color: followed ? color : '#94a3b8' }} />
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-semibold text-slate-800 truncate">{j.abbrev}</p>
+                    <p className="text-xs font-semibold text-foreground truncate">{j.abbrev}</p>
                     <p className="text-xs text-muted-foreground truncate">{j.name}</p>
                   </div>
                   {j.category && (
-                    <span className="flex-shrink-0 text-[10px] px-1.5 py-0.5 rounded-full bg-slate-100 text-slate-500 hidden sm:block truncate max-w-[100px]">
+                    <span className="flex-shrink-0 text-[10px] px-1.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 hidden sm:block truncate max-w-[100px]">
                       {j.category}
                     </span>
                   )}
