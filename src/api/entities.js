@@ -9,9 +9,11 @@ async function getUserId() {
 export const entities = {
   FollowedJournal: {
     list: async () => {
+      const userId = await getUserId();
       const { data, error } = await supabase
         .from('followed_journals')
         .select('*')
+        .eq('user_id', userId)
         .order('created_at', { ascending: true });
       if (error) throw error;
       return data || [];
@@ -27,29 +29,35 @@ export const entities = {
       return data;
     },
     update: async (id, updates) => {
+      const userId = await getUserId();
       const { data, error } = await supabase
         .from('followed_journals')
         .update(updates)
         .eq('id', id)
+        .eq('user_id', userId)
         .select()
         .single();
       if (error) throw error;
       return data;
     },
     delete: async (id) => {
+      const userId = await getUserId();
       const { error } = await supabase
         .from('followed_journals')
         .delete()
-        .eq('id', id);
+        .eq('id', id)
+        .eq('user_id', userId);
       if (error) throw error;
     }
   },
 
   SavedArticle: {
     list: async () => {
+      const userId = await getUserId();
       const { data, error } = await supabase
         .from('saved_articles')
         .select('*')
+        .eq('user_id', userId)
         .order('created_at', { ascending: false });
       if (error) throw error;
       return data || [];
@@ -65,10 +73,12 @@ export const entities = {
       return data;
     },
     delete: async (id) => {
+      const userId = await getUserId();
       const { error } = await supabase
         .from('saved_articles')
         .delete()
-        .eq('id', id);
+        .eq('id', id)
+        .eq('user_id', userId);
       if (error) throw error;
     }
   },

@@ -11,14 +11,12 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
-  const [emailInUse, setEmailInUse] = useState(false);
   const [isDark, toggleDark] = useDarkMode();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setMessage('');
-    setEmailInUse(false);
     setIsLoading(true);
 
     try {
@@ -33,34 +31,27 @@ export default function LoginPage() {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
       } else {
-        const { data, error } = await supabase.auth.signUp({
+        const { error } = await supabase.auth.signUp({
           email,
           password,
           options: { emailRedirectTo: `${window.location.origin}/confirm` },
         });
         if (error) throw error;
-        // Supabase returns user with an empty `identities` array when the
-        // email already has an account. This is much more reliable than
-        // pattern-matching error messages.
-        if (data.user?.identities?.length === 0) {
-          setEmailInUse(true);
-        } else {
-          setMessage('Account created! Check your email to confirm your account, then log in.');
-          setIsLogin(true);
-          setPassword('');
-        }
+        // Always show the confirmation prompt on successful signUp.
+        // Supabase's identities-array heuristic for detecting existing
+        // emails is unreliable (varies by version and email-confirm
+        // settings) and was producing false positives.  If the email is
+        // genuinely new, Supabase sends a confirmation link. If it already
+        // exists, Supabase silently skips the email — the user will simply
+        // not receive anything and can use "Forgot your password?" instead.
+        setMessage('Check your email to confirm your account, then log in.');
+        setIsLogin(true);
+        setPassword('');
       }
     } catch (err) {
       const msg = err?.message || '';
-      // Fallback: some Supabase versions surface existing-email as an
-      // error rather than via the identities check above.
-      const looksLikeExisting = !isLogin && (
-        /rate limit/i.test(msg) ||
-        /already registered/i.test(msg) ||
-        /user already/i.test(msg)
-      );
-      if (looksLikeExisting) {
-        setEmailInUse(true);
+      if (/rate limit/i.test(msg)) {
+        setError('Too many attempts. Please wait an hour before trying again.');
       } else {
         setError(msg || 'Something went wrong. Please try again.');
       }
@@ -74,7 +65,6 @@ export default function LoginPage() {
     setIsForgotPassword(mode === 'forgot');
     setError('');
     setMessage('');
-    setEmailInUse(false);
   };
 
   return (
@@ -113,7 +103,7 @@ export default function LoginPage() {
               <input
                 type="email"
                 value={email}
-                onChange={e => { setEmail(e.target.value); if (emailInUse) setEmailInUse(false); }}
+                onChange={e => setEmail(e.target.value)}
                 placeholder="you@example.com"
                 required
                 className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-card text-foreground placeholder:text-muted-foreground"
@@ -138,21 +128,10 @@ export default function LoginPage() {
               <p className="text-xs text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/30 px-3 py-2 rounded-lg">{error}</p>
             )}
 
-            {emailInUse && (
-              <div className="text-xs bg-red-50 dark:bg-red-900/30 px-3 py-2 rounded-lg">
-                <p className="text-red-600 dark:text-red-400 mb-1.5">This email is already in use.</p>
-                <button
-                  type="button"
-                  onClick={() => switchMode('forgot')}
-                  className="text-amber-600 dark:text-amber-400 hover:underline font-semibold"
-                >
-                  Forgot your password? Reset it
-                </button>
-              </div>
-            )}
-
             {message && (
-              <p className="text-xs font-semibold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/30 px-3 py-2 rounded-lg">{message}</p>
+              <div className="bg-emerald-50 dark:bg-emerald-900/40 border-[1.5px] border-emerald-300 dark:border-emerald-600 rounded-lg px-4 py-3">
+                <p className="text-sm font-bold text-emerald-800 dark:text-emerald-200">{message}</p>
+              </div>
             )}
 
             <button

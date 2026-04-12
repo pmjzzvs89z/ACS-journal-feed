@@ -7,6 +7,7 @@ import { createPageUrl } from '@/utils';
 import ArticleCard, { clearAllSeenArticles, getCachedImage } from './ArticleCard';
 import ArticleFilters from './ArticleFilters';
 import Tooltip from '@/components/ui/Tooltip';
+import { useAuth } from '@/lib/AuthContext';
 import {
   ALL_JOURNALS, ACS_JOURNALS, RSC_JOURNALS, WILEY_JOURNALS, ELSEVIER_JOURNALS, SPRINGER_JOURNALS,
   MDPI_JOURNALS, TAYLOR_JOURNALS, AAAS_JOURNALS,
@@ -69,11 +70,18 @@ function publisherColorForJournalId(id) {
   return key ? PUBLISHER_COLORS[key] : '#64748b';
 }
 
-const FILTERS_KEY = 'cjf_feed_filters';
+const FILTERS_KEY_BASE = 'cjf_feed_filters';
+const LEGACY_FILTERS_KEY = 'cjf_feed_filters';
 
-function loadStoredFilters() {
+function filtersKeyFor(userId) {
+  return userId ? `${FILTERS_KEY_BASE}:${userId}` : null;
+}
+
+function loadStoredFilters(userId) {
+  const key = filtersKeyFor(userId);
+  if (!key) return null;
   try {
-    const raw = localStorage.getItem(FILTERS_KEY);
+    const raw = localStorage.getItem(key);
     if (!raw) return null;
     const parsed = JSON.parse(raw);
     if (!parsed || typeof parsed !== 'object') return null;
@@ -81,12 +89,17 @@ function loadStoredFilters() {
   } catch { return null; }
 }
 
-function saveStoredFilters(filters) {
+function saveStoredFilters(userId, filters) {
+  const key = filtersKeyFor(userId);
+  if (!key) return;
   try {
-    if (filters.journal) localStorage.setItem(FILTERS_KEY, JSON.stringify({ journal: filters.journal }));
-    else localStorage.removeItem(FILTERS_KEY);
+    if (filters.journal) localStorage.setItem(key, JSON.stringify({ journal: filters.journal }));
+    else localStorage.removeItem(key);
   } catch { /* ignore */ }
 }
+
+// Purge legacy un-namespaced key so it can never bleed between accounts
+try { localStorage.removeItem(LEGACY_FILTERS_KEY); } catch { /* ignore */ }
 
 function filtersFromParams(params) {
   return {
@@ -225,31 +238,58 @@ function SkeletonCard() {
 }
 
 export default function ArticleFeed({ articles, failedJournals = [], isLoading, loadingProgress, onRefresh, followedCount, savedArticles = [], onSaveToggle, followedJournals = [] }) {
+  const { user } = useAuth();
+  const userId = user?.id;
   const [searchParams, setSearchParams] = useSearchParams();
   const [keyword, setKeyword] = useState('');
   const urlFilters = useMemo(() => filtersFromParams(searchParams), [searchParams]);
   const filters = useMemo(() => ({ keyword, journal: urlFilters.journal }), [keyword, urlFilters.journal]);
 
+  // Build a set of the current user's active journal IDs so we can detect
+  // stale filters left over from a different account.
+  const activeJournalIds = useMemo(
+    () => new Set(followedJournals.filter(j => j.is_active).map(j => j.journal_id)),
+    [followedJournals]
+  );
+
   // Hydrate journal filter from localStorage on mount if URL has none
-  // (e.g. returning from Journal Selector or Guide routes)
+  // (e.g. returning from Journal Selector or Guide routes).
+  // Also clear any stale filter that references a journal the current
+  // account doesn't follow — prevents an invisible empty feed after
+  // switching accounts.
   useEffect(() => {
     const fromUrl = filtersFromParams(searchParams);
+    // If the URL has a journal filter that doesn't match any followed journal, clear it
+    if (fromUrl.journal && activeJournalIds.size > 0 && !activeJournalIds.has(fromUrl.journal)) {
+      saveStoredFilters(userId, { journal: '' });
+      setSearchParams(prev => {
+        const next = new URLSearchParams(prev);
+        next.delete('journal');
+        return next;
+      }, { replace: true });
+      return;
+    }
     if (fromUrl.journal) return;
-    const stored = loadStoredFilters();
+    const stored = loadStoredFilters(userId);
     if (!stored?.journal) return;
+    // Also validate stored filter against current journals
+    if (activeJournalIds.size > 0 && !activeJournalIds.has(stored.journal)) {
+      saveStoredFilters(userId, { journal: '' });
+      return;
+    }
     setSearchParams(prev => {
       const next = new URLSearchParams(prev);
       next.set('journal', stored.journal);
       return next;
     }, { replace: true });
-     
-  }, []);
+
+  }, [activeJournalIds]);
 
   const setFilters = useCallback((newFilters) => {
     // Keyword stays in local state only — never written to URL.
     setKeyword(newFilters.keyword || '');
     // Only journal is persisted to URL + localStorage.
-    saveStoredFilters({ journal: newFilters.journal });
+    saveStoredFilters(userId, { journal: newFilters.journal });
     setSearchParams(prev => {
       const next = new URLSearchParams(prev);
       if (newFilters.journal) next.set('journal', newFilters.journal);
@@ -299,12 +339,12 @@ export default function ArticleFeed({ articles, failedJournals = [], isLoading, 
   };
 
   const filtered = useMemo(() => {
-    const results = articles.filter(a => {
+    const applyFilters = (requireGA) => articles.filter(a => {
       // Hide articles that lack a graphical abstract (e.g. corrections, errata, early papers)
-      if (GA_REQUIRED_IDS.has(a.journalId) && !getCachedImage(a)) return false;
+      if (requireGA && GA_REQUIRED_IDS.has(a.journalId) && !getCachedImage(a)) return false;
       // Also hide if the GA image failed to load (404 from publisher CDN)
       // Only for Elsevier/Springer where URLs are constructed and 404 = no GA exists
-      if (GA_HIDE_ON_FAIL_IDS.has(a.journalId) && failedImageIds.has(a.link)) return false;
+      if (requireGA && GA_HIDE_ON_FAIL_IDS.has(a.journalId) && failedImageIds.has(a.link)) return false;
 
       const kw = filters.keyword.toLowerCase();
       const authorStr = (Array.isArray(a.author) ? a.author.join(' ') : a.author || '').toLowerCase();
@@ -314,6 +354,13 @@ export default function ArticleFeed({ articles, failedJournals = [], isLoading, 
 
       return true;
     });
+
+    // Try with GA filter first; if it hides ALL articles, fall back to
+    // showing them without images rather than displaying an empty feed.
+    let results = applyFilters(true);
+    if (results.length === 0 && articles.length > 0) {
+      results = applyFilters(false);
+    }
 
     // Primary sort: journal name A→Z; secondary sort: newest first within each journal
     results.sort((a, b) => {

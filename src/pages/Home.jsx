@@ -81,17 +81,27 @@ export default function Home() {
   const isSettingsActive = location.pathname === createPageUrl('Settings');
   const isGuideActive = location.pathname === createPageUrl('Guide');
 
-  // Fetch followed journals — keep fresh for 10 min so navigating back doesn't trigger a refetch
-  const { data: followedJournals = [], isLoading: isLoadingJournals } = useQuery({
-    queryKey: ['followedJournals'],
+  // Fetch followed journals — keep fresh for 10 min so navigating back doesn't trigger a refetch.
+  // Query key includes userId so each account has its own cache entry and
+  // switching users never serves stale data from the previous account.
+  // Disabled until auth resolves to avoid a "Not authenticated" throw from getUserId().
+  // isPending (not isLoading) so that `isLoadingJournals` stays true while
+  // the query is disabled during auth init.  In TanStack Query v5,
+  // isLoading = isPending && isFetching — disabled queries have isFetching
+  // = false, so isLoading would be false and prematurely enable the
+  // articles query with an empty journal list.
+  const { data: followedJournals = [], isPending: isLoadingJournals } = useQuery({
+    queryKey: ['followedJournals', userId],
     queryFn: () => entities.FollowedJournal.list(),
     staleTime: 10 * 60 * 1000,
+    enabled: !!userId,
   });
 
-  // Fetch saved articles
+  // Fetch saved articles — same per-user isolation as above.
   const { data: savedArticles = [], refetch: refetchSaved } = useQuery({
-    queryKey: ['savedArticles'],
+    queryKey: ['savedArticles', userId],
     queryFn: () => entities.SavedArticle.list(),
+    enabled: !!userId,
   });
 
   // Stable query key based on sorted active journal IDs
@@ -352,7 +362,7 @@ export default function Home() {
                   {isDark ? <Sun className="w-4 h-4 text-orange-400" /> : <Moon className="w-4 h-4 text-blue-500" />}
                 </button>
               </Tooltip>
-              <Tooltip label="Log out" delay={500}>
+              <Tooltip label={`Log out from ${user?.email}`} delay={500}>
                 <button
                   onClick={logout}
                   className="flex items-center justify-center w-8 h-8 rounded-lg border transition-colors bg-blue-50/60 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-blue-100 dark:border-slate-700 hover:bg-red-100/60 dark:hover:bg-red-900/30 hover:text-red-600 dark:hover:text-red-400"

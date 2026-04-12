@@ -15,7 +15,8 @@ export default function Settings() {
   const location = useLocation();
   const isGuideActive = location.pathname === createPageUrl('Guide');
   const [isDark, toggleDark] = useDarkMode();
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
+  const userId = user?.id;
   const journalCardRef = useRef(null);
   const journalSelectorRef = useRef(null);
 
@@ -29,14 +30,16 @@ export default function Settings() {
     }
   };
 
-  const { data: followedJournals = [], isLoading } = useQuery({
-    queryKey: ['followedJournals'],
+  const { data: followedJournals = [], isPending: isLoading } = useQuery({
+    queryKey: ['followedJournals', userId],
     queryFn: () => entities.FollowedJournal.list(),
+    enabled: !!userId,
   });
 
   const { data: savedArticles = [] } = useQuery({
-    queryKey: ['savedArticles'],
+    queryKey: ['savedArticles', userId],
     queryFn: () => entities.SavedArticle.list(),
+    enabled: !!userId,
   });
 
   const toggleJournalMutation = useMutation({
@@ -55,8 +58,8 @@ export default function Settings() {
     },
     // Optimistic update — flip the UI instantly, reconcile on server response.
     onMutate: async (journal) => {
-      await queryClient.cancelQueries({ queryKey: ['followedJournals'] });
-      const previous = queryClient.getQueryData(['followedJournals']) || [];
+      await queryClient.cancelQueries({ queryKey: ['followedJournals', userId] });
+      const previous = queryClient.getQueryData(['followedJournals', userId]) || [];
       const existing = previous.find(j => j.journal_id === journal.id);
       let next;
       if (existing) {
@@ -76,11 +79,11 @@ export default function Settings() {
           },
         ];
       }
-      queryClient.setQueryData(['followedJournals'], next);
+      queryClient.setQueryData(['followedJournals', userId], next);
       return { previous };
     },
     onError: (_err, _journal, ctx) => {
-      if (ctx?.previous) queryClient.setQueryData(['followedJournals'], ctx.previous);
+      if (ctx?.previous) queryClient.setQueryData(['followedJournals', userId], ctx.previous);
     },
     onSettled: () => queryClient.invalidateQueries({ queryKey: ['followedJournals'] }),
   });

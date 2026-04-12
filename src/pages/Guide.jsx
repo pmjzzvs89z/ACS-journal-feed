@@ -20,11 +20,13 @@ export default function Guide() {
   const isSettingsActive = location.pathname === createPageUrl('Settings');
   const isGuideActive = location.pathname === createPageUrl('Guide');
   const [isDark, toggleDark] = useDarkMode();
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
+  const userId = user?.id;
 
   const { data: savedArticles = [] } = useQuery({
-    queryKey: ['savedArticles'],
+    queryKey: ['savedArticles', userId],
     queryFn: () => entities.SavedArticle.list(),
+    enabled: !!userId,
   });
 
   return (

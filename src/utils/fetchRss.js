@@ -39,14 +39,14 @@ export async function fetchRssFeed(rssUrl) {
             }
           }
         }
-        console.log(`[fetchRss] Supabase proxy ok: ${data.items.length} items for ${rssUrl.slice(0, 60)}`);
+        if (import.meta.env.DEV) console.log(`[fetchRss] Supabase proxy ok: ${data.items.length} items for ${rssUrl.slice(0, 60)}`);
         return { status: 'ok', items: data.items };
       }
     } else {
-      console.warn(`[fetchRss] Supabase proxy HTTP ${response.status} for ${rssUrl.slice(0, 60)}`);
+      if (import.meta.env.DEV) console.warn(`[fetchRss] Supabase proxy HTTP ${response.status} for ${rssUrl.slice(0, 60)}`);
     }
   } catch (e) {
-    console.warn('[fetchRss] Supabase proxy failed:', e.message);
+    if (import.meta.env.DEV) console.warn('[fetchRss] Supabase proxy failed:', e.message);
   }
 
   // Strategy 2: corsproxy.io + local XML parser
@@ -58,16 +58,16 @@ export async function fetchRssFeed(rssUrl) {
       if (text) {
         const items = parseRssXml(text);
         if (items.length > 0) {
-          console.log(`[fetchRss] corsproxy ok: ${items.length} items for ${rssUrl.slice(0, 60)}`);
+          if (import.meta.env.DEV) console.log(`[fetchRss] corsproxy ok: ${items.length} items for ${rssUrl.slice(0, 60)}`);
           return { status: 'ok', items };
         }
       }
     }
   } catch (e) {
-    console.warn('[fetchRss] corsproxy.io failed:', e.message);
+    if (import.meta.env.DEV) console.warn('[fetchRss] corsproxy.io failed:', e.message);
   }
 
-  console.warn(`[fetchRss] all strategies failed for ${rssUrl.slice(0, 60)}`);
+  if (import.meta.env.DEV) console.warn(`[fetchRss] all strategies failed for ${rssUrl.slice(0, 60)}`);
   return { status: 'error', items: [] };
 }
 
@@ -205,7 +205,7 @@ function parseRssXml(xml) {
 
     return items;
   } catch (e) {
-    console.warn('[fetchRss] XML parse failed:', e);
+    if (import.meta.env.DEV) console.warn('[fetchRss] XML parse failed:', e);
     return [];
   }
 }

@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { format } from 'date-fns';
 import { entities } from '@/api/entities';
 import { renderAuthors } from './AuthorRenderer';
+import { observeElement, unobserveElement } from '@/hooks/useSharedObserver';
 
 function extractAbstract(article) {
   const sources = [article.content, article.description];
@@ -263,18 +264,22 @@ const ArticleCard = React.memo(React.forwardRef(function ArticleCard({ article, 
     setHasBeenSeen(isArticleSeen(article.link));
   }, [resetKey, article.link]);
 
+  // Use the shared IntersectionObserver (one observer for all cards instead
+  // of one per card — see src/hooks/useSharedObserver.js).
   useEffect(() => {
-    const observer = new IntersectionObserver(([entry]) => {
+    const el = articleRef.current;
+    if (!el) return;
+    const handleIntersection = (entry) => {
       if (entry.isIntersecting) {
         wasEverVisibleRef.current = true;
       } else if (wasEverVisibleRef.current) {
         markArticleSeen(article.link);
         setHasBeenSeen(true);
       }
-    }, { threshold: 0.1 });
-    if (articleRef.current) observer.observe(articleRef.current);
+    };
+    observeElement(el, handleIntersection);
     return () => {
-      observer.disconnect();
+      unobserveElement(el);
       // Mark as seen on unmount if the card was ever visible — covers the
       // edge case where a short filtered list never scrolls past the card.
       if (wasEverVisibleRef.current) {
@@ -386,9 +391,12 @@ const ArticleCard = React.memo(React.forwardRef(function ArticleCard({ article, 
                   {article.journalAbbrev}
                 </Badge>
                 {article.pubDate && (
-                  <span className="text-xs text-muted-foreground flex items-center gap-1">
+                  <span className="text-xs text-muted-foreground flex items-center gap-1.5">
                     <Calendar className="w-3 h-3" />
                     {formatDate(article.pubDate)}
+                    {!hasBeenSeen && (
+                      <span className="w-[7px] h-[7px] rounded-full bg-amber-500 dark:bg-amber-400 flex-shrink-0" title="Unread" />
+                    )}
                   </span>
                 )}
               </div>

@@ -237,7 +237,12 @@ export default function SavedFeed({ savedArticles, onRefresh, articles = [] }) {
           )}
         </div>
       </div>
-      <ChevronDown className={`w-5 h-5 text-blue-500 transition-transform flex-shrink-0 stroke-[2.5] ${rulesExpanded ? 'rotate-180' : ''}`} />
+      <div className="flex items-center gap-1.5 flex-shrink-0">
+        {rules.enabled && (
+          <span className="w-2 h-2 rounded-full bg-emerald-500 dark:bg-emerald-400" title="Auto-save is active" />
+        )}
+        <ChevronDown className={`w-5 h-5 text-blue-500 transition-transform stroke-[2.5] ${rulesExpanded ? 'rotate-180' : ''}`} />
+      </div>
     </button>
   );
 
@@ -287,7 +292,7 @@ export default function SavedFeed({ savedArticles, onRefresh, articles = [] }) {
         </div>
         <Button
           onClick={() => setExportOpen(true)}
-          className="gap-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600 text-white"
+          className="gap-2 bg-blue-600 hover:bg-blue-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200 text-white border border-transparent dark:border-slate-700"
           size="sm"
         >
           <Download className="w-4 h-4" />
