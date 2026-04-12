@@ -617,7 +617,7 @@ export default function ArticleFeed({ articles, failedJournals = [], isLoading, 
             exit={{ opacity: 0, y: 16 }}
             transition={{ duration: 0.2 }}
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex items-center gap-1.5 px-2.5 py-1 bg-white hover:bg-slate-100 text-slate-900 dark:bg-slate-100 dark:hover:bg-slate-200 dark:text-slate-900 text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl border border-slate-300 dark:border-slate-400 transition-colors"
+            className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex items-center gap-1.5 px-2.5 py-1 bg-slate-700 hover:bg-slate-600 text-white dark:bg-slate-100 dark:hover:bg-slate-200 dark:text-slate-900 text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl border border-slate-600 dark:border-slate-400 transition-colors"
             aria-label="Back to top"
           >
             <ArrowUp className="w-4 h-4" />
