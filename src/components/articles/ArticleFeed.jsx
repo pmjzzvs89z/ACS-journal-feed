@@ -150,7 +150,7 @@ function JournalDropdown({ value, onChange, journals }) {
       <button
         type="button"
         onClick={() => setOpen(o => !o)}
-        className="flex items-center gap-2 h-9 text-sm border border-blue-200 dark:border-blue-700 rounded-lg px-3 bg-blue-50/60 dark:bg-blue-900/30 text-slate-600 dark:text-slate-300 focus:outline-none focus:ring-1 focus:ring-blue-500 hover:bg-blue-100/60 dark:hover:bg-blue-900/40 transition-colors cursor-pointer"
+        className="flex items-center gap-2 h-9 text-sm border border-slate-300 dark:border-blue-700 rounded-lg px-3 bg-slate-200/80 dark:bg-blue-900/30 text-slate-600 dark:text-slate-300 focus:outline-none focus:ring-1 focus:ring-blue-500 hover:bg-slate-300/80 dark:hover:bg-blue-900/40 transition-colors cursor-pointer"
       >
         <span className="truncate max-w-[220px]">{label}</span>
         <ChevronDown className="w-3.5 h-3.5 opacity-70" />
@@ -525,7 +525,7 @@ export default function ArticleFeed({ articles, failedJournals = [], isLoading, 
               onClick={handleResetArticles}
               size="sm"
               variant="outline"
-              className="text-xs border border-blue-100 dark:border-slate-600 rounded-lg bg-blue-50/60 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-blue-100/60 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white"
+              className="text-xs border border-slate-300 dark:border-slate-600 rounded-lg bg-slate-200/80 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-300/80 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white"
             >
               <RotateCcw className="w-3.5 h-3.5 mr-1.5" />
               Reset
