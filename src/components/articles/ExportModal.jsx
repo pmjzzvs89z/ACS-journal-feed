@@ -58,9 +58,9 @@ export default function ExportModal({ open, onClose, articles }) {
   const handleExport = () => {
     const fmt = FORMATS.find(f => f.id === selected);
     let content = '';
-    if (selected === 'ris')  content = toRIS(articles);
-    if (selected === 'csv')  content = toCSV(articles);
-    if (selected === 'text') content = toText(articles);
+    if (selected === 'ris')       content = toRIS(articles);
+    else if (selected === 'csv')  content = toCSV(articles);
+    else if (selected === 'text') content = toText(articles);
 
     const blob = new Blob([content], { type: fmt.mime });
     const url = URL.createObjectURL(blob);

@@ -101,7 +101,7 @@ export default function Guide() {
       </header>
 
       {/* Guide content */}
-      <div className="max-w-[60rem] mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <div className="w-full mx-auto px-4 sm:px-6 lg:px-8 py-10" style={{ maxWidth: '620px' }}>
         <div className="bg-card rounded-2xl border-container border-border shadow-sm p-8">
           <h1 className="text-2xl font-bold text-foreground mb-2">User Guide</h1>
           <p className="text-muted-foreground text-sm mb-8">Everything you need to know to get started with Literature Tracker.</p>

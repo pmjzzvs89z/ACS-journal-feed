@@ -69,10 +69,11 @@ export default function AutoSaveRules({ rules, onRulesChange, articles = [] }) {
           <div>
             <div className="flex items-center gap-1.5 mb-1.5">
               <Tag className="w-3 h-3 text-slate-400" />
-              <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Keywords</label>
+              <label htmlFor="autosave-keyword" className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Keywords</label>
             </div>
             <div className="flex gap-2 mb-1.5">
               <Input
+                id="autosave-keyword"
                 value={keywordInput}
                 onChange={e => setKeywordInput(e.target.value)}
                 onKeyDown={e => handleKeyDown(e, addKeyword)}
@@ -101,10 +102,11 @@ export default function AutoSaveRules({ rules, onRulesChange, articles = [] }) {
           <div>
             <div className="flex items-center gap-1.5 mb-1.5">
               <User className="w-3 h-3 text-slate-400" />
-              <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Authors</label>
+              <label htmlFor="autosave-author" className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Authors</label>
             </div>
             <div className="flex gap-2 mb-1.5">
               <Input
+                id="autosave-author"
                 value={authorInput}
                 onChange={e => setAuthorInput(e.target.value)}
                 onKeyDown={e => handleKeyDown(e, addAuthor)}

@@ -97,7 +97,7 @@ export default function RecommendedFeed({ followedJournals, savedArticles, onSav
     const discoveryJournals = [...activeJournals.slice(0, 4), ...shuffled];
 
     const allArticles = [];
-    await Promise.all(
+    await Promise.allSettled(
       discoveryJournals.map(async (journal) => {
         const rssUrl = journal.rss_url;
         const journalInfo = ALL_JOURNALS.find(j => j.id === (journal.journal_id || journal.id));
@@ -167,7 +167,7 @@ export default function RecommendedFeed({ followedJournals, savedArticles, onSav
       }
       if (onSaveToggle) onSaveToggle();
     } catch (err) {
-      console.error('Failed to save/unsave article:', err);
+      if (import.meta.env.DEV) console.error('Failed to save/unsave article:', err);
     } finally {
       setSavingIds(prev => { const next = new Set(prev); next.delete(id); return next; });
     }

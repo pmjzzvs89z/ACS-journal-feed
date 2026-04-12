@@ -86,7 +86,7 @@ export function useAutoSave(articles, userId) {
           queryClient.invalidateQueries({ queryKey: ['savedArticles'] });
         }
       } catch (e) {
-        console.error('Auto-save error:', e);
+        if (import.meta.env.DEV) console.error('Auto-save error:', e);
       }
     })();
   }, [articles, userId]);

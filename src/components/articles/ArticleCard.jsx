@@ -114,7 +114,7 @@ const ArticleCard = React.memo(React.forwardRef(function ArticleCard({ article, 
     promise
       .then(() => { if (onSaveToggle) onSaveToggle(); })
       .catch((err) => {
-        console.error('Failed to save/unsave article:', err);
+        if (import.meta.env.DEV) console.error('Failed to save/unsave article:', err);
         setOptimisticSaved(null); // revert to server state
         showToast('Something went wrong');
       })
