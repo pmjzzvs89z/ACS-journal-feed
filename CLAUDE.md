@@ -144,8 +144,10 @@ IChemE → IOP → Other, with thin gray separators between groups.
 ### Typography & layout
 - Journal names render **inline** as `<abbrev> (<full name>)`, with the full
   name at 80% opacity (`text-muted-foreground/80`).
-- Settings and Guide content cards are **max-width 620 px**, centered, and
-  responsive on mobile (`maxWidth: '620px'` + `w-full`).
+- Settings content cards are **max-width 620 px**, centered and responsive
+  on mobile (`maxWidth: '620px'` + `w-full`).
+- Guide content card is **620 px on mobile, 806 px on sm+**
+  (`max-w-[620px] sm:max-w-[806px]`).
 - Category rows in the Journal Selector use tight vertical padding
   (`py-[0.4rem]`); the Feed dropdown uses `py-[0.228rem]` with a small
   negative `marginTop` on non-first-in-group items to tighten intra-group
