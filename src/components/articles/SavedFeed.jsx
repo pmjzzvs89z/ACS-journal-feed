@@ -68,6 +68,7 @@ const SavedCard = React.memo(function SavedCard({ saved, onUnsave, selected, onT
             <img
               src={saved.thumbnail}
               alt="Graphical abstract"
+              referrerPolicy="no-referrer"
               className="w-full h-full object-contain"
               style={{ maxHeight: '210px' }}
               onError={(e) => { e.target.style.display = 'none'; }}
@@ -78,7 +79,7 @@ const SavedCard = React.memo(function SavedCard({ saved, onUnsave, selected, onT
         <div className="flex-1 min-w-0 p-5">
           {saved.thumbnail && (
             <div className="sm:hidden w-full mb-4 rounded-xl overflow-hidden bg-slate-50 dark:bg-card border border-border">
-              <img src={saved.thumbnail} alt="Graphical abstract" className="w-full max-h-40 object-contain" onError={(e) => { e.target.style.display = 'none'; }} />
+              <img src={saved.thumbnail} alt="Graphical abstract" referrerPolicy="no-referrer" className="w-full max-h-40 object-contain" onError={(e) => { e.target.style.display = 'none'; }} />
             </div>
           )}
 
