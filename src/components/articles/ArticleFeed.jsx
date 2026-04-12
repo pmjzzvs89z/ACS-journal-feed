@@ -414,6 +414,36 @@ export default function ArticleFeed({ articles, failedJournals = [], isLoading, 
     return map;
   }, [articles, followedJournals]);
 
+  if (isLoading) {
+    const progressLabel = loadingProgress?.total > 0
+      ? `Loading ${Math.min(loadingProgress.done, loadingProgress.total)} of ${loadingProgress.total} journals…`
+      : 'Loading articles…';
+
+    return (
+      <div>
+        <div className="flex items-center mb-4">
+          <div className="flex-1">
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Latest Articles</h2>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{progressLabel}</p>
+          </div>
+          {loadingProgress?.total > 0 && (
+            <div className="flex-shrink-0 mx-4">
+              <div className="w-48 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-blue-500 rounded-full transition-all duration-500"
+                  style={{ width: `${Math.round((loadingProgress.done / loadingProgress.total) * 100)}%` }}
+                />
+              </div>
+            </div>
+          )}
+        </div>
+        <div className="space-y-4">
+          {Array.from({ length: 5 }).map((_, i) => <SkeletonCard key={i} />)}
+        </div>
+      </div>
+    );
+  }
+
   if (followedCount === 0) {
     return (
       <motion.div
@@ -448,36 +478,6 @@ export default function ArticleFeed({ articles, failedJournals = [], isLoading, 
           </button>
         </Link>
       </motion.div>
-    );
-  }
-
-  if (isLoading) {
-    const progressLabel = loadingProgress?.total > 0
-      ? `Loading ${Math.min(loadingProgress.done, loadingProgress.total)} of ${loadingProgress.total} journals…`
-      : 'Loading articles…';
-
-    return (
-      <div>
-        <div className="flex items-center mb-4">
-          <div className="flex-1">
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Latest Articles</h2>
-            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{progressLabel}</p>
-          </div>
-          {loadingProgress?.total > 0 && (
-            <div className="flex-shrink-0 mx-4">
-              <div className="w-48 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-blue-500 rounded-full transition-all duration-500"
-                  style={{ width: `${Math.round((loadingProgress.done / loadingProgress.total) * 100)}%` }}
-                />
-              </div>
-            </div>
-          )}
-        </div>
-        <div className="space-y-4">
-          {Array.from({ length: 5 }).map((_, i) => <SkeletonCard key={i} />)}
-        </div>
-      </div>
     );
   }
 

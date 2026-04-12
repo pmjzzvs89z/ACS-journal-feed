@@ -22,7 +22,21 @@ export const AuthProvider = ({ children }) => {
       setIsLoadingAuth(false);
     });
 
-    return () => subscription.unsubscribe();
+    // Proactively refresh the session when the tab/app returns to the
+    // foreground.  iPad Safari aggressively suspends background tabs,
+    // so the default auto-refresh timer may not fire.  This ensures
+    // the token is still valid after long idle periods.
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        supabase.auth.getSession();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      subscription.unsubscribe();
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, []);
 
   const logout = async () => {
