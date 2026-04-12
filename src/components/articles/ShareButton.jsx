@@ -36,8 +36,11 @@ export default function ShareButton({ title, url, authors, journal, doi, pubDate
   }, [open]);
 
   const emailSubject = encodeURIComponent(title || 'Check out this article');
+  // Normalise author list to a single comma-separated line (the raw
+  // string may contain newlines from some RSS feeds).
+  const authorLine = authors ? authors.replace(/\n/g, ', ').replace(/,\s*,/g, ',') : '';
   const emailBody = encodeURIComponent(
-    `${title || ''}\n${authors ? `Authors: ${authors}\n` : ''}${journal ? `Journal: ${journal}\n` : ''}\n${url || ''}`
+    `${title || ''}\n\n${authorLine ? `Authors: ${authorLine}\n\n` : ''}${journal ? `Journal: ${journal}\n\n` : ''}${url || ''}\n\nSent from Literature Tracker (https://literature-tracker.app)`
   );
   const emailHref = `mailto:?subject=${emailSubject}&body=${emailBody}`;
 
