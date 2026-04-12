@@ -91,7 +91,7 @@ export default function Settings() {
   const activeCount = followedJournals.filter(j => j.is_active).length;
 
   return (
-    <div onMouseDown={handlePageMouseDown} className="min-h-screen bg-gradient-to-br from-background via-card to-muted dark:from-slate-950 dark:via-slate-900 dark:to-slate-900">
+    <div onMouseDown={handlePageMouseDown} className="min-h-screen bg-gradient-to-br from-slate-200 via-slate-100 to-slate-200 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900">
       {/* Header */}
       <header className="sticky top-0 z-40 bg-card/80 backdrop-blur-xl border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
