@@ -9,7 +9,6 @@ import ExportModal from './ExportModal';
 import AutoSaveRules from './AutoSaveRules';
 import ShareButton from './ShareButton';
 import { useAuth } from '@/lib/AuthContext';
-import { addDismissedIds, clearDismissedIds } from '@/hooks/useAutoSave';
 
 // Auto-save rules are stored in Supabase (auto_save_rules table) so they
 // sync across devices. localStorage is used as a fast read cache so the
@@ -173,9 +172,6 @@ export default function SavedFeed({ savedArticles, onRefresh, articles = [] }) {
     : savedArticles;
 
   const handleOptimisticUnsave = (id) => {
-    // Record article_id so auto-save won't re-add it
-    const saved = savedArticles.find(a => a.id === id);
-    if (saved?.article_id) addDismissedIds(userId, [saved.article_id]);
     setRemovingIds(prev => new Set(prev).add(id));
     entities.SavedArticle.delete(id)
       .then(() => onRefresh())
@@ -219,8 +215,6 @@ export default function SavedFeed({ savedArticles, onRefresh, articles = [] }) {
   const handleRulesChange = useCallback((newRules) => {
     setRulesState(newRules);
     cacheRules(userId, newRules);
-    // Reset dismissed list so updated rules get a fresh evaluation
-    clearDismissedIds(userId);
     // Notify useAutoSave hook so the green dot updates instantly
     window.dispatchEvent(new CustomEvent('autosave-rules-changed', { detail: newRules }));
     // Persist to Supabase in the background
@@ -326,9 +320,6 @@ export default function SavedFeed({ savedArticles, onRefresh, articles = [] }) {
               onClick={() => {
                 if (!window.confirm(`Remove ${selectedIds.size} selected article${selectedIds.size !== 1 ? 's' : ''}?`)) return;
                 const ids = [...selectedIds];
-                // Record article_ids so auto-save won't re-add them
-                const articleIds = savedArticles.filter(a => selectedIds.has(a.id)).map(a => a.article_id).filter(Boolean);
-                addDismissedIds(userId, articleIds);
                 setRemovingIds(prev => new Set([...prev, ...ids]));
                 Promise.all(ids.map(id => entities.SavedArticle.delete(id)))
                   .then(() => { onRefresh(); setSelectedIds(new Set()); })

@@ -8,7 +8,6 @@ import { articleMatchesRules } from '@/utils/articleMatch';
 // sync. This lets the auto-save effect fire immediately on page load
 // without waiting for a Supabase round-trip.
 const RULES_KEY_BASE = 'cjf_autosave_rules';
-const DISMISSED_KEY_BASE = 'cjf_autosave_dismissed';
 
 function getCachedRules(userId) {
   if (!userId) return {};
@@ -16,38 +15,25 @@ function getCachedRules(userId) {
   catch { return {}; }
 }
 
-// Articles the user manually removed from Saved are recorded here so
-// auto-save never re-adds them during the same rules session.
-function getDismissedIds(userId) {
-  if (!userId) return new Set();
-  try { return new Set(JSON.parse(localStorage.getItem(`${DISMISSED_KEY_BASE}:${userId}`) || '[]')); }
-  catch { return new Set(); }
-}
-
-function addDismissedIds(userId, articleIds) {
-  if (!userId || !articleIds.length) return;
-  const current = getDismissedIds(userId);
-  articleIds.forEach(id => current.add(id));
-  try { localStorage.setItem(`${DISMISSED_KEY_BASE}:${userId}`, JSON.stringify([...current])); } catch {}
-}
-
-/** Clear the dismissed set — called when rules change so new rules
- *  get a fresh start. */
-export function clearDismissedIds(userId) {
-  if (!userId) return;
-  localStorage.removeItem(`${DISMISSED_KEY_BASE}:${userId}`);
-}
-
 /**
  * Custom hook that auto-saves articles matching the user's keyword/author
- * rules. Fetches rules from Supabase on mount (with localStorage as
- * instant fallback), then runs whenever articles change.
+ * rules. Each article is evaluated at most once per page session — removing
+ * a saved article will never cause it to be re-added by auto-save.
  */
 export function useAutoSave(articles, userId) {
   const userIdRef = useRef(userId);
   userIdRef.current = userId;
   const queryClient = useQueryClient();
   const [serverRules, setServerRules] = useState(null);
+
+  // Track which article links have already been evaluated so we never
+  // re-process the same article twice in one session.
+  const processedRef = useRef(new Set());
+
+  // Reset processed set when user changes
+  useEffect(() => {
+    processedRef.current = new Set();
+  }, [userId]);
 
   // Fetch rules from Supabase once when userId is set
   useEffect(() => {
@@ -79,18 +65,19 @@ export function useAutoSave(articles, userId) {
     const rules = serverRules || getCachedRules(userId);
     if (!rules.enabled) return;
 
+    // Only consider articles we haven't already processed
+    const unprocessed = articles.filter(a => !processedRef.current.has(a.link));
+    if (!unprocessed.length) return;
+
+    // Mark as processed immediately so re-runs of this effect are no-ops
+    unprocessed.forEach(a => processedRef.current.add(a.link));
+
     (async () => {
       try {
         const currentSaved = await entities.SavedArticle.list();
-        // After the async gap, verify the authenticated user hasn't
-        // changed mid-flight (e.g. logout + re-login during the fetch).
-        // entities.SavedArticle.create() stamps the *current* auth user,
-        // so without this guard a stale effect could attribute articles
-        // that matched User A's rules to User B's account.
         if (userIdRef.current !== userId) return;
         const savedIds = new Set(currentSaved.map(s => s.article_id));
-        const dismissed = getDismissedIds(userId);
-        const toSave = articles.filter(a => !savedIds.has(a.link) && !dismissed.has(a.link) && articleMatchesRules(a, rules));
+        const toSave = unprocessed.filter(a => !savedIds.has(a.link) && articleMatchesRules(a, rules));
         if (toSave.length > 0) {
           await Promise.all(toSave.map(a => {
             const abstract = (() => {
@@ -111,7 +98,6 @@ export function useAutoSave(articles, userId) {
               const sources = [a.content, a.description];
               for (const src of sources) {
                 if (!src) continue;
-                // Decode HTML entities before searching (edge function returns HTML-encoded content)
                 const el = document.createElement('textarea');
                 el.innerHTML = src;
                 const decoded = el.value;
