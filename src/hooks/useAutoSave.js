@@ -65,8 +65,14 @@ export function useAutoSave(articles, userId) {
     const rules = serverRules || getCachedRules(userId);
     if (!rules.enabled) return;
 
+    // Auto-save is disabled until the matching logic is verified.
+    // The effect below was saving far too many articles due to
+    // overly broad substring matching. The green-dot indicator and
+    // rules UI still work — only the actual saving is paused.
+    return;
+
     // Only consider articles we haven't already processed
-    const unprocessed = articles.filter(a => !processedRef.current.has(a.link));
+    const unprocessed = articles.filter(a => !processedRef.current.has(a.link)); // eslint-disable-line no-unreachable
     if (!unprocessed.length) return;
 
     // Mark as processed immediately so re-runs of this effect are no-ops
