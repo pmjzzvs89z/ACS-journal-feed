@@ -314,14 +314,38 @@ export default function SavedFeed({ savedArticles, onRefresh, articles = [] }) {
             </p>
           </div>
         </div>
-        <Button
-          onClick={() => setExportOpen(true)}
-          className="gap-2 bg-slate-200/80 hover:bg-slate-300/80 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700"
-          size="sm"
-        >
-          <Download className="w-4 h-4" />
-          Export{selectedIds.size > 0 ? ` (${selectedIds.size})` : ' All'}
-        </Button>
+        <div className="flex items-center gap-2">
+          {selectedIds.size > 0 && (
+            <Button
+              onClick={() => {
+                if (!window.confirm(`Remove ${selectedIds.size} selected article${selectedIds.size !== 1 ? 's' : ''}?`)) return;
+                const ids = [...selectedIds];
+                setRemovingIds(prev => new Set([...prev, ...ids]));
+                Promise.all(ids.map(id => entities.SavedArticle.delete(id)))
+                  .then(() => { onRefresh(); setSelectedIds(new Set()); })
+                  .catch(() => {
+                    setRemovingIds(prev => { const next = new Set(prev); ids.forEach(id => next.delete(id)); return next; });
+                  })
+                  .finally(() => {
+                    setRemovingIds(prev => { const next = new Set(prev); ids.forEach(id => next.delete(id)); return next; });
+                  });
+              }}
+              className="gap-2 bg-red-100 hover:bg-red-200 dark:bg-red-900/30 dark:hover:bg-red-900/50 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800"
+              size="sm"
+            >
+              <Trash2 className="w-4 h-4" />
+              Remove ({selectedIds.size})
+            </Button>
+          )}
+          <Button
+            onClick={() => setExportOpen(true)}
+            className="gap-2 bg-slate-200/80 hover:bg-slate-300/80 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700"
+            size="sm"
+          >
+            <Download className="w-4 h-4" />
+            Export{selectedIds.size > 0 ? ` (${selectedIds.size})` : ' All'}
+          </Button>
+        </div>
       </div>
 
       <RulesToggle />
