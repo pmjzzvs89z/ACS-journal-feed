@@ -318,12 +318,15 @@ export default function SavedFeed({ savedArticles, onRefresh, articles = [] }) {
           {selectedIds.size > 0 && (
             <Button
               onClick={() => {
-                if (!window.confirm(`Remove ${selectedIds.size} selected article${selectedIds.size !== 1 ? 's' : ''}?`)) return;
+                const count = selectedIds.size;
+                const isAll = count === visibleArticles.length;
+                if (!window.confirm(`Remove ${isAll ? 'all ' : ''}${count} ${isAll ? '' : 'selected '}article${count !== 1 ? 's' : ''}?`)) return;
                 const ids = [...selectedIds];
                 setRemovingIds(prev => new Set([...prev, ...ids]));
-                Promise.all(ids.map(id => entities.SavedArticle.delete(id)))
+                (isAll ? entities.SavedArticle.deleteAll() : entities.SavedArticle.deleteMany(ids))
                   .then(() => { onRefresh(); setSelectedIds(new Set()); })
-                  .catch(() => {
+                  .catch((err) => {
+                    console.error('[SavedFeed] bulk delete failed:', err);
                     setRemovingIds(prev => { const next = new Set(prev); ids.forEach(id => next.delete(id)); return next; });
                   })
                   .finally(() => {

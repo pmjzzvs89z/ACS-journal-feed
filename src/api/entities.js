@@ -80,6 +80,23 @@ export const entities = {
         .eq('id', id)
         .eq('user_id', userId);
       if (error) throw error;
+    },
+    deleteMany: async (ids) => {
+      const userId = await getUserId();
+      const { error } = await supabase
+        .from('saved_articles')
+        .delete()
+        .in('id', ids)
+        .eq('user_id', userId);
+      if (error) throw error;
+    },
+    deleteAll: async () => {
+      const userId = await getUserId();
+      const { error } = await supabase
+        .from('saved_articles')
+        .delete()
+        .eq('user_id', userId);
+      if (error) throw error;
     }
   },
 
