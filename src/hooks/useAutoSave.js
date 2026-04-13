@@ -78,7 +78,10 @@ export function useAutoSave(articles, userId) {
         if (userIdRef.current !== userId) return;
         const savedIds = new Set(currentSaved.map(s => s.article_id));
         const toSave = unprocessed.filter(a => !savedIds.has(a.link) && articleMatchesRules(a, rules));
+        console.log('[useAutoSave] rules:', JSON.stringify(rules), 'unprocessed:', unprocessed.length, 'already saved:', savedIds.size, 'toSave:', toSave.length);
         if (toSave.length > 0) {
+          console.log('[useAutoSave] saving:', toSave.slice(0, 5).map(a => ({ title: a.title?.slice(0, 60), author: a.author })));
+
           await Promise.all(toSave.map(a => {
             const abstract = (() => {
               const sources = [a.content, a.description];
