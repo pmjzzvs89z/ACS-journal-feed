@@ -19,8 +19,6 @@ export function articleMatchesRules(article, rules) {
   const kwMatch = keywords.length > 0 && keywords.some(kw => haystack.includes(kw.toLowerCase()));
   const auMatch = authors.length > 0 && authors.some(au => authorStr.includes(au.toLowerCase()));
 
-  // If both lists have entries, require both to match (AND).
-  // If only one list has entries, match on that list alone.
-  if (keywords.length > 0 && authors.length > 0) return kwMatch && auMatch;
+  // Keywords and authors are independent — match if EITHER hits.
   return kwMatch || auMatch;
 }
