@@ -108,4 +108,8 @@ export function useAutoSave(articles, userId) {
       }
     })();
   }, [articles, userId, serverRules]);
+
+  // Expose whether auto-save is currently enabled so the UI can show an indicator
+  const rules = serverRules || getCachedRules(userId);
+  return { autoSaveEnabled: !!rules.enabled };
 }

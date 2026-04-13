@@ -144,7 +144,7 @@ export default function Home() {
   const failedJournals = feedResult?.failedJournals ?? [];
 
   // Auto-save articles that match the user's keyword/author rules
-  useAutoSave(articles, userId);
+  const { autoSaveEnabled } = useAutoSave(articles, userId);
 
   // Propagate the signed-in user id to the seen-articles module so that
   // every read/write (including those inside ArticleCard) uses the
@@ -224,7 +224,15 @@ export default function Home() {
                 <Bookmark className={`w-4 h-4 ${activeTab === 'saved' ? 'text-blue-600 dark:text-blue-400' : ''}`} />
                 <span className="hidden sm:inline">Saved</span>
                 {savedArticles.length > 0 && (
-                  <span className="bg-amber-500 text-white text-xs rounded-full px-1.5 py-0.5 leading-none">{savedArticles.length}</span>
+                  <span className="relative bg-amber-500 text-white text-xs rounded-full px-1.5 py-0.5 leading-none">
+                    {savedArticles.length}
+                    {autoSaveEnabled && (
+                      <span className="absolute -top-0.5 -right-1.5 w-2 h-2 bg-green-500 rounded-full border border-white dark:border-slate-900" />
+                    )}
+                  </span>
+                )}
+                {savedArticles.length === 0 && autoSaveEnabled && (
+                  <span className="w-2 h-2 bg-green-500 rounded-full" />
                 )}
               </button>
             </div>
