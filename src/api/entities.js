@@ -93,6 +93,35 @@ export const entities = {
     }
   },
 
+  AutoSaveRules: {
+    get: async () => {
+      const userId = await getUserId();
+      const { data, error } = await supabase
+        .from('auto_save_rules')
+        .select('*')
+        .eq('user_id', userId)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+    upsert: async (rules) => {
+      const userId = await getUserId();
+      const { data, error } = await supabase
+        .from('auto_save_rules')
+        .upsert({
+          user_id: userId,
+          enabled: rules.enabled,
+          keywords: rules.keywords,
+          authors: rules.authors,
+          updated_at: new Date().toISOString(),
+        }, { onConflict: 'user_id' })
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    },
+  },
+
   // Admin queries — return cross-user data if RLS permits.
   // Throw on error so React Query surfaces it instead of silently
   // returning an empty dashboard.

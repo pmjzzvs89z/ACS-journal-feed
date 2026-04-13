@@ -1,15 +1,15 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { entities } from '@/api/entities';
 import { articleMatchesRules } from '@/utils/articleMatch';
 
-// Auto-save rules live in localStorage namespaced by user id — see
-// SavedFeed.jsx for the read/write side. This helper mirrors that scheme
-// so the auto-save side effect only ever reads the current user's rules.
-// Without a userId we return an empty object, which disables auto-save.
+// Read rules from localStorage as a fast cache. The canonical source is
+// the Supabase auto_save_rules table — SavedFeed.jsx keeps the cache in
+// sync. This lets the auto-save effect fire immediately on page load
+// without waiting for a Supabase round-trip.
 const RULES_KEY_BASE = 'cjf_autosave_rules';
 
-function getAutoSaveRules(userId) {
+function getCachedRules(userId) {
   if (!userId) return {};
   try { return JSON.parse(localStorage.getItem(`${RULES_KEY_BASE}:${userId}`) || '{}'); }
   catch { return {}; }
@@ -17,17 +17,35 @@ function getAutoSaveRules(userId) {
 
 /**
  * Custom hook that auto-saves articles matching the user's keyword/author
- * rules. Runs whenever articles change or the authenticated user changes.
+ * rules. Fetches rules from Supabase on mount (with localStorage as
+ * instant fallback), then runs whenever articles change.
  */
 export function useAutoSave(articles, userId) {
   const userIdRef = useRef(userId);
   userIdRef.current = userId;
   const queryClient = useQueryClient();
+  const [serverRules, setServerRules] = useState(null);
+
+  // Fetch rules from Supabase once when userId is set
+  useEffect(() => {
+    if (!userId) { setServerRules(null); return; }
+    entities.AutoSaveRules.get()
+      .then(row => {
+        if (row && userIdRef.current === userId) {
+          const synced = { enabled: row.enabled, keywords: row.keywords || [], authors: row.authors || [] };
+          setServerRules(synced);
+          // Update cache so subsequent reads are fresh
+          try { localStorage.setItem(`${RULES_KEY_BASE}:${userId}`, JSON.stringify(synced)); } catch {}
+        }
+      })
+      .catch(() => { /* use cached rules */ });
+  }, [userId]);
 
   useEffect(() => {
     if (!articles.length) return;
     if (!userId) return;
-    const rules = getAutoSaveRules(userId);
+    // Prefer server-fetched rules, fall back to localStorage cache
+    const rules = serverRules || getCachedRules(userId);
     if (!rules.enabled) return;
 
     (async () => {
@@ -89,5 +107,5 @@ export function useAutoSave(articles, userId) {
         if (import.meta.env.DEV) console.error('Auto-save error:', e);
       }
     })();
-  }, [articles, userId]);
+  }, [articles, userId, serverRules]);
 }

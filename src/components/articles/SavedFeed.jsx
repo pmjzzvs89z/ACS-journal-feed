@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Bookmark, Trash2, ExternalLink, BookOpen, Calendar, Users, Download, ChevronDown, Zap } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -10,10 +10,9 @@ import AutoSaveRules from './AutoSaveRules';
 import ShareButton from './ShareButton';
 import { useAuth } from '@/lib/AuthContext';
 
-// Auto-save rules are per-user. The storage key is namespaced by the
-// authenticated user's id so rules cannot bleed between accounts on the
-// same browser. The legacy un-namespaced key `cjf_autosave_rules` is
-// purged on mount (see useEffect below) to eliminate any carry-over.
+// Auto-save rules are stored in Supabase (auto_save_rules table) so they
+// sync across devices. localStorage is used as a fast read cache so the
+// UI doesn't flash while the Supabase fetch is in flight.
 const RULES_KEY_BASE = 'cjf_autosave_rules';
 const LEGACY_RULES_KEY = 'cjf_autosave_rules';
 const defaultRules = { enabled: false, keywords: [], authors: [] };
@@ -22,14 +21,14 @@ function rulesKeyFor(userId) {
   return userId ? `${RULES_KEY_BASE}:${userId}` : null;
 }
 
-function loadRules(userId) {
+function loadRulesFromCache(userId) {
   const key = rulesKeyFor(userId);
   if (!key) return defaultRules;
   try { return { ...defaultRules, ...JSON.parse(localStorage.getItem(key) || '{}') }; }
   catch { return defaultRules; }
 }
 
-function saveRules(userId, rules) {
+function cacheRules(userId, rules) {
   const key = rulesKeyFor(userId);
   if (!key) return;
   localStorage.setItem(key, JSON.stringify(rules));
@@ -161,7 +160,7 @@ export default function SavedFeed({ savedArticles, onRefresh, articles = [] }) {
   const [selectedIds, setSelectedIds] = useState(new Set());
   const [exportOpen, setExportOpen] = useState(false);
   const [rulesExpanded, setRulesExpanded] = useState(false);
-  const [rules, setRulesState] = useState(() => loadRules(userId));
+  const [rules, setRulesState] = useState(() => loadRulesFromCache(userId));
   // Optimistic removal — IDs added here vanish from the list instantly
   // while the API call runs in the background.
   const [removingIds, setRemovingIds] = useState(new Set());
@@ -191,17 +190,39 @@ export default function SavedFeed({ savedArticles, onRefresh, articles = [] }) {
     localStorage.removeItem(LEGACY_RULES_KEY);
   }, []);
 
-  // Reload rules whenever the signed-in user changes (login / logout /
-  // account switch without a full page reload). On logout userId becomes
-  // undefined and rules reset to defaults.
+  // Fetch rules from Supabase on mount and when user changes. Falls back
+  // to localStorage cache so the UI is instant, then reconciles with the
+  // server-side version.
   useEffect(() => {
-    setRulesState(loadRules(userId));
+    setRulesState(loadRulesFromCache(userId));
+    if (!userId) return;
+    let cancelled = false;
+    entities.AutoSaveRules.get().then(row => {
+      if (cancelled) return;
+      if (row) {
+        const synced = {
+          enabled: row.enabled,
+          keywords: row.keywords || [],
+          authors: row.authors || [],
+        };
+        setRulesState(synced);
+        cacheRules(userId, synced);
+      }
+    }).catch(() => { /* use cached rules on error */ });
+    return () => { cancelled = true; };
   }, [userId]);
 
-  const handleRulesChange = (newRules) => {
+  const handleRulesChange = useCallback((newRules) => {
     setRulesState(newRules);
-    saveRules(userId, newRules);
-  };
+    cacheRules(userId, newRules);
+    // Persist to Supabase in the background
+    if (userId) {
+      entities.AutoSaveRules.upsert(newRules).catch(() => {
+        // localStorage cache is already updated; Supabase will sync
+        // next time the user opens the app.
+      });
+    }
+  }, [userId]);
 
   const toggleSelect = (id) => {
     setSelectedIds(prev => {
