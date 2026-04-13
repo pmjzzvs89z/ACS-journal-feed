@@ -215,6 +215,8 @@ export default function SavedFeed({ savedArticles, onRefresh, articles = [] }) {
   const handleRulesChange = useCallback((newRules) => {
     setRulesState(newRules);
     cacheRules(userId, newRules);
+    // Notify useAutoSave hook so the green dot updates instantly
+    window.dispatchEvent(new CustomEvent('autosave-rules-changed', { detail: newRules }));
     // Persist to Supabase in the background
     if (userId) {
       entities.AutoSaveRules.upsert(newRules).catch((err) => {

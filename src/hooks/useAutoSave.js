@@ -41,6 +41,14 @@ export function useAutoSave(articles, userId) {
       .catch((err) => { console.error('[useAutoSave] rules fetch failed:', err); });
   }, [userId]);
 
+  // Listen for real-time rule changes from SavedFeed so the enabled
+  // indicator updates instantly without waiting for a Supabase round-trip.
+  useEffect(() => {
+    const handler = (e) => setServerRules(e.detail);
+    window.addEventListener('autosave-rules-changed', handler);
+    return () => window.removeEventListener('autosave-rules-changed', handler);
+  }, []);
+
   useEffect(() => {
     if (!articles.length) return;
     if (!userId) return;
