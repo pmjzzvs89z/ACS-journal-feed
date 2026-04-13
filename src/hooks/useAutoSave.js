@@ -38,7 +38,7 @@ export function useAutoSave(articles, userId) {
           try { localStorage.setItem(`${RULES_KEY_BASE}:${userId}`, JSON.stringify(synced)); } catch {}
         }
       })
-      .catch(() => { /* use cached rules */ });
+      .catch((err) => { console.error('[useAutoSave] rules fetch failed:', err); });
   }, [userId]);
 
   useEffect(() => {

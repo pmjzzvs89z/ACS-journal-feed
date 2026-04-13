@@ -208,7 +208,7 @@ export default function SavedFeed({ savedArticles, onRefresh, articles = [] }) {
         setRulesState(synced);
         cacheRules(userId, synced);
       }
-    }).catch(() => { /* use cached rules on error */ });
+    }).catch((err) => { console.error('[AutoSaveRules] fetch failed:', err); });
     return () => { cancelled = true; };
   }, [userId]);
 
@@ -217,9 +217,8 @@ export default function SavedFeed({ savedArticles, onRefresh, articles = [] }) {
     cacheRules(userId, newRules);
     // Persist to Supabase in the background
     if (userId) {
-      entities.AutoSaveRules.upsert(newRules).catch(() => {
-        // localStorage cache is already updated; Supabase will sync
-        // next time the user opens the app.
+      entities.AutoSaveRules.upsert(newRules).catch((err) => {
+        console.error('[AutoSaveRules] upsert failed:', err);
       });
     }
   }, [userId]);
