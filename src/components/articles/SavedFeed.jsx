@@ -330,7 +330,7 @@ export default function SavedFeed({ savedArticles, onRefresh, articles = [] }) {
                     setRemovingIds(prev => { const next = new Set(prev); ids.forEach(id => next.delete(id)); return next; });
                   });
               }}
-              className="gap-2 bg-red-100 hover:bg-red-200 dark:bg-red-900/30 dark:hover:bg-red-900/50 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800"
+              className="gap-2 bg-slate-200/80 hover:bg-slate-300/80 dark:bg-slate-800 dark:hover:bg-slate-700 text-amber-500 dark:text-amber-500 border border-slate-300 dark:border-slate-700"
               size="sm"
             >
               <Trash2 className="w-4 h-4" />
@@ -343,7 +343,7 @@ export default function SavedFeed({ savedArticles, onRefresh, articles = [] }) {
             size="sm"
           >
             <Download className="w-4 h-4" />
-            Export{selectedIds.size > 0 ? ` (${selectedIds.size})` : ' All'}
+            Export{selectedIds.size > 0 ? ` (${selectedIds.size})` : ''}
           </Button>
         </div>
       </div>
