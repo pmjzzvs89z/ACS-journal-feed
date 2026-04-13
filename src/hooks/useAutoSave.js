@@ -8,11 +8,34 @@ import { articleMatchesRules } from '@/utils/articleMatch';
 // sync. This lets the auto-save effect fire immediately on page load
 // without waiting for a Supabase round-trip.
 const RULES_KEY_BASE = 'cjf_autosave_rules';
+const DISMISSED_KEY_BASE = 'cjf_autosave_dismissed';
 
 function getCachedRules(userId) {
   if (!userId) return {};
   try { return JSON.parse(localStorage.getItem(`${RULES_KEY_BASE}:${userId}`) || '{}'); }
   catch { return {}; }
+}
+
+// Articles the user manually removed from Saved are recorded here so
+// auto-save never re-adds them during the same rules session.
+function getDismissedIds(userId) {
+  if (!userId) return new Set();
+  try { return new Set(JSON.parse(localStorage.getItem(`${DISMISSED_KEY_BASE}:${userId}`) || '[]')); }
+  catch { return new Set(); }
+}
+
+function addDismissedIds(userId, articleIds) {
+  if (!userId || !articleIds.length) return;
+  const current = getDismissedIds(userId);
+  articleIds.forEach(id => current.add(id));
+  try { localStorage.setItem(`${DISMISSED_KEY_BASE}:${userId}`, JSON.stringify([...current])); } catch {}
+}
+
+/** Clear the dismissed set — called when rules change so new rules
+ *  get a fresh start. */
+export function clearDismissedIds(userId) {
+  if (!userId) return;
+  localStorage.removeItem(`${DISMISSED_KEY_BASE}:${userId}`);
 }
 
 /**
@@ -66,7 +89,8 @@ export function useAutoSave(articles, userId) {
         // that matched User A's rules to User B's account.
         if (userIdRef.current !== userId) return;
         const savedIds = new Set(currentSaved.map(s => s.article_id));
-        const toSave = articles.filter(a => !savedIds.has(a.link) && articleMatchesRules(a, rules));
+        const dismissed = getDismissedIds(userId);
+        const toSave = articles.filter(a => !savedIds.has(a.link) && !dismissed.has(a.link) && articleMatchesRules(a, rules));
         if (toSave.length > 0) {
           await Promise.all(toSave.map(a => {
             const abstract = (() => {
