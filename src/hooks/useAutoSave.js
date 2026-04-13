@@ -53,7 +53,11 @@ export function useAutoSave(articles, userId) {
   // Listen for real-time rule changes from SavedFeed so the enabled
   // indicator updates instantly without waiting for a Supabase round-trip.
   useEffect(() => {
-    const handler = (e) => setServerRules(e.detail);
+    const handler = (e) => {
+      setServerRules(e.detail);
+      // Clear processed set so all articles are re-evaluated against the new rules
+      processedRef.current = new Set();
+    };
     window.addEventListener('autosave-rules-changed', handler);
     return () => window.removeEventListener('autosave-rules-changed', handler);
   }, []);
@@ -65,14 +69,8 @@ export function useAutoSave(articles, userId) {
     const rules = serverRules || getCachedRules(userId);
     if (!rules.enabled) return;
 
-    // Auto-save is disabled until the matching logic is verified.
-    // The effect below was saving far too many articles due to
-    // overly broad substring matching. The green-dot indicator and
-    // rules UI still work — only the actual saving is paused.
-    return;
-
     // Only consider articles we haven't already processed
-    const unprocessed = articles.filter(a => !processedRef.current.has(a.link)); // eslint-disable-line no-unreachable
+    const unprocessed = articles.filter(a => !processedRef.current.has(a.link));
     if (!unprocessed.length) return;
 
     // Mark as processed immediately so re-runs of this effect are no-ops
@@ -84,9 +82,7 @@ export function useAutoSave(articles, userId) {
         if (userIdRef.current !== userId) return;
         const savedIds = new Set(currentSaved.map(s => s.article_id));
         const toSave = unprocessed.filter(a => !savedIds.has(a.link) && articleMatchesRules(a, rules));
-        console.log('[useAutoSave] rules:', JSON.stringify(rules), 'unprocessed:', unprocessed.length, 'already saved:', savedIds.size, 'toSave:', toSave.length);
         if (toSave.length > 0) {
-          console.log('[useAutoSave] saving:', toSave.slice(0, 5).map(a => ({ title: a.title?.slice(0, 60), author: a.author })));
 
           await Promise.all(toSave.map(a => {
             const abstract = (() => {
