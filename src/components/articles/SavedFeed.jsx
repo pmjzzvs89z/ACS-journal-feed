@@ -34,7 +34,25 @@ function cacheRules(userId, rules) {
   localStorage.setItem(key, JSON.stringify(rules));
 }
 
-const SavedCard = React.memo(function SavedCard({ saved, onUnsave, selected, onToggleSelect }) {
+function getMatchReasons(saved, rules) {
+  if (!rules?.enabled) return [];
+  const reasons = [];
+  const haystack = [saved.title || '', saved.abstract || ''].join(' ').toLowerCase();
+  const authorStr = (saved.authors || '').toLowerCase();
+  for (const kw of (rules.keywords || [])) {
+    if (haystack.includes(kw.toLowerCase())) {
+      reasons.push({ type: 'Keyword', value: kw });
+    }
+  }
+  for (const au of (rules.authors || [])) {
+    if (authorStr.includes(au.toLowerCase())) {
+      reasons.push({ type: 'Author', value: au });
+    }
+  }
+  return reasons;
+}
+
+const SavedCard = React.memo(function SavedCard({ saved, onUnsave, selected, onToggleSelect, rules }) {
   const handleUnsave = () => {
     onUnsave(saved.id);
   };
@@ -142,6 +160,20 @@ const SavedCard = React.memo(function SavedCard({ saved, onUnsave, selected, onT
                   abstract={saved.abstract}
                 />
               </div>
+              {(() => {
+                const reasons = getMatchReasons(saved, rules);
+                if (!reasons.length) return null;
+                return (
+                  <div className="mt-4">
+                    {reasons.map((r, i) => (
+                      <p key={i} className={`text-xs flex items-center gap-1 ${r.type === 'Author' ? 'text-blue-600 dark:text-blue-400' : 'text-emerald-600 dark:text-emerald-400'}`}>
+                        <Zap className="w-3 h-3" />
+                        This article matches {r.type} <span className={`px-1 rounded ${r.type === 'Author' ? 'bg-blue-200 dark:bg-blue-800/50' : 'bg-emerald-200 dark:bg-emerald-800/50'}`}>{r.value}</span>
+                      </p>
+                    ))}
+                  </div>
+                );
+              })()}
             </div>
 
             <a href={saved.link} target="_blank" rel="noopener noreferrer" className="flex-shrink-0 w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-muted-foreground hover:bg-blue-600 hover:text-white dark:hover:bg-blue-600 dark:hover:text-white transition-all duration-200">
@@ -374,6 +406,7 @@ export default function SavedFeed({ savedArticles, onRefresh, articles = [] }) {
               onUnsave={handleOptimisticUnsave}
               selected={selectedIds.has(saved.id)}
               onToggleSelect={toggleSelect}
+              rules={rules}
             />
           ))}
         </AnimatePresence>

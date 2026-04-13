@@ -69,7 +69,7 @@ export default function AutoSaveRules({ rules, onRulesChange, articles = [] }) {
           <div>
             <div className="flex items-center gap-1.5 mb-1.5">
               <Tag className="w-3 h-3 text-slate-400" />
-              <label htmlFor="autosave-keyword" className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Keywords</label>
+              <label htmlFor="autosave-keyword" className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Keywords</label>
             </div>
             <div className="flex gap-2 mb-1.5">
               <Input
@@ -87,7 +87,7 @@ export default function AutoSaveRules({ rules, onRulesChange, articles = [] }) {
             {rules.keywords.length > 0 && (
               <div className="flex flex-wrap gap-1">
                 {rules.keywords.map(kw => (
-                  <Badge key={kw} variant="secondary" className="gap-1 pr-1 bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-700 text-xs">
+                  <Badge key={kw} variant="secondary" className="gap-1 pr-1 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-700 text-xs">
                     {kw}
                     <button onClick={() => removeKeyword(kw)} className="hover:text-red-500 transition-colors ml-0.5">
                       <X className="w-3 h-3" />
@@ -102,7 +102,7 @@ export default function AutoSaveRules({ rules, onRulesChange, articles = [] }) {
           <div>
             <div className="flex items-center gap-1.5 mb-1.5">
               <User className="w-3 h-3 text-slate-400" />
-              <label htmlFor="autosave-author" className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Authors</label>
+              <label htmlFor="autosave-author" className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Authors</label>
             </div>
             <div className="flex gap-2 mb-1.5">
               <Input
@@ -135,7 +135,7 @@ export default function AutoSaveRules({ rules, onRulesChange, articles = [] }) {
         {/* Match preview */}
         {(rules.keywords.length > 0 || rules.authors.length > 0) && articles.length > 0 && (
           <p className="text-xs text-muted-foreground mt-2 px-1">
-            Would match <span className="font-semibold text-foreground">{matchCount}</span> of {articles.length} current feed article{articles.length !== 1 ? 's' : ''}
+            Found <span className="font-semibold text-foreground">{matchCount}</span> of {articles.length} articles in the current feed
           </p>
         )}
       </div>
