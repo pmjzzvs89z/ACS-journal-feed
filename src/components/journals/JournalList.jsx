@@ -714,4 +714,21 @@ export const ALL_MATERIALS_JOURNALS = [...ACS_MATERIALS_JOURNALS, ...RSC_MATERIA
 export const ALL_JOURNALS = [...ACS_JOURNALS, ...RSC_JOURNALS, ...WILEY_JOURNALS, ...ELSEVIER_JOURNALS, ...MDPI_JOURNALS, ...SPRINGER_JOURNALS, ...TAYLOR_JOURNALS, ...AAAS_JOURNALS, ...OTHER_JOURNALS, ...ALL_ENGINEERING_JOURNALS, ...ALL_MATERIALS_JOURNALS];
 
 
+// Map from journal ID → array of sibling journal IDs that share the same
+// RSS feed (i.e. the same journal listed in multiple fields).  When the
+// user toggles one, all siblings should be toggled together so a journal
+// selected in Chemistry also appears selected in Engineering, etc.
+const _rssToIds = {};
+ALL_JOURNALS.forEach(j => {
+  (_rssToIds[j.rss_url] ||= []).push(j.id);
+});
+export const RSS_SIBLINGS = {};
+for (const ids of Object.values(_rssToIds)) {
+  if (ids.length > 1) {
+    for (const id of ids) {
+      RSS_SIBLINGS[id] = ids.filter(x => x !== id);
+    }
+  }
+}
+
 export default ALL_JOURNALS;

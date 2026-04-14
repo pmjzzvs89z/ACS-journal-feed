@@ -1,7 +1,7 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { entities } from '@/api/entities';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { BookOpen, Rss, Bookmark, Settings as SettingsIcon, Moon, Sun, LogOut } from 'lucide-react';
+import { BookOpen, Rss, Bookmark, Settings as SettingsIcon, Moon, Sun, LogOut, ChevronDown } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 import JournalSelector from '@/components/journals/JournalSelector';
 import Tooltip from '@/components/ui/Tooltip';
@@ -9,6 +9,7 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { useDarkMode } from '@/hooks/useDarkMode';
 import { useAuth } from '@/lib/AuthContext';
+import { ALL_JOURNALS, RSS_SIBLINGS } from '@/components/journals/JournalList';
 
 export default function Settings() {
   const queryClient = useQueryClient();
@@ -42,42 +43,66 @@ export default function Settings() {
     enabled: !!userId,
   });
 
+  // Given a journal, return all sibling journals (same RSS feed, different field)
+  // that should be toggled together.
+  const getSiblingJournals = (journal) => {
+    const siblingIds = RSS_SIBLINGS[journal.id] || [];
+    return siblingIds.map(id => ALL_JOURNALS.find(j => j.id === id)).filter(Boolean);
+  };
+
   const toggleJournalMutation = useMutation({
     mutationFn: async (journal) => {
       const existing = followedJournals.find(j => j.journal_id === journal.id);
-      if (existing) {
-        return entities.FollowedJournal.update(existing.id, { is_active: !existing.is_active });
-      } else {
-        return entities.FollowedJournal.create({
-          journal_id: journal.id,
-          journal_name: journal.name,
-          rss_url: journal.rss_url,
-          is_active: true
-        });
-      }
+      const newActive = existing ? !existing.is_active : true;
+
+      // Toggle the primary journal
+      const primary = existing
+        ? entities.FollowedJournal.update(existing.id, { is_active: newActive })
+        : entities.FollowedJournal.create({ journal_id: journal.id, journal_name: journal.name, rss_url: journal.rss_url, is_active: true });
+
+      // Toggle siblings in parallel
+      const siblings = getSiblingJournals(journal);
+      const siblingOps = siblings.map(sib => {
+        const sibExisting = followedJournals.find(j => j.journal_id === sib.id);
+        if (sibExisting) {
+          if (sibExisting.is_active !== newActive) {
+            return entities.FollowedJournal.update(sibExisting.id, { is_active: newActive });
+          }
+          return null;
+        } else if (newActive) {
+          return entities.FollowedJournal.create({ journal_id: sib.id, journal_name: sib.name, rss_url: sib.rss_url, is_active: true });
+        }
+        return null;
+      }).filter(Boolean);
+
+      await Promise.all([primary, ...siblingOps]);
     },
     // Optimistic update — flip the UI instantly, reconcile on server response.
     onMutate: async (journal) => {
       await queryClient.cancelQueries({ queryKey: ['followedJournals', userId] });
       const previous = queryClient.getQueryData(['followedJournals', userId]) || [];
       const existing = previous.find(j => j.journal_id === journal.id);
-      let next;
-      if (existing) {
-        next = previous.map(j =>
-          j.journal_id === journal.id ? { ...j, is_active: !j.is_active } : j
-        );
-      } else {
-        next = [
-          ...previous,
-          {
-            id: `temp-${journal.id}-${Date.now()}`,
-            journal_id: journal.id,
-            journal_name: journal.name,
-            rss_url: journal.rss_url,
+      const newActive = existing ? !existing.is_active : true;
+
+      // Collect all IDs to toggle (primary + siblings)
+      const allIds = [journal.id, ...(RSS_SIBLINGS[journal.id] || [])];
+      const allJournals = allIds.map(id => ALL_JOURNALS.find(j => j.id === id)).filter(Boolean);
+
+      let next = [...previous];
+      for (const j of allJournals) {
+        const ex = next.find(f => f.journal_id === j.id);
+        if (ex) {
+          next = next.map(f => f.journal_id === j.id ? { ...f, is_active: newActive } : f);
+        } else if (newActive) {
+          next.push({
+            id: `temp-${j.id}-${Date.now()}`,
+            journal_id: j.id,
+            journal_name: j.name,
+            rss_url: j.rss_url,
             is_active: true,
             __optimistic: true,
-          },
-        ];
+          });
+        }
       }
       queryClient.setQueryData(['followedJournals', userId], next);
       return { previous };
@@ -88,7 +113,17 @@ export default function Settings() {
     onSettled: () => queryClient.invalidateQueries({ queryKey: ['followedJournals'] }),
   });
 
-  const activeCount = followedJournals.filter(j => j.is_active).length;
+  const [showSelected, setShowSelected] = useState(false);
+
+  // Deduplicate by RSS URL so cross-field siblings count as one journal
+  const activeJournals = followedJournals.filter(j => j.is_active);
+  const seenRss = new Set();
+  const uniqueActiveJournals = activeJournals.filter(j => {
+    if (seenRss.has(j.rss_url)) return false;
+    seenRss.add(j.rss_url);
+    return true;
+  });
+  const activeCount = uniqueActiveJournals.length;
 
   return (
     <div onMouseDown={handlePageMouseDown} className="min-h-screen bg-gradient-to-br from-slate-100 via-slate-50 to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900">
@@ -170,11 +205,64 @@ export default function Settings() {
                   <BookOpen className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h2 className="text-sm font-normal text-slate-900 dark:text-white">
-                    {isLoading ? 'Loading…' : `${activeCount} journal${activeCount !== 1 ? 's' : ''} selected`}
-                  </h2>
+                  {isLoading ? (
+                    <h2 className="text-sm font-normal text-slate-900 dark:text-white">Loading…</h2>
+                  ) : (
+                    <button
+                      onClick={() => setShowSelected(!showSelected)}
+                      className="text-sm font-normal text-blue-600 dark:text-blue-400 hover:underline cursor-pointer flex items-center gap-1"
+                    >
+                      {activeCount} journal{activeCount !== 1 ? 's' : ''} selected
+                      <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showSelected ? 'rotate-180' : ''}`} />
+                    </button>
+                  )}
                 </div>
               </div>
+
+              {/* Selected journals panel */}
+              {showSelected && activeCount > 0 && (
+                <div className="flex-shrink-0 border-b border-border bg-muted/50 px-4 py-3 max-h-60 overflow-y-auto journal-scroll">
+                  <div className="mb-2">
+                    <button
+                      onClick={() => {
+                        if (!window.confirm(`Unselect all ${activeCount} journals?`)) return;
+                        uniqueActiveJournals.forEach(j => {
+                          const journal = ALL_JOURNALS.find(aj => aj.id === j.journal_id) || { id: j.journal_id, name: j.journal_name, rss_url: j.rss_url };
+                          toggleJournalMutation.mutate(journal);
+                        });
+                      }}
+                      className="text-sm text-amber-500 hover:text-amber-600 dark:text-amber-400 dark:hover:text-amber-300 font-medium"
+                    >
+                      Unselect All
+                    </button>
+                  </div>
+                  <div className="space-y-1">
+                    {uniqueActiveJournals
+                      .sort((a, b) => (a.journal_name || '').localeCompare(b.journal_name || ''))
+                      .map(j => {
+                        const journal = ALL_JOURNALS.find(aj => aj.id === j.journal_id) || { id: j.journal_id, name: j.journal_name, rss_url: j.rss_url };
+                        return (
+                          <button
+                            key={j.journal_id}
+                            onClick={() => toggleJournalMutation.mutate(journal)}
+                            className="flex items-center gap-2.5 w-full py-[0.4rem] px-3 rounded-lg bg-card border border-border hover:border-red-400 dark:hover:border-red-500 transition-colors group"
+                          >
+                            <span className="w-4 h-4 rounded-full bg-blue-600 border-2 border-blue-600 flex items-center justify-center flex-shrink-0">
+                              <span className="w-1.5 h-1.5 rounded-full bg-white" />
+                            </span>
+                            <BookOpen className="w-3.5 h-3.5 flex-shrink-0" style={{ color: journal.color || '#94a3b8' }} />
+                            <span className="text-xs text-foreground truncate text-left">
+                              <span className="font-semibold">{journal.abbrev || j.journal_name}</span>
+                              {journal.abbrev && journal.name && journal.abbrev !== journal.name && (
+                                <span className="text-muted-foreground/80"> ({journal.name})</span>
+                              )}
+                            </span>
+                          </button>
+                        );
+                      })}
+                  </div>
+                </div>
+              )}
 
               {/* Journal list — JournalSelector manages its own fixed header + scrollable body */}
               <div className="flex-1 min-h-0 flex flex-col">

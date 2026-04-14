@@ -229,7 +229,7 @@ const JournalSelector = forwardRef(function JournalSelector({ followedJournals, 
         onClick={(e) => { e.stopPropagation(); onToggleJournal(journal); }}
         className={cn(
           "w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all text-left",
-          followed ? "bg-card border border-border shadow-sm" : "hover:bg-card"
+          followed ? "bg-card border-[1.05px] border-border shadow-sm hover:border-red-400 dark:hover:border-red-500" : "bg-slate-100 dark:bg-[rgb(40,44,55)] border-[1.05px] border-transparent rounded-lg hover:border-green-400 dark:hover:border-green-500"
         )}
       >
         <div
@@ -258,7 +258,7 @@ const JournalSelector = forwardRef(function JournalSelector({ followedJournals, 
   return (
     <div className="flex flex-col h-full min-h-0">
       {/* Fixed (non-scrolling) header: field tabs + search + filters */}
-      <div className="flex-shrink-0 px-4 pt-2 pb-2 space-y-[5px] bg-card">
+      <div className="flex-shrink-0 px-4 pt-2 pb-2 space-y-[5px] bg-muted/50">
       <div className="flex items-center gap-1 rounded-xl p-1 bg-slate-300 dark:bg-[rgb(38,42,56)]">
         <button
           onClick={() => handleFieldSwitch('chemistry')}
@@ -328,7 +328,7 @@ const JournalSelector = forwardRef(function JournalSelector({ followedJournals, 
       </div>{/* end fixed header */}
 
       {/* Scrollable body */}
-      <div className="flex-1 min-h-0 overflow-y-auto journal-scroll px-4 pt-1 pb-4">
+      <div className="flex-1 min-h-0 overflow-y-auto journal-scroll px-4 pt-1 pb-4 bg-muted/50">
 
       {/* Results */}
       {isFiltering ? (
@@ -344,7 +344,7 @@ const JournalSelector = forwardRef(function JournalSelector({ followedJournals, 
                   <span className="text-xs font-normal text-muted-foreground">{publisher.label}</span>
                   <span className="ml-auto text-xs text-muted-foreground">{publisher.journals.length} journal{publisher.journals.length !== 1 ? 's' : ''}</span>
                 </div>
-                <div className="py-1 px-3 space-y-0.5 bg-muted">
+                <div className="py-1 px-3 space-y-0.5 bg-muted/50">
                   {publisher.journals.map(j => renderJournal(j, publisher))}
                 </div>
               </div>
@@ -424,7 +424,7 @@ const JournalSelector = forwardRef(function JournalSelector({ followedJournals, 
                                     animate={{ height: 'auto', opacity: 1 }}
                                     exit={{ height: 0, opacity: 0 }}
                                     transition={{ duration: 0.2 }}
-                                    className="overflow-hidden bg-muted border-t border-border"
+                                    className="overflow-hidden bg-muted/50 border-t border-border"
                                   >
                                     <div className="py-1 px-3 space-y-0.5">
                                       {categoryJournals.map(j => renderJournal(j, publisher))}
@@ -479,7 +479,7 @@ const JournalSelector = forwardRef(function JournalSelector({ followedJournals, 
                       transition={{ duration: 0.2 }}
                       className="overflow-hidden border-t border-purple-100 dark:border-purple-800"
                     >
-                      <div className="py-1 px-3 space-y-0.5 bg-muted">
+                      <div className="py-1 px-3 space-y-0.5 bg-muted/50">
                         {customJournals.map(j => {
                           const followed = j.is_active;
                           return (
@@ -487,7 +487,7 @@ const JournalSelector = forwardRef(function JournalSelector({ followedJournals, 
                               key={j.journal_id}
                               className={cn(
                                 "w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all",
-                                followed ? "bg-card border border-border shadow-sm" : "hover:bg-card"
+                                followed ? "bg-card border-[1.05px] border-border shadow-sm hover:border-red-400 dark:hover:border-red-500" : "bg-slate-100 dark:bg-[rgb(40,44,55)] border-[1.05px] border-transparent rounded-lg hover:border-green-400 dark:hover:border-green-500"
                               )}
                             >
                               <button
