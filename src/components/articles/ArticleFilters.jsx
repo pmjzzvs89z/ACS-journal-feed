@@ -14,7 +14,7 @@ export default function ArticleFilters({ filters, onChange }) {
             placeholder="Search by title, keyword or author…"
             value={filters.keyword}
             onChange={e => set('keyword', e.target.value)}
-            className="border-0 shadow-none focus-visible:ring-0 p-0 h-auto text-sm bg-transparent dark:bg-transparent text-foreground placeholder:text-muted-foreground"
+            className="border-0 shadow-none focus-visible:ring-0 p-0 h-auto text-sm bg-transparent dark:bg-transparent text-foreground placeholder:text-muted-foreground placeholder:opacity-65"
           />
           {filters.keyword && (
             <button

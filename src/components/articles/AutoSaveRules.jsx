@@ -78,7 +78,7 @@ export default function AutoSaveRules({ rules, onRulesChange, articles = [] }) {
                 onChange={e => setKeywordInput(e.target.value)}
                 onKeyDown={e => handleKeyDown(e, addKeyword)}
                 placeholder="e.g. photocatalysis"
-                className="text-sm h-8 flex-1"
+                className="text-sm h-8 flex-1 placeholder:opacity-65"
               />
               <Button size="sm" variant="outline" onClick={addKeyword} className="h-8 px-3 flex-shrink-0">
                 <Plus className="w-3.5 h-3.5" />
@@ -111,7 +111,7 @@ export default function AutoSaveRules({ rules, onRulesChange, articles = [] }) {
                 onChange={e => setAuthorInput(e.target.value)}
                 onKeyDown={e => handleKeyDown(e, addAuthor)}
                 placeholder="e.g. Smith J"
-                className="text-sm h-8 flex-1"
+                className="text-sm h-8 flex-1 placeholder:opacity-65"
               />
               <Button size="sm" variant="outline" onClick={addAuthor} className="h-8 px-3 flex-shrink-0">
                 <Plus className="w-3.5 h-3.5" />
