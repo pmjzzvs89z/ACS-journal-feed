@@ -1,3 +1,4 @@
+// @ts-nocheck — see ArticleCard for rationale
 import React, { useState, useMemo, useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { BookOpen, ChevronRight, ChevronDown, X, FlaskConical, Cog, Layers, Check } from 'lucide-react';

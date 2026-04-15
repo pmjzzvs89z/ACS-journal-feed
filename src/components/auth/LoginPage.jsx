@@ -96,7 +96,7 @@ export default function LoginPage() {
         </div>
 
         {/* Card */}
-        <div className="bg-card rounded-2xl border border-border shadow-sm p-6">
+        <div className="bg-card rounded-2xl border-container border-border shadow-sm p-6">
           <h2 className="text-lg font-semibold text-foreground mb-6 text-center">
             {isForgotPassword ? 'Reset your password' : isLogin ? 'Sign in to your account' : 'Create an account'}
           </h2>

@@ -55,6 +55,18 @@ export default [
         { ignore: ["cmdk-input-wrapper", "toast-close"] },
       ],
       "react-hooks/rules-of-hooks": "error",
+      // Prefer <Tooltip> over bare `title=` on interactive elements —
+      // the custom Tooltip renders consistently across browsers, respects
+      // our delay conventions, and matches the rest of the UI.
+      "no-restricted-syntax": [
+        "warn",
+        {
+          selector:
+            "JSXOpeningElement[name.name=/^(button|a)$/] > JSXAttribute[name.name='title']",
+          message:
+            "Use <Tooltip label=\"...\"> from '@/components/ui/Tooltip' instead of `title=` on buttons/links.",
+        },
+      ],
     },
   },
 ];

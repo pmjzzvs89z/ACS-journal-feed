@@ -1,4 +1,3 @@
-import { Toaster } from "@/components/ui/toaster"
 import SimpleToastContainer from "@/components/ui/SimpleToast"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
@@ -65,7 +64,6 @@ function App() {
             <Route path="/*" element={<AuthenticatedApp />} />
           </Routes>
         </Router>
-        <Toaster />
         <SimpleToastContainer />
       </QueryClientProvider>
     </AuthProvider>

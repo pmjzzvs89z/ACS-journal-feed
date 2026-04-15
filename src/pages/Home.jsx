@@ -38,6 +38,21 @@ export default function Home() {
   const [selectedKeywords, setSelectedKeywords] = useState([]);
   const [filterEnabled, setFilterEnabled] = useState(false);
   const [isDark, toggleDark] = useDarkMode();
+
+  // Offline indicator — shows a small banner when the browser reports no
+  // network. React Query will keep serving cached data, but the user should
+  // know why the feed isn't refreshing.
+  const [isOnline, setIsOnline] = useState(typeof navigator !== 'undefined' ? navigator.onLine : true);
+  useEffect(() => {
+    const on = () => setIsOnline(true);
+    const off = () => setIsOnline(false);
+    window.addEventListener('online', on);
+    window.addEventListener('offline', off);
+    return () => {
+      window.removeEventListener('online', on);
+      window.removeEventListener('offline', off);
+    };
+  }, []);
   const { logout, user } = useAuth();
   const userId = user?.id;
 
@@ -127,7 +142,7 @@ export default function Home() {
       progressSetterRef.current({ done: Math.min(i + BATCH_SIZE, activeJournals.length), total: activeJournals.length });
     }
 
-    allArticles.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+    allArticles.sort((a, b) => new Date(b.pubDate).getTime() - new Date(a.pubDate).getTime());
     return { articles: allArticles, failedJournals };
   }, [followedJournals]);
 
@@ -201,8 +216,81 @@ export default function Home() {
     }).length;
   })();
 
+  // Keyboard shortcuts (j/k navigate focused article, s save, o open, ? help).
+  // Disabled whenever focus is in an input/textarea/contenteditable or any
+  // modal dialog is open — we don't want to hijack typing.
+  const [showShortcutsHelp, setShowShortcutsHelp] = useState(false);
+  useEffect(() => {
+    const isTypingContext = () => {
+      const el = document.activeElement;
+      if (!el) return false;
+      const tag = el.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return true;
+      if (el.getAttribute && el.getAttribute('contenteditable') === 'true') return true;
+      if (document.querySelector('[role="dialog"]')) return true;
+      return false;
+    };
+    const focusArticleByIndex = (idx) => {
+      const cards = document.querySelectorAll('main article');
+      if (!cards.length) return;
+      const clamped = Math.max(0, Math.min(cards.length - 1, idx));
+      const card = cards[clamped];
+      card.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      const link = card.querySelector('a[href]');
+      if (link instanceof HTMLElement) link.focus({ preventScroll: true });
+    };
+    const currentArticleIndex = () => {
+      const cards = Array.from(document.querySelectorAll('main article'));
+      const active = document.activeElement;
+      const idx = cards.findIndex(c => c.contains(active));
+      return idx === -1 ? 0 : idx;
+    };
+    const onKey = (e) => {
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+      if (isTypingContext()) return;
+      if (e.key === 'j') { e.preventDefault(); focusArticleByIndex(currentArticleIndex() + 1); }
+      else if (e.key === 'k') { e.preventDefault(); focusArticleByIndex(currentArticleIndex() - 1); }
+      else if (e.key === 'o') {
+        const cards = document.querySelectorAll('main article');
+        const idx = currentArticleIndex();
+        const link = cards[idx]?.querySelector('a[href^="http"]');
+        if (link instanceof HTMLAnchorElement) { e.preventDefault(); window.open(link.href, '_blank', 'noopener'); }
+      } else if (e.key === 's') {
+        const cards = document.querySelectorAll('main article');
+        const idx = currentArticleIndex();
+        const saveBtn = cards[idx]?.querySelector('button[aria-label^="Save"], button[aria-label^="Unsave"]');
+        if (saveBtn instanceof HTMLElement) { e.preventDefault(); saveBtn.click(); }
+      } else if (e.key === '?') {
+        e.preventDefault();
+        setShowShortcutsHelp(v => !v);
+      } else if (e.key === 'Escape') {
+        setShowShortcutsHelp(false);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
+
+  // Arrow-key navigation between feed/saved tabs (per WAI-ARIA tablist pattern)
+  const handleTabKeyDown = (e) => {
+    if (e.key === 'ArrowRight') {
+      e.preventDefault();
+      setActiveTab(activeTab === 'feed' ? 'saved' : 'feed');
+    } else if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      setActiveTab(activeTab === 'saved' ? 'feed' : 'saved');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-100 via-slate-50 to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900">
+      {/* Skip-to-content link — visible only when focused via Tab */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:px-3 focus:py-2 focus:rounded-lg focus:bg-blue-600 focus:text-white focus:shadow-lg"
+      >
+        Skip to main content
+      </a>
       {/* Header */}
       <header className="sticky top-0 z-40 bg-card/80 backdrop-blur-xl border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -220,8 +308,11 @@ export default function Home() {
             </div>
 
             {/* Tab switcher */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4" role="tablist" aria-label="Home sections" onKeyDown={handleTabKeyDown}>
               <button
+                role="tab"
+                aria-selected={activeTab === 'feed'}
+                tabIndex={activeTab === 'feed' ? 0 : -1}
                 onClick={() => setActiveTab('feed')}
                 className={`flex items-center gap-1.5 px-3 py-1 rounded-lg border text-sm font-semibold transition-colors ${
                   activeTab === 'feed'
@@ -233,6 +324,9 @@ export default function Home() {
                 <span className="hidden sm:inline">Feed</span>
               </button>
               <button
+                role="tab"
+                aria-selected={activeTab === 'saved'}
+                tabIndex={activeTab === 'saved' ? 0 : -1}
                 onClick={() => setActiveTab('saved')}
                 className={`flex items-center gap-1.5 px-3 py-1 rounded-lg border text-sm font-medium transition-colors ${
                   activeTab === 'saved'
@@ -296,6 +390,13 @@ export default function Home() {
         </div>
       </header>
 
+      {/* Offline banner */}
+      {!isOnline && (
+        <div className="bg-amber-500 dark:bg-amber-600 text-white text-sm py-2 px-4 flex items-center justify-center gap-2">
+          <span>You're offline — showing cached articles. The feed will refresh when you reconnect.</span>
+        </div>
+      )}
+
       {/* New articles available banner */}
       {showRefreshBanner && activeTab === 'feed' && activeJournalCount > 0 && (
         <div className="bg-blue-600 dark:bg-blue-700 text-white text-sm py-2 px-4 flex items-center justify-center gap-3">
@@ -311,9 +412,55 @@ export default function Home() {
         </div>
       )}
 
+      {/* Last-updated timestamp (feed only) */}
+      {activeTab === 'feed' && dataUpdatedAt && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-3">
+          <p className="text-xs text-muted-foreground">
+            Feed last refreshed {(() => {
+              const mins = Math.floor((Date.now() - dataUpdatedAt) / 60000);
+              if (mins < 1) return 'just now';
+              if (mins === 1) return '1 minute ago';
+              if (mins < 60) return `${mins} minutes ago`;
+              const hrs = Math.floor(mins / 60);
+              return hrs === 1 ? '1 hour ago' : `${hrs} hours ago`;
+            })()}
+          </p>
+        </div>
+      )}
+
+      {showShortcutsHelp && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
+          onClick={() => setShowShortcutsHelp(false)}
+          role="dialog"
+          aria-label="Keyboard shortcuts"
+        >
+          <div
+            className="bg-card rounded-2xl border-container border-border shadow-xl p-6 max-w-sm w-[92%]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className="text-base font-bold text-foreground mb-3">Keyboard shortcuts</h2>
+            <ul className="text-sm text-foreground space-y-2">
+              <li className="flex justify-between"><span>Next article</span><kbd className="font-mono text-xs bg-muted px-2 py-0.5 rounded">j</kbd></li>
+              <li className="flex justify-between"><span>Previous article</span><kbd className="font-mono text-xs bg-muted px-2 py-0.5 rounded">k</kbd></li>
+              <li className="flex justify-between"><span>Open in new tab</span><kbd className="font-mono text-xs bg-muted px-2 py-0.5 rounded">o</kbd></li>
+              <li className="flex justify-between"><span>Save / unsave</span><kbd className="font-mono text-xs bg-muted px-2 py-0.5 rounded">s</kbd></li>
+              <li className="flex justify-between"><span>Switch tabs</span><span className="flex gap-1"><kbd className="font-mono text-xs bg-muted px-2 py-0.5 rounded">←</kbd><kbd className="font-mono text-xs bg-muted px-2 py-0.5 rounded">→</kbd></span></li>
+              <li className="flex justify-between"><span>This help</span><kbd className="font-mono text-xs bg-muted px-2 py-0.5 rounded">?</kbd></li>
+            </ul>
+            <button
+              onClick={() => setShowShortcutsHelp(false)}
+              className="mt-4 w-full px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition-colors"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex">
-          <main className="flex-1 min-w-0">
+          <main id="main-content" className="flex-1 min-w-0">
             {activeTab === 'feed' ? (
               <ErrorBoundary key="feed">
                 <ArticleFeed

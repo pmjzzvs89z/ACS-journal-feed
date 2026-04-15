@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Share2, Mail } from 'lucide-react';
+import { Share2, Mail, FileText } from 'lucide-react';
 import Tooltip from '@/components/ui/Tooltip';
 
 function buildRIS({ title, authors, journal, doi, pubDate, url, abstract }) {
@@ -22,6 +22,33 @@ function buildRIS({ title, authors, journal, doi, pubDate, url, abstract }) {
   lines.push('ER  - ');
   lines.push('');
   return lines.join('\n');
+}
+
+// Minimal BibTeX builder — used by the "BibTeX" share option. Produces a
+// LaTeX-ready @article entry with a citation key derived from the first
+// author's surname + year + first title word, which matches the
+// conventions used by ReadCube Papers and Zotero.
+function buildBibTeX({ title, authors, journal, doi, pubDate, url, abstract }) {
+  const authorList = authors
+    ? authors.split(',').map(a => a.trim()).filter(Boolean)
+    : [];
+  const firstSurname = authorList[0]
+    ? authorList[0].split(/\s+/).pop().replace(/[^A-Za-z]/g, '')
+    : 'unknown';
+  const year = pubDate ? new Date(pubDate).getFullYear() : '';
+  const firstTitleWord = (title || '').split(/\s+/)
+    .find(w => w.length > 3)?.replace(/[^A-Za-z]/g, '').toLowerCase() || 'article';
+  const key = `${firstSurname.toLowerCase()}${year || ''}${firstTitleWord}`;
+  const escape = (s) => String(s).replace(/([{}\\])/g, '\\$1');
+  const fields = [];
+  if (title) fields.push(`  title = {${escape(title)}}`);
+  if (authorList.length) fields.push(`  author = {${authorList.map(escape).join(' and ')}}`);
+  if (journal) fields.push(`  journal = {${escape(journal)}}`);
+  if (year) fields.push(`  year = {${year}}`);
+  if (doi) fields.push(`  doi = {${doi}}`);
+  if (url) fields.push(`  url = {${url}}`);
+  if (abstract) fields.push(`  abstract = {${escape(abstract)}}`);
+  return `@article{${key},\n${fields.join(',\n')}\n}\n`;
 }
 
 export default function ShareButton({ title, url, authors, journal, doi, pubDate, abstract }) {
@@ -55,21 +82,35 @@ export default function ShareButton({ title, url, authors, journal, doi, pubDate
   // Otherwise the file just lands in Downloads and can be imported
   // manually.
   const readcubeHref = doi ? '#' : null;
+  const safeTitleSlug = () =>
+    (title || 'article').replace(/[^a-z0-9]+/gi, '-').replace(/^-+|-+$/g, '').slice(0, 60) || 'article';
+
+  const downloadBlob = (content, mime, extension) => {
+    const blob = new Blob([content], { type: mime });
+    const blobUrl = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = blobUrl;
+    a.download = `${safeTitleSlug()}.${extension}`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+  };
+
   const handleReadcubeClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
     if (!doi) return;
     const ris = buildRIS({ title, authors, journal, doi, pubDate, url, abstract });
-    const blob = new Blob([ris], { type: 'application/x-research-info-systems' });
-    const blobUrl = URL.createObjectURL(blob);
-    const safeTitle = (title || 'article').replace(/[^a-z0-9]+/gi, '-').replace(/^-+|-+$/g, '').slice(0, 60) || 'article';
-    const a = document.createElement('a');
-    a.href = blobUrl;
-    a.download = `${safeTitle}.ris`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+    downloadBlob(ris, 'application/x-research-info-systems', 'ris');
+    setOpen(false);
+  };
+
+  const handleBibtexClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const bib = buildBibTeX({ title, authors, journal, doi, pubDate, url, abstract });
+    downloadBlob(bib, 'application/x-bibtex', 'bib');
     setOpen(false);
   };
 
@@ -131,6 +172,15 @@ export default function ShareButton({ title, url, authors, journal, doi, pubDate
               ReadCube
             </a>
           )}
+          <a
+            href="#"
+            onClick={handleBibtexClick}
+            title="Download BibTeX (.bib) citation"
+            className="flex items-center gap-2 px-3 py-1.5 text-xs text-foreground hover:bg-blue-50 dark:hover:bg-slate-700 transition-colors"
+          >
+            <FileText className="w-3.5 h-3.5 text-slate-500" />
+            BibTeX
+          </a>
         </div>
       )}
     </div>

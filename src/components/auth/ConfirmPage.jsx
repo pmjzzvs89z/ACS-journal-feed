@@ -54,7 +54,7 @@ export default function ConfirmPage() {
         </div>
 
         {/* Confirmation card */}
-        <div className="bg-card rounded-2xl border border-border shadow-sm p-8">
+        <div className="bg-card rounded-2xl border-container border-border shadow-sm p-8">
           {status === 'verifying' && (
             <>
               <Loader2 className="w-10 h-10 text-blue-500 animate-spin mx-auto mb-4" />

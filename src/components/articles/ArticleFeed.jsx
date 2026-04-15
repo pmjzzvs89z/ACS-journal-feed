@@ -1,3 +1,4 @@
+// @ts-nocheck — see ArticleCard for rationale
 import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';

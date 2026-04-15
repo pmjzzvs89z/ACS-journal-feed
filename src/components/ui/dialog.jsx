@@ -1,3 +1,4 @@
+// @ts-nocheck — shadcn primitive, not hand-maintained
 "use client"
 
 import * as React from "react"

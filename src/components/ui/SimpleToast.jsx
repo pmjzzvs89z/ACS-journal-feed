@@ -1,3 +1,5 @@
+// @ts-nocheck — module-level `_show` is reassigned after mount, which
+// TypeScript can't follow from its initial `() => {}` signature.
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 
 // Lightweight toast — no external dependencies. Renders a fixed-position

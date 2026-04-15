@@ -7,6 +7,7 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { useDarkMode } from '@/hooks/useDarkMode';
 import Tooltip from '@/components/ui/Tooltip';
+import Skeleton from '@/components/ui/Skeleton';
 import { format } from 'date-fns';
 
 function StatCard({ icon: Icon, label, value, sub, color = 'blue' }) {
@@ -86,7 +87,7 @@ export default function AdminDashboard() {
 
     // Recent activity (last 10 saves)
     const recentSaves = [...savedData]
-      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
       .slice(0, 10);
 
     // Activity by day (last 14 days)
@@ -189,7 +190,7 @@ export default function AdminDashboard() {
               <h3 className="text-sm font-bold text-foreground">Most Followed Journals</h3>
             </div>
             {isLoading ? (
-              <div className="space-y-2">{Array.from({ length: 5 }).map((_, i) => <div key={i} className="h-4 bg-muted rounded animate-pulse" />)}</div>
+              <div className="space-y-2">{Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-4" />)}</div>
             ) : stats.topJournals.length === 0 ? (
               <p className="text-sm text-muted-foreground">No data yet.</p>
             ) : (
@@ -208,7 +209,7 @@ export default function AdminDashboard() {
               <h3 className="text-sm font-bold text-foreground">Most Saved Journals</h3>
             </div>
             {isLoading ? (
-              <div className="space-y-2">{Array.from({ length: 5 }).map((_, i) => <div key={i} className="h-4 bg-muted rounded animate-pulse" />)}</div>
+              <div className="space-y-2">{Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-4" />)}</div>
             ) : stats.topSaved.length === 0 ? (
               <p className="text-sm text-muted-foreground">No saved articles yet.</p>
             ) : (
@@ -228,7 +229,7 @@ export default function AdminDashboard() {
             <h3 className="text-sm font-bold text-foreground">Saves per Day (last 14 days)</h3>
           </div>
           {isLoading ? (
-            <div className="h-16 bg-muted rounded animate-pulse" />
+            <Skeleton className="h-16" />
           ) : (
             <div className="flex items-end gap-1 h-16">
               {stats.activityChart.map(([day, count]) => {
@@ -254,7 +255,7 @@ export default function AdminDashboard() {
         <div className="bg-card rounded-2xl border-container border-border shadow-sm p-5">
           <h3 className="text-sm font-bold text-foreground mb-4">Recent Saves</h3>
           {isLoading ? (
-            <div className="space-y-3">{Array.from({ length: 4 }).map((_, i) => <div key={i} className="h-10 bg-muted rounded animate-pulse" />)}</div>
+            <div className="space-y-3">{Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-10" />)}</div>
           ) : stats.recentSaves.length === 0 ? (
             <p className="text-sm text-muted-foreground">No saved articles yet.</p>
           ) : (

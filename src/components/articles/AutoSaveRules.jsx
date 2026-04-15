@@ -1,3 +1,4 @@
+// @ts-nocheck — see ArticleCard for rationale
 import React, { useState, useMemo } from 'react';
 import { Plus, X, Zap, Tag, User } from 'lucide-react';
 import ToggleSwitch from '@/components/ui/ToggleSwitch';

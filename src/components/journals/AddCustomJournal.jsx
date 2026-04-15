@@ -1,3 +1,4 @@
+// @ts-nocheck — see ArticleCard for rationale
 import React, { useState } from 'react';
 import { Plus, Loader2 } from 'lucide-react';
 import { entities } from '@/api/entities';
