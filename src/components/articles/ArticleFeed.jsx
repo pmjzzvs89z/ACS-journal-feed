@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Inbox, RotateCcw, Settings, ArrowUp, Check, ChevronDown, AlertTriangle, RefreshCw } from 'lucide-react';
+import { Inbox, Settings, ArrowUp, Check, ChevronDown, AlertTriangle, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { createPageUrl } from '@/utils';
 import ArticleCard from './ArticleCard';
@@ -544,17 +544,16 @@ export default function ArticleFeed({ articles, failedJournals = [], isLoading, 
           />
         </div>
 
-        {/* Right: reset */}
+        {/* Right: mark-unread */}
         <div className="flex-1 flex items-center gap-2 justify-end">
-          <Tooltip label="Reset all articles to 'unread' (blue titles)" delay={500}>
+          <Tooltip label="Mark all articles as unread (blue titles)" delay={500}>
             <Button
               onClick={handleResetArticles}
               size="sm"
               variant="outline"
               className="text-xs border border-slate-300 dark:border-slate-600 rounded-lg bg-slate-200/80 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-300/80 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white"
             >
-              <RotateCcw className="w-3.5 h-3.5 mr-1.5" />
-              Reset
+              Mark unread
             </Button>
           </Tooltip>
         </div>

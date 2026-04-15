@@ -223,7 +223,7 @@ export default function Home() {
             <div className="flex items-center gap-4">
               <button
                 onClick={() => setActiveTab('feed')}
-                className={`flex items-center gap-1.5 px-4 py-1 rounded-lg border text-sm font-semibold transition-colors ${
+                className={`flex items-center gap-1.5 px-3 py-1 rounded-lg border text-sm font-semibold transition-colors ${
                   activeTab === 'feed'
                     ? 'bg-slate-200/80 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-700'
                     : 'feed-pulse bg-slate-200/80 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-700 hover:bg-slate-300/80 dark:hover:bg-blue-900/40'
@@ -234,7 +234,7 @@ export default function Home() {
               </button>
               <button
                 onClick={() => setActiveTab('saved')}
-                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-sm font-medium transition-colors ${
+                className={`flex items-center gap-1.5 px-3 py-1 rounded-lg border text-sm font-medium transition-colors ${
                   activeTab === 'saved'
                     ? 'bg-slate-200/80 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-700'
                     : 'bg-slate-200/80 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700 hover:bg-slate-300/80 dark:hover:bg-slate-700'

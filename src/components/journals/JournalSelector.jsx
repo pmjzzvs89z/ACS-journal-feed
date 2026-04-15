@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect, useRef, forwardRef, useImperativeH
 import { motion, AnimatePresence } from 'framer-motion';
 import { BookOpen, ChevronRight, ChevronDown, X, FlaskConical, Cog, Layers, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import Tooltip from '@/components/ui/Tooltip';
 
 import JournalSearch from './JournalSearch';
 function FilterDropdown({ value, onChange, options, allLabel, style }) {
@@ -462,16 +463,17 @@ const JournalSelector = forwardRef(function JournalSelector({ followedJournals, 
                             )}
                           </span>
                         </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            if (onDeleteJournal) onDeleteJournal(j);
-                          }}
-                          className="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded text-slate-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors"
-                          title="Remove journal"
-                        >
-                          <X className="w-3.5 h-3.5" />
-                        </button>
+                        <Tooltip label="Remove journal" delay={500}>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (onDeleteJournal) onDeleteJournal(j);
+                            }}
+                            className="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded text-slate-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors"
+                          >
+                            <X className="w-3.5 h-3.5" />
+                          </button>
+                        </Tooltip>
                       </div>
                     );
                   })}
@@ -691,15 +693,16 @@ const JournalSelector = forwardRef(function JournalSelector({ followedJournals, 
                                   <p className="text-xs text-muted-foreground truncate">{j.rss_url}</p>
                                 </div>
                               </button>
-                              <button
-                                onClick={() => {
-                                  if (onDeleteJournal) onDeleteJournal(j);
-                                }}
-                                className="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded text-slate-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors"
-                                title="Delete journal"
-                              >
-                                <X className="w-3.5 h-3.5" />
-                              </button>
+                              <Tooltip label="Delete journal" delay={500}>
+                                <button
+                                  onClick={() => {
+                                    if (onDeleteJournal) onDeleteJournal(j);
+                                  }}
+                                  className="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded text-slate-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors"
+                                >
+                                  <X className="w-3.5 h-3.5" />
+                                </button>
+                              </Tooltip>
                             </div>
                           );
                         })}

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { supabase } from '@/api/supabaseClient';
 import { Loader2, Moon, Sun } from 'lucide-react';
 import { useDarkMode } from '@/hooks/useDarkMode';
+import Tooltip from '@/components/ui/Tooltip';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -70,13 +71,16 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-card to-muted dark:from-slate-950 dark:via-slate-900 dark:to-slate-900 flex items-center justify-center p-4">
       {/* Dark mode toggle */}
-      <button
-        onClick={toggleDark}
-        className="fixed top-4 right-4 w-9 h-9 rounded-lg border flex items-center justify-center transition-colors bg-card/80 border-border text-muted-foreground hover:bg-accent"
-        title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-      >
-        {isDark ? <Sun className="w-4 h-4 text-orange-400" /> : <Moon className="w-4 h-4 text-blue-500" />}
-      </button>
+      <div className="fixed top-4 right-4">
+        <Tooltip label={isDark ? 'Switch to light mode' : 'Switch to dark mode'} delay={500}>
+          <button
+            onClick={toggleDark}
+            className="w-9 h-9 rounded-lg border flex items-center justify-center transition-colors bg-card/80 border-border text-muted-foreground hover:bg-accent"
+          >
+            {isDark ? <Sun className="w-4 h-4 text-orange-400" /> : <Moon className="w-4 h-4 text-blue-500" />}
+          </button>
+        </Tooltip>
+      </div>
 
       <div className="w-full max-w-sm">
 

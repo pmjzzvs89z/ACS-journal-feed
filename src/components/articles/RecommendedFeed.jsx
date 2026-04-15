@@ -205,7 +205,7 @@ export default function RecommendedFeed({ followedJournals, savedArticles, onSav
       {/* Filter section toggle - collapsed state */}
       <button
         onClick={() => setFilterExpanded(!filterExpanded)}
-        className="w-full bg-card rounded-2xl border border-border shadow-sm px-4 py-3 mb-4 flex items-center justify-between hover:shadow-md transition-shadow"
+        className="w-full bg-card rounded-2xl border-container border-border shadow-sm px-4 py-3 mb-4 flex items-center justify-between hover:shadow-md transition-shadow"
       >
         <div className="flex items-center gap-3 flex-1 text-left min-w-0">
           <div className="w-8 h-8 rounded-lg bg-purple-50 dark:bg-purple-900/20 flex items-center justify-center flex-shrink-0">
@@ -231,7 +231,7 @@ export default function RecommendedFeed({ followedJournals, savedArticles, onSav
           className="overflow-hidden mb-4"
         >
           <div className="w-full">
-            <div className="bg-card rounded-2xl border border-border shadow-sm p-4 space-y-3">
+            <div className="bg-card rounded-2xl border-container border-border shadow-sm p-4 space-y-3">
             {/* Header with toggle */}
             <div className="flex items-start justify-between">
               <div>
@@ -349,7 +349,7 @@ export default function RecommendedFeed({ followedJournals, savedArticles, onSav
               return (
                 <article
                   key={article.link}
-                  className="group bg-card rounded-2xl border border-border hover:shadow-xl hover:border-border transition-all duration-300 overflow-hidden"
+                  className="group bg-card rounded-2xl border-card border-slate-400/80 dark:border-slate-600 hover:shadow-xl transition-all duration-300 overflow-hidden"
                 >
                   <div className="flex items-stretch gap-0">
                   {/* Graphical abstract box — always present, shows placeholder if no image */}

@@ -6,6 +6,7 @@ import { BookOpen, Users, Bookmark, TrendingUp, BarChart2, Info, Rss, Settings, 
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { useDarkMode } from '@/hooks/useDarkMode';
+import Tooltip from '@/components/ui/Tooltip';
 import { format } from 'date-fns';
 
 function StatCard({ icon: Icon, label, value, sub, color = 'blue' }) {
@@ -131,9 +132,9 @@ export default function AdminDashboard() {
             </div>
             <div className="flex items-center gap-2">
               <Link to={createPageUrl('Home')}>
-                <button className="flex items-center gap-1.5 px-4 py-1 rounded-lg border text-sm font-semibold transition-colors bg-slate-200/80 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700 hover:bg-slate-300/80 dark:hover:bg-slate-700">
-                  <Rss className="w-4 h-4" />
-                  <span className="hidden sm:inline">Feed</span>
+                <button className="feed-pulse flex items-center gap-1.5 px-3 py-1 rounded-lg border text-sm font-semibold transition-colors bg-slate-200/80 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-700 hover:bg-slate-300/80 dark:hover:bg-blue-900/40">
+                  <Rss className="w-4 h-4 feed-pulse-inner" />
+                  <span className="hidden sm:inline feed-pulse-inner">Feed</span>
                 </button>
               </Link>
               <Link to={createPageUrl('Settings')}>
@@ -141,13 +142,14 @@ export default function AdminDashboard() {
                   <Settings className="w-4 h-4" />
                 </button>
               </Link>
-              <button
-                onClick={toggleDark}
-                className="flex items-center justify-center w-8 h-8 rounded-lg border transition-colors bg-slate-200/80 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700 hover:bg-slate-300/80 dark:hover:bg-slate-700"
-                title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-              >
-                {isDark ? <Sun className="w-4 h-4 text-orange-400" /> : <Moon className="w-4 h-4 text-blue-500" />}
-              </button>
+              <Tooltip label={isDark ? 'Switch to light mode' : 'Switch to dark mode'} delay={500}>
+                <button
+                  onClick={toggleDark}
+                  className="flex items-center justify-center w-8 h-8 rounded-lg border transition-colors bg-slate-200/80 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700 hover:bg-slate-300/80 dark:hover:bg-slate-700"
+                >
+                  {isDark ? <Sun className="w-4 h-4 text-orange-400" /> : <Moon className="w-4 h-4 text-blue-500" />}
+                </button>
+              </Tooltip>
             </div>
           </div>
         </div>

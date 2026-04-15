@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Share2, Mail } from 'lucide-react';
+import Tooltip from '@/components/ui/Tooltip';
 
 function buildRIS({ title, authors, journal, doi, pubDate, url, abstract }) {
   const lines = ['TY  - JOUR'];
@@ -80,14 +81,15 @@ export default function ShareButton({ title, url, authors, journal, doi, pubDate
 
   return (
     <div className="relative" ref={ref}>
-      <button
-        onClick={handleClick}
-        className="flex items-center gap-1 text-xs font-semibold text-slate-400 dark:text-slate-500 hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
-        title="Share article"
-      >
-        <Share2 className="w-3.5 h-3.5" />
-        Share
-      </button>
+      <Tooltip label="Share article" delay={500}>
+        <button
+          onClick={handleClick}
+          className="flex items-center gap-1 text-xs font-semibold text-slate-400 dark:text-slate-500 hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
+        >
+          <Share2 className="w-3.5 h-3.5" />
+          Share
+        </button>
+      </Tooltip>
       {open && (
         <div className="absolute bottom-full left-0 mb-1.5 bg-card border border-border rounded-lg shadow-lg z-50 py-1 min-w-[140px]">
           <a

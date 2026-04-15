@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 
 import { ExternalLink, Calendar, BookOpen, Users, Bookmark, BookmarkCheck } from 'lucide-react';
 import ShareButton from './ShareButton';
+import Tooltip from '@/components/ui/Tooltip';
 
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
@@ -234,15 +235,16 @@ const ArticleCard = React.memo(React.forwardRef(function ArticleCard({ article, 
 
               {/* Save + Share buttons */}
               <div className="flex items-center gap-4 mt-1">
-                <button
-                  onClick={handleSaveToggle}
-                  disabled={saving}
-                  className={`flex items-center gap-1 text-xs font-semibold transition-colors ${isSaved ? 'text-amber-500 hover:text-amber-700 dark:hover:text-amber-400' : 'text-slate-400 dark:text-slate-500 hover:text-amber-500 dark:hover:text-amber-400'}`}
-                  title={isSaved ? 'Unsave article' : 'Save article'}
-                >
-                  {isSaved ? <BookmarkCheck className="w-3.5 h-3.5" /> : <Bookmark className="w-3.5 h-3.5" />}
-                  {isSaved ? 'Saved' : 'Save'}
-                </button>
+                <Tooltip label={isSaved ? 'Unsave article' : 'Save article'} delay={500}>
+                  <button
+                    onClick={handleSaveToggle}
+                    disabled={saving}
+                    className={`flex items-center gap-1 text-xs font-semibold transition-colors ${isSaved ? 'text-amber-500 hover:text-amber-700 dark:hover:text-amber-400' : 'text-slate-400 dark:text-slate-500 hover:text-amber-500 dark:hover:text-amber-400'}`}
+                  >
+                    {isSaved ? <BookmarkCheck className="w-3.5 h-3.5" /> : <Bookmark className="w-3.5 h-3.5" />}
+                    {isSaved ? 'Saved' : 'Save'}
+                  </button>
+                </Tooltip>
                 <ShareButton
                   title={article.title}
                   url={article.link}
