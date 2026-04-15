@@ -9,7 +9,6 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { useDarkMode } from '@/hooks/useDarkMode';
 import { useAuth } from '@/lib/AuthContext';
-import { ALL_JOURNALS } from '@/components/journals/JournalList';
 
 export default function Settings() {
   const queryClient = useQueryClient();
@@ -229,10 +228,21 @@ export default function Settings() {
                   activeCount={activeCount}
                   onUnselectAll={() => {
                     if (!window.confirm(`Unselect all ${activeCount} journals?`)) return;
-                    uniqueActiveJournals.forEach(j => {
-                      const journal = ALL_JOURNALS.find(aj => aj.id === j.journal_id) || { id: j.journal_id, name: j.journal_name, rss_url: j.rss_url };
-                      toggleJournalMutation.mutate(journal);
-                    });
+                    // Flip every active row to inactive in a single request.
+                    // Optimistically update the cache first so the UI reacts
+                    // instantly; reconcile on settle.
+                    const activeIds = followedJournals.filter(j => j.is_active).map(j => j.id);
+                    if (activeIds.length === 0) return;
+                    queryClient.setQueryData(['followedJournals', userId],
+                      (old) => (old || []).map(f => f.is_active ? { ...f, is_active: false } : f));
+                    entities.FollowedJournal.bulkUpdate(activeIds, { is_active: false })
+                      .catch((err) => {
+                        console.error('Failed to unselect all journals:', err);
+                        queryClient.invalidateQueries({ queryKey: ['followedJournals'] });
+                      })
+                      .finally(() => {
+                        queryClient.invalidateQueries({ queryKey: ['followedJournals'] });
+                      });
                   }}
                 />
               </div>

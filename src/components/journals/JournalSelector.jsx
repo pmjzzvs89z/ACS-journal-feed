@@ -76,7 +76,8 @@ import {
   ASME_ENGINEERING_JOURNALS, ICHEMEE_ENGINEERING_JOURNALS,
   ACS_MATERIALS_JOURNALS, RSC_MATERIALS_JOURNALS, WILEY_MATERIALS_JOURNALS,
   ELSEVIER_MATERIALS_JOURNALS, MDPI_MATERIALS_JOURNALS, SPRINGER_MATERIALS_JOURNALS,
-  IOP_MATERIALS_JOURNALS
+  IOP_MATERIALS_JOURNALS,
+  PUBLISHER_ORDER
 } from './JournalList';
 import AddCustomJournal from './AddCustomJournal';
 
@@ -119,7 +120,6 @@ const JournalSelector = forwardRef(function JournalSelector({ followedJournals, 
   const [activeField, setActiveField] = useState('chemistry'); // 'chemistry' | 'engineering' | 'materials'
   const [expandedPublisher, setExpandedPublisher] = useState(null);
   const [expandedCategories, setExpandedCategories] = useState(new Set());
-  const [search, setSearch] = useState('');
   const [filterCategory, setFilterCategory] = useState('');
   const [filterPublisher, setFilterPublisher] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
@@ -130,7 +130,6 @@ const JournalSelector = forwardRef(function JournalSelector({ followedJournals, 
   const clearAll = () => {
     setExpandedPublisher(null);
     setExpandedCategories(new Set());
-    setSearch('');
     setFilterCategory('');
     setFilterPublisher('');
   };
@@ -181,26 +180,20 @@ const JournalSelector = forwardRef(function JournalSelector({ followedJournals, 
   };
 
   const isFiltering = filterCategory !== '' || filterPublisher !== '';
-  const isSearching = search.trim() !== '';
 
-  // Compute filtered results (used only when category/publisher filters active, not keyword search)
+  // Compute filtered results (used only when category/publisher filters active;
+  // keyword search is handled by the JournalSearch child component).
   const filteredPublishers = useMemo(() => {
-    const q = search.trim().toLowerCase();
     return PUBLISHERS
       .filter(p => !filterPublisher || p.id === filterPublisher)
       .map(p => {
-        const journals = p.journals.filter(j => {
-          const matchesCategory = !filterCategory || j.category === filterCategory;
-          const matchesSearch = !q ||
-            j.name.toLowerCase().includes(q) ||
-            j.abbrev.toLowerCase().includes(q) ||
-            p.label.toLowerCase().includes(q);
-          return matchesCategory && matchesSearch;
-        }).sort((a, b) => a.name.localeCompare(b.name));
+        const journals = p.journals
+          .filter(j => !filterCategory || j.category === filterCategory)
+          .sort((a, b) => a.name.localeCompare(b.name));
         return { ...p, journals };
       })
       .filter(p => p.journals.length > 0);
-  }, [search, filterCategory, filterPublisher, activeField]);
+  }, [filterCategory, filterPublisher, activeField]);
 
   // All journals across all publisher groups (for JournalSearch)
   const allCurrentJournals = useMemo(() => PUBLISHERS.flatMap(p => p.journals), [activeField]);
@@ -223,7 +216,6 @@ const JournalSelector = forwardRef(function JournalSelector({ followedJournals, 
   };
 
   const clearFilters = () => {
-    setSearch('');
     setFilterCategory('');
     setFilterPublisher('');
   };
@@ -232,7 +224,6 @@ const JournalSelector = forwardRef(function JournalSelector({ followedJournals, 
     setActiveField(field);
     setExpandedPublisher(null);
     setExpandedCategories(new Set());
-    setSearch('');
     setFilterCategory('');
     setFilterPublisher('');
   };
@@ -363,8 +354,7 @@ const JournalSelector = forwardRef(function JournalSelector({ followedJournals, 
             </button>
           </div>
           {(() => {
-            // Publisher order & colors matching the Feed dropdown
-            const PUB_ORDER = ['acs', 'elsevier', 'rsc', 'wiley', 'mdpi', 'springer', 'taylor', 'aaas', 'asme', 'icheme', 'iop', 'other'];
+            // Publisher order (shared with Feed dropdown) + labels/colors
             const PUB_COLORS = {
               acs: '#2563eb', elsevier: '#ea580c', rsc: '#c026d3', wiley: '#16a34a',
               aaas: '#dc2626', mdpi: '#0891b2', springer: '#ca8a04', taylor: '#7c3aed',
@@ -411,10 +401,10 @@ const JournalSelector = forwardRef(function JournalSelector({ followedJournals, 
 
             // Sort by publisher order, then A→Z within each group
             enriched.sort((a, b) => {
-              const pa = PUB_ORDER.indexOf(a.pubKey);
-              const pb = PUB_ORDER.indexOf(b.pubKey);
-              const ia = pa === -1 ? PUB_ORDER.length : pa;
-              const ib = pb === -1 ? PUB_ORDER.length : pb;
+              const pa = PUBLISHER_ORDER.indexOf(a.pubKey);
+              const pb = PUBLISHER_ORDER.indexOf(b.pubKey);
+              const ia = pa === -1 ? PUBLISHER_ORDER.length : pa;
+              const ib = pb === -1 ? PUBLISHER_ORDER.length : pb;
               if (ia !== ib) return ia - ib;
               return (a.journal.abbrev || a.journal.name).localeCompare(b.journal.abbrev || b.journal.name, undefined, { sensitivity: 'base' });
             });
@@ -703,9 +693,7 @@ const JournalSelector = forwardRef(function JournalSelector({ followedJournals, 
                               </button>
                               <button
                                 onClick={() => {
-                                  if (window.confirm(`Delete "${j.journal_name}"?`)) {
-                                    if (onDeleteJournal) onDeleteJournal(j);
-                                  }
+                                  if (onDeleteJournal) onDeleteJournal(j);
                                 }}
                                 className="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded text-slate-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors"
                                 title="Delete journal"

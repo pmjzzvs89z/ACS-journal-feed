@@ -692,5 +692,8 @@ export const ALL_MATERIALS_JOURNALS = [...ACS_MATERIALS_JOURNALS, ...RSC_MATERIA
 
 export const ALL_JOURNALS = [...ACS_JOURNALS, ...RSC_JOURNALS, ...WILEY_JOURNALS, ...ELSEVIER_JOURNALS, ...MDPI_JOURNALS, ...SPRINGER_JOURNALS, ...TAYLOR_JOURNALS, ...AAAS_JOURNALS, ...OTHER_JOURNALS, ...ALL_ENGINEERING_JOURNALS, ...ALL_MATERIALS_JOURNALS];
 
+// Canonical publisher ordering for Feed dropdown and Selected-journals panel.
+// Kept here so ArticleFeed and JournalSelector share a single source of truth.
+export const PUBLISHER_ORDER = ['acs', 'elsevier', 'rsc', 'wiley', 'mdpi', 'springer', 'taylor', 'aaas', 'asme', 'icheme', 'iop', 'other'];
 
 export default ALL_JOURNALS;

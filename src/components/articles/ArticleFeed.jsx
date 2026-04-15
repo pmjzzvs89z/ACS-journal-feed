@@ -19,6 +19,7 @@ import {
   ACS_ENGINEERING_JOURNALS, RSC_ENGINEERING_JOURNALS, WILEY_ENGINEERING_JOURNALS,
   ELSEVIER_ENGINEERING_JOURNALS, SPRINGER_ENGINEERING_JOURNALS,
   TAYLOR_ENGINEERING_JOURNALS, ASME_ENGINEERING_JOURNALS, ICHEMEE_ENGINEERING_JOURNALS,
+  PUBLISHER_ORDER,
 } from '@/components/journals/JournalList';
 
 // Distinct per-publisher accent colors used to underline journal names in
@@ -507,10 +508,9 @@ export default function ArticleFeed({ articles, failedJournals = [], isLoading, 
     );
   }
 
-  // Group journals by publisher in a fixed priority order, then alphabetically
-  // within each group. A gray separator row is rendered between publishers in
-  // the dropdown to visually distinguish them.
-  const PUBLISHER_ORDER = ['acs', 'elsevier', 'rsc', 'wiley', 'mdpi', 'springer', 'taylor', 'aaas', 'asme', 'icheme', 'iop', 'other'];
+  // Group journals by publisher in a fixed priority order (see PUBLISHER_ORDER
+  // in JournalList.jsx), then alphabetically within each group. A gray
+  // separator row is rendered between publishers in the dropdown.
   const publisherIndex = (id) => {
     const key = PUBLISHER_ID_MAP.get(id) || 'other';
     const idx = PUBLISHER_ORDER.indexOf(key);

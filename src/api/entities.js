@@ -48,6 +48,18 @@ export const entities = {
         .eq('id', id)
         .eq('user_id', userId);
       if (error) throw error;
+    },
+    // Bulk-update many rows in a single request. Used by "Unselect All" to
+    // avoid firing N separate optimistic mutations.
+    bulkUpdate: async (ids, updates) => {
+      if (!ids || ids.length === 0) return;
+      const userId = await getUserId();
+      const { error } = await supabase
+        .from('followed_journals')
+        .update(updates)
+        .in('id', ids)
+        .eq('user_id', userId);
+      if (error) throw error;
     }
   },
 
