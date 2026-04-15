@@ -119,7 +119,8 @@ export default function Guide() {
               <li><span className="font-medium">Unread articles</span> are marked with a <span className="text-blue-600 dark:text-blue-400 font-medium">blue vertical bar</span> on the left edge of the card and a blue title; once you scroll past an article, it becomes &ldquo;read&rdquo; — the bar disappears and the title turns gray</li>
               <li>Click the title or the arrow icon to open the full article on the publisher's website</li>
               <li>Use the <span className="font-medium">Save</span> button to bookmark an article for later</li>
-              <li>Use the <span className="font-medium">journal dropdown</span> (top center, highlighted with a gentle pulse) to filter the feed to a single journal</li>
+              <li>Use the <span className="font-medium">Share</span> button to share an article via <span className="font-medium">Email</span>, <span className="font-medium">Microsoft Teams</span>, or export a citation to <span className="font-medium">ReadCube Papers</span> (downloads a .ris file)</li>
+              <li>Use the <span className="font-medium">journal dropdown</span> (top center, highlighted with a gentle pulse) to filter the feed to a single journal or publisher group</li>
               <li>Use the <span className="font-medium">Reset</span> button to mark all articles as unread (blue) again</li>
               <li>A <span className="font-medium">Back to Top</span> button appears when you scroll down; a floating <span className="font-medium">up-arrow</span> sits to the right of the feed for quick jumps</li>
             </ul>
@@ -129,7 +130,11 @@ export default function Guide() {
             <ul className="space-y-1 text-sm text-foreground list-disc list-inside">
               <li>All your bookmarked articles in one place</li>
               <li>Select articles with checkboxes and <span className="font-medium">export</span> them as RIS (for ReadCube Papers, EndNote, etc.), CSV, or plain text</li>
+              <li>Use <span className="font-medium">Remove Selected</span> to bulk-delete multiple saved articles at once</li>
               <li>Set up <span className="font-medium">Auto-Save Rules</span> to automatically bookmark articles matching specific keywords or authors — rules run every time the feed refreshes</li>
+              <li>A <span className="text-green-600 dark:text-green-400 font-medium">green dot</span> appears on the Saved tab when auto-save rules are active</li>
+              <li>Auto-saved articles show the <span className="font-medium">matching reason</span> (keyword or author) on each card so you know why they were saved</li>
+              <li>Auto-save rules are <span className="font-medium">synced across devices</span> via your account — set them up once and they work everywhere you log in</li>
               <li>Unsave articles individually with the trash icon</li>
             </ul>
           </Section>
@@ -148,7 +153,10 @@ export default function Guide() {
             <ul className="space-y-1 text-sm text-foreground list-disc list-inside">
               <li>Switch between <span className="font-medium">Chemistry</span>, <span className="font-medium">Engineering</span>, and <span className="font-medium">Materials Science</span> fields using the tabs at the top</li>
               <li>Browse by publisher (e.g., ACS, RSC, Wiley) or by research category (e.g., Organic Chemistry, Catalysis)</li>
-              <li>Search by journal name or keyword</li>
+              <li>Use <span className="font-medium">Search Journals</span> to find journals by name or keyword — results appear in the main body grouped by publisher, with no limit on matches</li>
+              <li>Click the <span className="font-medium">&ldquo;X journals selected&rdquo;</span> panel to view all your active journals in one place — you can unselect journals directly from this view or use <span className="font-medium">Unselect All</span></li>
+              <li>Clicking outside the search results or selected-journals panel closes it automatically</li>
+              <li>Journals that appear in multiple fields (e.g., a catalysis journal in both Chemistry and Engineering) are <span className="font-medium">synced automatically</span> — toggling one toggles the other</li>
               <li>Use <span className="font-medium">Discover Journals</span> to see suggested journals you may want to follow (click again to close)</li>
               <li>Add a <span className="font-medium">custom journal</span> by pasting its RSS feed URL</li>
               <li>Journals are listed alphabetically within each category and publisher</li>
@@ -165,6 +173,7 @@ export default function Guide() {
               <li>Auto-save rules and read/unread history are stored <span className="font-medium">per account</span> — switching accounts on the same browser keeps everything separate</li>
               <li>Use the <span className="font-medium">moon/sun</span> icon in the header to toggle between dark and light mode</li>
               <li>Use the <span className="font-medium">logout</span> button (top-right) to sign out of your account</li>
+              <li>The app is available at <a href="https://literature-tracker.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline font-medium">literature-tracker.com</a></li>
             </ul>
           </Section>
         </div>

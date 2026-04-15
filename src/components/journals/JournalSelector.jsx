@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect, useRef, forwardRef, useImperativeH
 import { motion, AnimatePresence } from 'framer-motion';
 import { BookOpen, ChevronRight, ChevronDown, X, FlaskConical, Cog, Layers, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { entities } from '@/api/entities';
+
 import JournalSearch from './JournalSearch';
 function FilterDropdown({ value, onChange, options, allLabel, style }) {
   const [open, setOpen] = useState(false);
@@ -38,7 +38,7 @@ function FilterDropdown({ value, onChange, options, allLabel, style }) {
       </button>
       {open && (
         <div
-          className="absolute left-0 top-full mt-1 min-w-full max-h-[60vh] overflow-y-auto rounded-xl py-1 shadow-2xl bg-white dark:bg-[rgb(28,30,38)] border border-border"
+          className="absolute left-0 top-full mt-1 min-w-full max-h-[60vh] overflow-y-auto rounded-xl py-1 shadow-2xl bg-white dark:bg-[rgb(28,30,38)] border border-slate-300 dark:border-slate-500"
           style={{
             zIndex: 9999,
             isolation: 'isolate',
@@ -67,6 +67,7 @@ function FilterDropdown({ value, onChange, options, allLabel, style }) {
 }
 
 import {
+  ALL_JOURNALS,
   ACS_JOURNALS, RSC_JOURNALS, WILEY_JOURNALS, ELSEVIER_JOURNALS,
   MDPI_JOURNALS, SPRINGER_JOURNALS, TAYLOR_JOURNALS, AAAS_JOURNALS,
   CHEMISTRY_CATEGORIES, ENGINEERING_CATEGORIES, MATERIALS_CATEGORIES,
@@ -114,13 +115,15 @@ const MATERIALS_PUBLISHERS = [
   { id: 'mat_iop',      label: 'IOP Publishing',  journals: IOP_MATERIALS_JOURNALS,      color: '#475569' },
 ];
 
-const JournalSelector = forwardRef(function JournalSelector({ followedJournals, onToggleJournal, onCustomJournalAdded }, ref) {
+const JournalSelector = forwardRef(function JournalSelector({ followedJournals, onToggleJournal, onCustomJournalAdded, onDeleteJournal, showSelected, uniqueActiveJournals, activeCount, onUnselectAll }, ref) {
   const [activeField, setActiveField] = useState('chemistry'); // 'chemistry' | 'engineering' | 'materials'
   const [expandedPublisher, setExpandedPublisher] = useState(null);
   const [expandedCategories, setExpandedCategories] = useState(new Set());
   const [search, setSearch] = useState('');
   const [filterCategory, setFilterCategory] = useState('');
   const [filterPublisher, setFilterPublisher] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
 
   // Clear everything — same effect as pressing the blue "Close" button, plus
   // collapsing any expanded publisher/category accordion.
@@ -153,16 +156,29 @@ const JournalSelector = forwardRef(function JournalSelector({ followedJournals, 
   const CATEGORIES = activeField === 'chemistry' ? CHEMISTRY_CATEGORIES : activeField === 'engineering' ? ENGINEERING_CATEGORIES : MATERIALS_CATEGORIES;
 
   // All static journal IDs for detecting custom ones
-  const allStaticIds = useMemo(() => new Set([...CHEMISTRY_PUBLISHERS, ...ENGINEERING_PUBLISHERS, ...MATERIALS_PUBLISHERS].flatMap(p => p.journals.map(j => j.id))), []);
+  const allStaticIds = useMemo(() => new Set(ALL_JOURNALS.map(j => j.id)), []);
 
-  // Custom journals: followed journals not in any static publisher list
+  // Custom journals: followed journals not in any static catalog
   const customJournals = useMemo(() =>
     followedJournals.filter(j => !allStaticIds.has(j.journal_id)),
     [followedJournals, allStaticIds]
   );
 
-  const isFollowed = (journalId) =>
-    followedJournals.some(j => j.journal_id === journalId && j.is_active);
+  // Build a set of active RSS URLs so cross-field siblings (same feed,
+  // different journal ID) show the correct toggle state.
+  const activeRssUrls = useMemo(() => {
+    const s = new Set();
+    followedJournals.forEach(j => { if (j.is_active) s.add(j.rss_url); });
+    return s;
+  }, [followedJournals]);
+
+  const isFollowed = (journalId) => {
+    // Direct ID match
+    if (followedJournals.some(j => j.journal_id === journalId && j.is_active)) return true;
+    // Cross-field sibling: same RSS URL is already active under a different ID
+    const journal = ALL_JOURNALS.find(j => j.id === journalId);
+    return journal ? activeRssUrls.has(journal.rss_url) : false;
+  };
 
   const isFiltering = filterCategory !== '' || filterPublisher !== '';
   const isSearching = search.trim() !== '';
@@ -257,7 +273,9 @@ const JournalSelector = forwardRef(function JournalSelector({ followedJournals, 
 
   return (
     <div className="flex flex-col h-full min-h-0">
-      {/* Fixed (non-scrolling) header: field tabs + search + filters */}
+      {/* Fixed (non-scrolling) header: field tabs + search + filters.
+           Hidden when the "X journals selected" panel is open. */}
+      {!showSelected && (
       <div className="flex-shrink-0 px-4 pt-2 pb-2 space-y-[5px] bg-muted/50">
       <div className="flex items-center gap-1 rounded-xl p-1 bg-slate-300 dark:bg-[rgb(38,42,56)]">
         <button
@@ -277,7 +295,7 @@ const JournalSelector = forwardRef(function JournalSelector({ followedJournals, 
           className={cn(
             "flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-lg text-sm font-medium transition-all",
             activeField === 'engineering'
-              ? "bg-card shadow text-orange-700 dark:text-orange-400 border border-orange-100 dark:border-orange-800"
+              ? "bg-card shadow text-red-700 dark:text-red-400 border border-red-100 dark:border-red-800"
               : "text-muted-foreground hover:text-foreground"
           )}
         >
@@ -302,8 +320,7 @@ const JournalSelector = forwardRef(function JournalSelector({ followedJournals, 
       <JournalSearch
         allJournals={allCurrentJournals}
         publishers={PUBLISHERS}
-        isFollowed={isFollowed}
-        onToggleJournal={onToggleJournal}
+        onResults={(q, r) => { setSearchQuery(q); setSearchResults(r); }}
         placeholder="Search journals by topic, keyword, or method…"
       />
 
@@ -325,13 +342,190 @@ const JournalSelector = forwardRef(function JournalSelector({ followedJournals, 
           style={{ flex: '1 1 0', minWidth: 0 }}
         />
       </div>
-      </div>{/* end fixed header */}
+      </div>
+      )}{/* end fixed header */}
 
       {/* Scrollable body */}
       <div className="flex-1 min-h-0 overflow-y-auto journal-scroll px-4 pt-1 pb-4 bg-muted/50">
 
       {/* Results */}
-      {isFiltering ? (
+      {showSelected ? (
+        /* Selected journals view — grouped by publisher matching the Feed dropdown.
+           Clicking the row toggles active/inactive (deselect keeps the journal on
+           the list but removes it from the Feed). The X button fully deletes. */
+        <div>
+          <div className="flex items-center gap-2 px-1 pb-2">
+            <button
+              onClick={onUnselectAll}
+              className="text-sm text-amber-500 hover:text-amber-600 dark:text-amber-400 dark:hover:text-amber-300 font-medium"
+            >
+              Unselect All
+            </button>
+          </div>
+          {(() => {
+            // Publisher order & colors matching the Feed dropdown
+            const PUB_ORDER = ['acs', 'elsevier', 'rsc', 'wiley', 'mdpi', 'springer', 'taylor', 'aaas', 'asme', 'icheme', 'iop', 'other'];
+            const PUB_COLORS = {
+              acs: '#2563eb', elsevier: '#ea580c', rsc: '#c026d3', wiley: '#16a34a',
+              aaas: '#dc2626', mdpi: '#0891b2', springer: '#ca8a04', taylor: '#7c3aed',
+              asme: '#475569', icheme: '#475569', iop: '#475569', other: '#64748b',
+            };
+            const PUB_LABELS = {
+              acs: 'ACS', elsevier: 'Elsevier', rsc: 'RSC', wiley: 'Wiley',
+              aaas: 'AAAS', mdpi: 'MDPI', springer: 'Springer Nature',
+              taylor: 'Taylor & Francis', asme: 'ASME', icheme: 'IChemE',
+              iop: 'IOP Publishing', other: 'Other',
+            };
+
+            // Build journal ID → publisher key map
+            const idToPub = new Map();
+            const allPubs = [...CHEMISTRY_PUBLISHERS, ...ENGINEERING_PUBLISHERS, ...MATERIALS_PUBLISHERS];
+            allPubs.forEach(p => {
+              // Normalise publisher id: strip field prefixes (eng_, mat_)
+              const key = p.id.replace(/^(eng_|mat_)/, '');
+              p.journals.forEach(j => { if (!idToPub.has(j.id)) idToPub.set(j.id, key); });
+            });
+
+            // Deduplicate followed journals by RSS URL
+            const deduped = followedJournals.filter(j => {
+              const seen = followedJournals.filter(f => f.rss_url === j.rss_url);
+              return seen[0]?.id === j.id;
+            });
+
+            // Enrich each entry with catalog data + publisher key
+            const enriched = deduped.map(j => {
+              let journal = null;
+              for (const p of allPubs) {
+                const found = p.journals.find(pj => pj.id === j.journal_id);
+                if (found) { journal = found; break; }
+              }
+              if (!journal) {
+                const fromCatalog = ALL_JOURNALS.find(aj => aj.rss_url === j.rss_url);
+                if (fromCatalog) journal = fromCatalog;
+              }
+              if (!journal) journal = { id: j.journal_id, name: j.journal_name, abbrev: j.journal_name, rss_url: j.rss_url };
+              const pubKey = idToPub.get(j.journal_id) || idToPub.get(journal.id) || 'other';
+              return { dbEntry: j, journal, pubKey };
+            });
+
+            // Sort by publisher order, then A→Z within each group
+            enriched.sort((a, b) => {
+              const pa = PUB_ORDER.indexOf(a.pubKey);
+              const pb = PUB_ORDER.indexOf(b.pubKey);
+              const ia = pa === -1 ? PUB_ORDER.length : pa;
+              const ib = pb === -1 ? PUB_ORDER.length : pb;
+              if (ia !== ib) return ia - ib;
+              return (a.journal.abbrev || a.journal.name).localeCompare(b.journal.abbrev || b.journal.name, undefined, { sensitivity: 'base' });
+            });
+
+            // Group by publisher
+            const groups = [];
+            let lastPub = null;
+            enriched.forEach(item => {
+              if (item.pubKey !== lastPub) {
+                groups.push({ pubKey: item.pubKey, items: [] });
+                lastPub = item.pubKey;
+              }
+              groups[groups.length - 1].items.push(item);
+            });
+
+            return groups.map((group, gi) => (
+              <div key={group.pubKey}>
+                {gi > 0 && (
+                  <div className="my-1.5 mx-3 border-t border-slate-300 dark:border-white/15" />
+                )}
+                <div className="px-1 pb-1">
+                  <span className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: PUB_COLORS[group.pubKey] }}>
+                    {PUB_LABELS[group.pubKey] || group.pubKey}
+                  </span>
+                </div>
+                <div className="space-y-1">
+                  {group.items.map(({ dbEntry: j, journal, pubKey }) => {
+                    const followed = j.is_active;
+                    const color = PUB_COLORS[pubKey];
+                    return (
+                      <div
+                        key={j.id}
+                        className={cn(
+                          "w-full flex items-center gap-2.5 px-3 py-[0.4rem] rounded-lg transition-all",
+                          followed
+                            ? "bg-card border-[1.05px] border-border hover:border-red-400 dark:hover:border-red-500"
+                            : "bg-slate-100 dark:bg-[rgb(40,44,55)] border-[1.05px] border-transparent hover:border-green-400 dark:hover:border-green-500"
+                        )}
+                      >
+                        <button
+                          onClick={() => onToggleJournal(journal)}
+                          className="flex items-center gap-2.5 flex-1 min-w-0 text-left"
+                        >
+                          <span
+                            className="w-4 h-4 rounded-full flex-shrink-0 border-2 flex items-center justify-center transition-all"
+                            style={{ borderColor: color, backgroundColor: followed ? color : 'transparent' }}
+                          >
+                            {followed && <span className="w-1.5 h-1.5 rounded-full bg-white" />}
+                          </span>
+                          <BookOpen className="w-3.5 h-3.5 flex-shrink-0" style={{ color: followed ? (journal.color || '#94a3b8') : '#94a3b8' }} />
+                          <span className="text-xs text-foreground truncate">
+                            <span className="font-semibold">{journal.abbrev || j.journal_name}</span>
+                            {journal.abbrev && journal.name && journal.abbrev !== journal.name && (
+                              <span className="text-muted-foreground/80"> ({journal.name})</span>
+                            )}
+                          </span>
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (onDeleteJournal) onDeleteJournal(j);
+                          }}
+                          className="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded text-slate-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors"
+                          title="Remove journal"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ));
+          })()}
+        </div>
+      ) : searchQuery ? (
+        /* Keyword search results — flat list grouped by publisher */
+        <div className="space-y-[5px]">
+          {searchResults.length === 0 ? (
+            <p className="text-sm text-muted-foreground text-center py-6">No journals found for &ldquo;<strong>{searchQuery}</strong>&rdquo;.</p>
+          ) : (() => {
+            // Group results by publisher
+            const publisherMap = {};
+            PUBLISHERS.forEach(p => p.journals.forEach(j => { publisherMap[j.id] = p; }));
+            const groups = {};
+            searchResults.forEach(j => {
+              const p = publisherMap[j.id];
+              if (!p) return;
+              if (!groups[p.id]) groups[p.id] = { ...p, journals: [] };
+              groups[p.id].journals.push(j);
+            });
+            const groupedPublishers = Object.values(groups);
+            return (
+              <>
+                <p className="text-xs text-muted-foreground px-1 pb-1">{searchResults.length} journal{searchResults.length !== 1 ? 's' : ''} found</p>
+                {groupedPublishers.map(publisher => (
+                  <div key={publisher.id} className="rounded-xl border border-border overflow-hidden">
+                    <div className="flex items-center gap-2 px-4 py-2 border-b border-border" style={{ backgroundColor: `${publisher.color}10` }}>
+                      <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: publisher.color }} />
+                      <span className="text-xs font-normal text-muted-foreground">{publisher.label}</span>
+                      <span className="ml-auto text-xs text-muted-foreground">{publisher.journals.length} journal{publisher.journals.length !== 1 ? 's' : ''}</span>
+                    </div>
+                    <div className="py-1 px-3 space-y-0.5 bg-muted/50">
+                      {publisher.journals.sort((a, b) => a.name.localeCompare(b.name)).map(j => renderJournal(j, publisher))}
+                    </div>
+                  </div>
+                ))}
+              </>
+            );
+          })()}
+        </div>
+      ) : isFiltering ? (
         /* Flat filtered list grouped by publisher */
         <div className="space-y-[5px]">
           {filteredPublishers.length === 0 ? (
@@ -507,13 +701,12 @@ const JournalSelector = forwardRef(function JournalSelector({ followedJournals, 
                                 </div>
                               </button>
                               <button
-                                onClick={async () => {
+                                onClick={() => {
                                   if (window.confirm(`Delete "${j.journal_name}"?`)) {
-                                    await entities.FollowedJournal.delete(j.id);
-                                    if (onCustomJournalAdded) onCustomJournalAdded();
+                                    if (onDeleteJournal) onDeleteJournal(j);
                                   }
                                 }}
-                                className="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded text-slate-300 hover:text-red-500 hover:bg-red-50 transition-colors"
+                                className="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded text-slate-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors"
                                 title="Delete journal"
                               >
                                 <X className="w-3.5 h-3.5" />

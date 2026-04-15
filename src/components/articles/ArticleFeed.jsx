@@ -164,19 +164,26 @@ function JournalDropdown({ value, onChange, journals }) {
           }}
         >
           {(() => {
+            const PUB_LABELS = {
+              acs: 'ACS', elsevier: 'Elsevier', rsc: 'RSC', wiley: 'Wiley',
+              aaas: 'AAAS', mdpi: 'MDPI', springer: 'Springer Nature',
+              taylor: 'Taylor & Francis', asme: 'ASME', icheme: 'IChemE',
+              iop: 'IOP Publishing', other: 'Other',
+            };
             const rows = [];
-            rows.push({ type: 'item', journal: { id: '', name: 'All Selected Journals' }, isFirstInGroup: true });
+            rows.push({ type: 'item', journal: { id: '', name: 'All Selected Journals' }, isFirstInGroup: true, pub: null });
             let prevPub = null;
             journals.forEach((j, idx) => {
               const pub = PUBLISHER_ID_MAP.get(j.id) || 'other';
               const isFirstInGroup = idx === 0 || pub !== prevPub;
               if (isFirstInGroup) {
                 rows.push({ type: 'sep', key: `sep-${idx}-${pub}` });
+                rows.push({ type: 'label', key: `lbl-${pub}`, pub });
               }
-              rows.push({ type: 'item', journal: j, isFirstInGroup });
+              rows.push({ type: 'item', journal: j, isFirstInGroup, pub });
               prevPub = pub;
             });
-            return rows.map((row, i) => {
+            return rows.map((row) => {
               if (row.type === 'sep') {
                 return (
                   <div
@@ -185,33 +192,34 @@ function JournalDropdown({ value, onChange, journals }) {
                   />
                 );
               }
+              if (row.type === 'label') {
+                const labelColor = PUBLISHER_COLORS[row.pub] || '#64748b';
+                return (
+                  <div key={row.key} className="px-3 pt-0.5 pb-[1px]">
+                    <span className="text-[10px] font-semibold uppercase tracking-wide" style={{ color: labelColor }}>
+                      {PUB_LABELS[row.pub] || row.pub}
+                    </span>
+                  </div>
+                );
+              }
               const j = row.journal;
               const isSelected = j.id === value;
               const publisherColor = j.id ? publisherColorForJournalId(j.id) : null;
-              // Tighten inter-journal spacing *within* a publisher group
-              // while preserving the distance between the first/last
-              // journal in a group and its separator line. Each button has
-              // py-[0.228rem] (base gap = 0.456rem). Pulling non-first
-              // buttons up by 0.2089rem reduces that gap to 0.2471rem —
-              // a cumulative ~46% tightening (25% → 15% → 15%).
-              const style = {
-                marginTop: row.isFirstInGroup ? undefined : '-0.2089rem',
-              };
               return (
                 <button
                   key={j.id || '__all'}
                   type="button"
                   onClick={() => { onChange(j.id); setOpen(false); }}
-                  className="w-full flex items-center gap-2 pl-3 pr-4 py-[0.228rem] text-sm text-left transition-colors text-slate-900 dark:text-white hover:bg-black/5 dark:hover:bg-white/10"
-                  style={style}
+                  className="w-full flex items-center gap-2 pl-3 pr-4 py-[0.08rem] text-sm text-left transition-colors text-slate-900 dark:text-white hover:bg-black/5 dark:hover:bg-white/10"
                 >
                   <span className="w-4 flex-shrink-0 flex items-center justify-center">
-                    {isSelected && <Check className="w-3.5 h-3.5" />}
+                    {isSelected ? (
+                      <Check className="w-3.5 h-3.5" />
+                    ) : publisherColor ? (
+                      <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: publisherColor }} />
+                    ) : null}
                   </span>
-                  <span
-                    className="truncate"
-                    style={publisherColor ? { color: publisherColor } : undefined}
-                  >
+                  <span className="truncate">
                     {j.name}
                   </span>
                 </button>
@@ -536,7 +544,7 @@ export default function ArticleFeed({ articles, failedJournals = [], isLoading, 
 
       {/* Per-journal failure banner — visible when some feeds failed */}
       {failedJournals.length > 0 && !isLoading && (
-        <div className="flex items-start gap-3 mb-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-xl px-4 py-3 text-sm text-amber-800 dark:text-amber-300">
+        <div className="flex items-start gap-3 mb-4 bg-red-50 dark:bg-red-900/20 border border-red-300 dark:border-red-700 rounded-xl px-4 py-3 text-sm text-red-600 dark:text-red-500">
           <AlertTriangle className="w-4 h-4 mt-0.5 flex-shrink-0" />
           <div className="flex-1 min-w-0">
             <span>
@@ -547,7 +555,7 @@ export default function ArticleFeed({ articles, failedJournals = [], isLoading, 
           </div>
           <button
             onClick={onRefresh}
-            className="flex items-center gap-1 text-amber-700 dark:text-amber-400 hover:text-amber-900 dark:hover:text-amber-200 font-medium flex-shrink-0"
+            className="flex items-center gap-1 text-red-600 dark:text-red-500 hover:text-red-800 dark:hover:text-red-300 font-medium flex-shrink-0"
           >
             <RefreshCw className="w-3.5 h-3.5" />
             Retry

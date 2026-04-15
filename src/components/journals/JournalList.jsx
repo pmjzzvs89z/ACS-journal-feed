@@ -84,7 +84,7 @@ export const ACS_JOURNALS = [
   { id: 'acsenergylett', name: 'ACS Energy Letters', abbrev: 'ACS Energy Lett.', rss_url: 'https://pubs.acs.org/action/showFeed?type=axatoc&feed=rss&jc=aelccp', color: '#ffc107', category: 'Applied/Industrial Chemistry' },
   { id: 'acsfoodscitech', name: 'ACS Food Science & Technology', abbrev: 'ACS Food Sci. Technol.', rss_url: 'https://pubs.acs.org/action/showFeed?type=axatoc&feed=rss&jc=afsthl', color: '#f1c40f', category: 'Applied/Industrial Chemistry' },
   { id: 'acssustainchem', name: 'ACS Sustainable Chemistry & Engineering', abbrev: 'ACS Sustain. Chem. Eng.', rss_url: 'https://pubs.acs.org/action/showFeed?type=axatoc&feed=rss&jc=ascecg', color: '#2ecc71', category: 'Applied/Industrial Chemistry' },
-  { id: 'acssustresourcau', name: 'ACS Sustainable Resource Management', abbrev: 'ACS Sustain. Resour. Manag.', rss_url: 'https://pubs.acs.org/action/showFeed?type=axatoc&feed=rss&jc=asrmcm', color: '#2ecc71', category: 'Applied/Industrial Chemistry' },
+  { id: 'acssustresourcau', name: 'ACS Sustainable Resource Management', abbrev: 'ACS Sustain. Resour. Manag.', rss_url: 'https://pubs.acs.org/action/showFeed?type=axatoc&feed=rss&jc=asrmcd', color: '#2ecc71', category: 'Applied/Industrial Chemistry' },
   { id: 'envscitechnol', name: 'Environmental Science & Technology', abbrev: 'Environ. Sci. Technol.', rss_url: 'https://pubs.acs.org/action/showFeed?type=axatoc&feed=rss&jc=esthag', color: '#28a745', category: 'Applied/Industrial Chemistry' },
   { id: 'envscitechnollett', name: 'Environmental Science & Technology Letters', abbrev: 'Environ. Sci. Technol. Lett.', rss_url: 'https://pubs.acs.org/action/showFeed?type=axatoc&feed=rss&jc=estlcu', color: '#20c997', category: 'Applied/Industrial Chemistry' },
   { id: 'iecr', name: 'Industrial & Engineering Chemistry Research', abbrev: 'Ind. Eng. Chem. Res.', rss_url: 'https://pubs.acs.org/action/showFeed?type=axatoc&feed=rss&jc=iecred', color: '#6c757d', category: 'Applied/Industrial Chemistry' },
@@ -179,7 +179,7 @@ export const WILEY_JOURNALS = [
   { id: 'wiley_archpharm', name: 'Archiv der Pharmazie', abbrev: 'Arch. Pharm.', rss_url: 'https://onlinelibrary.wiley.com/feed/15214184/most-recent', color: '#5b6abf', category: 'Biological/Medicinal Chemistry' },
   { id: 'wiley_chembiochem', name: 'ChemBioChem', abbrev: 'ChemBioChem', rss_url: 'https://onlinelibrary.wiley.com/feed/14397633/most-recent', color: '#2980b9', category: 'Biological/Medicinal Chemistry' },
   { id: 'wiley_chemmedchem', name: 'ChemMedChem', abbrev: 'ChemMedChem', rss_url: 'https://onlinelibrary.wiley.com/feed/18607187/most-recent', color: '#1d6fa4', category: 'Biological/Medicinal Chemistry' },
-  { id: 'wiley_jpharmscience', name: 'Journal of Pharmaceutical Sciences', abbrev: 'J. Pharm. Sci.', rss_url: 'https://onlinelibrary.wiley.com/feed/15206017/most-recent', color: '#8e44ad', category: 'Biological/Medicinal Chemistry' },
+  { id: 'wiley_jpharmscience', name: 'Journal of Pharmaceutical Sciences', abbrev: 'J. Pharm. Sci.', rss_url: 'https://rss.sciencedirect.com/publication/science/00223549', color: '#8e44ad', category: 'Biological/Medicinal Chemistry' },
 
   // Physical/Theoretical Chemistry
   { id: 'wiley_chemphyschem', name: 'ChemPhysChem', abbrev: 'ChemPhysChem', rss_url: 'https://onlinelibrary.wiley.com/feed/14397641/most-recent', color: '#fd7e14', category: 'Physical/Theoretical Chemistry' },
@@ -197,15 +197,14 @@ export const WILEY_JOURNALS = [
   { id: 'wiley_chemcat', name: 'ChemCatChem', abbrev: 'ChemCatChem', rss_url: 'https://onlinelibrary.wiley.com/feed/18673899/most-recent', color: '#dc3545', category: 'Organic Chemistry' },
   { id: 'wiley_ejoc', name: 'European Journal of Organic Chemistry', abbrev: 'Eur. J. Org. Chem.', rss_url: 'https://onlinelibrary.wiley.com/feed/10990690/most-recent', color: '#d63384', category: 'Organic Chemistry' },
   { id: 'wiley_helv', name: 'Helvetica Chimica Acta', abbrev: 'Helv. Chim. Acta', rss_url: 'https://onlinelibrary.wiley.com/feed/15222675/most-recent', color: '#c0392b', category: 'Organic Chemistry' },
-  { id: 'wiley_synthesis', name: 'Synthesis', abbrev: 'Synthesis', rss_url: 'https://www.thieme-connect.de/media/synthesis/rss/latest.rss', color: '#6f42c1', category: 'Organic Chemistry' },
+  { id: 'wiley_synthesis', name: 'Synthesis', abbrev: 'Synthesis', rss_url: 'https://www.thieme-connect.de/rss/thieme/en/10.1055-s-00000084.xml', color: '#6f42c1', category: 'Organic Chemistry' },
 
   // Applied/Industrial Chemistry
   { id: 'wiley_aiche', name: 'AIChE Journal', abbrev: 'AIChE J.', rss_url: 'https://onlinelibrary.wiley.com/feed/15475905/most-recent', color: '#6c757d', category: 'Applied/Industrial Chemistry' },
-  { id: 'wiley_chemeng', name: 'Chemical Engineering & Technology', abbrev: 'Chem. Eng. Technol.', rss_url: 'https://onlinelibrary.wiley.com/feed/15214125/most-recent', color: '#e67e22', category: 'Applied/Industrial Chemistry' },
-  { id: 'wiley_chemsuschem', name: 'ChemSusChem', abbrev: 'ChemSusChem', rss_url: 'https://onlinelibrary.wiley.com/feed/18645631/most-recent', color: '#2ecc71', category: 'Applied/Industrial Chemistry' },
+  { id: 'wiley_chemsuschem', name: 'ChemSusChem', abbrev: 'ChemSusChem', rss_url: 'https://chemistry-europe.onlinelibrary.wiley.com/feed/1864564x/most-recent', color: '#2ecc71', category: 'Applied/Industrial Chemistry' },
   { id: 'wiley_global', name: 'Global Challenges', abbrev: 'Global Challenges', rss_url: 'https://onlinelibrary.wiley.com/feed/20566646/most-recent', color: '#28a745', category: 'Applied/Industrial Chemistry' },
   // Polymers/Macromolecules
-  { id: 'wiley_jpolymscib', name: 'Journal of Polymer Science', abbrev: 'J. Polym. Sci.', rss_url: 'https://onlinelibrary.wiley.com/feed/26429071/most-recent', color: '#6c757d', category: 'Polymers/Macromolecules' },
+  { id: 'wiley_jpolymscib', name: 'Journal of Polymer Science', abbrev: 'J. Polym. Sci.', rss_url: 'https://onlinelibrary.wiley.com/feed/26424169/most-recent', color: '#6c757d', category: 'Polymers/Macromolecules' },
   { id: 'wiley_macromolchem', name: 'Macromolecular Chemistry and Physics', abbrev: 'Macromol. Chem. Phys.', rss_url: 'https://onlinelibrary.wiley.com/feed/15213935/most-recent', color: '#6f42c1', category: 'Polymers/Macromolecules' },
   { id: 'wiley_macromolrapid', name: 'Macromolecular Rapid Communications', abbrev: 'Macromol. Rapid Commun.', rss_url: 'https://onlinelibrary.wiley.com/feed/15213927/most-recent', color: '#8e44ad', category: 'Polymers/Macromolecules' },
   { id: 'wiley_polymerscience', name: 'Polymer International', abbrev: 'Polym. Int.', rss_url: 'https://onlinelibrary.wiley.com/feed/10970126/most-recent', color: '#495057', category: 'Polymers/Macromolecules' },
@@ -227,7 +226,7 @@ export const ELSEVIER_JOURNALS = [
 
   // Biological/Medicinal Chemistry
   { id: 'elsevier_bioormed', name: 'Bioorganic & Medicinal Chemistry', abbrev: 'Bioorg. Med. Chem.', rss_url: 'https://rss.sciencedirect.com/publication/science/09680896', color: '#3498db', category: 'Biological/Medicinal Chemistry' },
-  { id: 'elsevier_bioorglett', name: 'Bioorganic & Medicinal Chemistry Letters', abbrev: 'Bioorg. Med. Chem. Lett.', rss_url: 'https://rss.sciencedirect.com/publication/science/09600894', color: '#1abc9c', category: 'Biological/Medicinal Chemistry' },
+  { id: 'elsevier_bioorglett', name: 'Bioorganic & Medicinal Chemistry Letters', abbrev: 'Bioorg. Med. Chem. Lett.', rss_url: 'https://rss.sciencedirect.com/publication/science/0960894X', color: '#1abc9c', category: 'Biological/Medicinal Chemistry' },
   { id: 'elsevier_ejmech', name: 'European Journal of Medicinal Chemistry', abbrev: 'Eur. J. Med. Chem.', rss_url: 'https://rss.sciencedirect.com/publication/science/02235234', color: '#2980b9', category: 'Biological/Medicinal Chemistry' },
   { id: 'elsevier_ejpb', name: 'European Journal of Pharmaceutics and Biopharmaceutics', abbrev: 'Eur. J. Pharm. Biopharm.', rss_url: 'https://rss.sciencedirect.com/publication/science/09396411', color: '#16a085', category: 'Biological/Medicinal Chemistry' },
 
@@ -244,7 +243,6 @@ export const ELSEVIER_JOURNALS = [
   { id: 'elsevier_matchemphys', name: 'Materials Chemistry and Physics', abbrev: 'Mater. Chem. Phys.', rss_url: 'https://rss.sciencedirect.com/publication/science/02540584', color: '#6610f2', category: 'Inorganic/Materials Chemistry' },
 
   // Organic Chemistry
-  { id: 'elsevier_catcomm', name: 'Catalysis Communications', abbrev: 'Catal. Commun.', rss_url: 'https://rss.sciencedirect.com/publication/science/15667367', color: '#dc3545', category: 'Catalysis' },
   { id: 'elsevier_jcatal', name: 'Journal of Catalysis', abbrev: 'J. Catal.', rss_url: 'https://rss.sciencedirect.com/publication/science/00219517', color: '#dc3545', category: 'Catalysis' },
   { id: 'elsevier_jorgchem', name: 'Journal of Organometallic Chemistry', abbrev: 'J. Organomet. Chem.', rss_url: 'https://rss.sciencedirect.com/publication/science/0022328X', color: '#c0392b', category: 'Organic Chemistry' },
   { id: 'elsevier_tet', name: 'Tetrahedron', abbrev: 'Tetrahedron', rss_url: 'https://rss.sciencedirect.com/publication/science/00404020', color: '#d63384', category: 'Organic Chemistry' },
@@ -313,7 +311,6 @@ export const SPRINGER_JOURNALS = [
   { id: 'springer_natchem', name: 'Nature Chemistry', abbrev: 'Nat. Chem.', rss_url: 'https://www.nature.com/nchem.rss', color: '#e74c3c', category: 'General' },
   { id: 'springer_natrevchem', name: 'Nature Reviews Chemistry', abbrev: 'Nat. Rev. Chem.', rss_url: 'https://www.nature.com/natrevchem.rss', color: '#d63384', category: 'General' },
   { id: 'springer_natrevmater', name: 'Nature Reviews Materials', abbrev: 'Nat. Rev. Mater.', rss_url: 'https://www.nature.com/natrevmats.rss', color: '#7b2d8e', category: 'General' },
-  { id: 'springer_science_adv', name: 'Science Advances (via Nature)', abbrev: 'Sci. Adv.', rss_url: 'https://www.nature.com/natrevchem.rss', color: '#27ae60', category: 'General' },
 
   // Analytical Chemistry
   { id: 'springer_analbioanal', name: 'Analytical and Bioanalytical Chemistry', abbrev: 'Anal. Bioanal. Chem.', rss_url: 'https://link.springer.com/search.rss?facet-journal-id=216', color: '#d35400', category: 'Analytical Chemistry' },
@@ -337,7 +334,7 @@ export const SPRINGER_JOURNALS = [
 
   // Organic Chemistry
   { id: 'springer_natsynth', name: 'Nature Synthesis', abbrev: 'Nat. Synth.', rss_url: 'https://www.nature.com/natsynth.rss', color: '#c0392b', category: 'Organic Chemistry' },
-  { id: 'springer_synlett', name: 'Synlett', abbrev: 'Synlett', rss_url: 'https://www.thieme-connect.de/media/synlett/rss/latest.rss', color: '#d63384', category: 'Organic Chemistry' },
+  { id: 'springer_synlett', name: 'Synlett', abbrev: 'Synlett', rss_url: 'https://www.thieme-connect.de/rss/thieme/en/10.1055-s-00000083.xml', color: '#d63384', category: 'Organic Chemistry' },
 
   // Applied/Industrial Chemistry
   { id: 'springer_clean', name: 'Clean Technologies and Environmental Policy', abbrev: 'Clean Technol.', rss_url: 'https://link.springer.com/search.rss?facet-journal-id=10098', color: '#28a745', category: 'Applied/Industrial Chemistry' },
@@ -350,27 +347,23 @@ export const SPRINGER_JOURNALS = [
 
 export const TAYLOR_JOURNALS = [
   // General
-  { id: 'taylor_structurreports', name: 'Acta Crystallographica E', abbrev: 'Acta Crystallogr. E', rss_url: 'https://www.tandfonline.com/feed/rss/gcoo20', color: '#27ae60', category: 'General' },
   { id: 'taylor_molphys', name: 'Molecular Physics', abbrev: 'Mol. Phys.', rss_url: 'https://www.tandfonline.com/feed/rss/tmph20', color: '#0066b3', category: 'General' },
 
   // Analytical Chemistry
   { id: 'taylor_analytletter', name: 'Analytical Letters', abbrev: 'Anal. Lett.', rss_url: 'https://www.tandfonline.com/feed/rss/lanl20', color: '#e85d00', category: 'Analytical Chemistry' },
-  { id: 'taylor_applspectrosc', name: 'Applied Spectroscopy Reviews', abbrev: 'Appl. Spectrosc. Rev.', rss_url: 'https://www.tandfonline.com/feed/rss/lasy20', color: '#c0392b', category: 'Analytical Chemistry' },
-  { id: 'taylor_jliquidchrom', name: 'Journal of Liquid Chromatography & Related Technologies', abbrev: 'J. Liq. Chromatogr.', rss_url: 'https://www.tandfonline.com/feed/rss/lchrom', color: '#d35400', category: 'Analytical Chemistry' },
+  { id: 'taylor_jliquidchrom', name: 'Journal of Liquid Chromatography & Related Technologies', abbrev: 'J. Liq. Chromatogr.', rss_url: 'https://www.tandfonline.com/feed/rss/ljlc20', color: '#d35400', category: 'Analytical Chemistry' },
 
   // Biological/Medicinal Chemistry
   { id: 'taylor_drugdevind', name: 'Drug Development and Industrial Pharmacy', abbrev: 'Drug Dev. Ind. Pharm.', rss_url: 'https://www.tandfonline.com/feed/rss/iddi20', color: '#3498db', category: 'Biological/Medicinal Chemistry' },
   { id: 'taylor_jenzymeinhibmed', name: 'Journal of Enzyme Inhibition and Medicinal Chemistry', abbrev: 'J. Enzyme Inhib. Med. Chem.', rss_url: 'https://www.tandfonline.com/feed/rss/ienz20', color: '#2980b9', category: 'Biological/Medicinal Chemistry' },
-  { id: 'taylor_jrecept', name: 'Journal of Receptors and Signal Transduction', abbrev: 'J. Recept. Signal Transduct.', rss_url: 'https://www.tandfonline.com/feed/rss/lrst20', color: '#1abc9c', category: 'Biological/Medicinal Chemistry' },
-  { id: 'taylor_pharmdevel', name: 'Pharmaceutical Development and Technology', abbrev: 'Pharm. Dev. Technol.', rss_url: 'https://www.tandfonline.com/feed/rss/ipdt20', color: '#8e44ad', category: 'Biological/Medicinal Chemistry' },
+  { id: 'taylor_pharmdevel', name: 'Pharmaceutical Development and Technology', abbrev: 'Pharm. Dev. Technol.', rss_url: 'https://www.tandfonline.com/feed/rss/iphd20', color: '#8e44ad', category: 'Biological/Medicinal Chemistry' },
 
   // Physical/Theoretical Chemistry
-  { id: 'taylor_intjchemkinet', name: 'International Journal of Chemical Kinetics', abbrev: 'Int. J. Chem. Kinet.', rss_url: 'https://www.tandfonline.com/feed/rss/kin', color: '#e67e22', category: 'Physical/Theoretical Chemistry' },
+  { id: 'taylor_intjchemkinet', name: 'International Journal of Chemical Kinetics', abbrev: 'Int. J. Chem. Kinet.', rss_url: 'https://onlinelibrary.wiley.com/feed/10974601/most-recent', color: '#e67e22', category: 'Physical/Theoretical Chemistry' },
   { id: 'taylor_jchemsocpak', name: 'Journal of Coordination Chemistry', abbrev: 'J. Coord. Chem.', rss_url: 'https://www.tandfonline.com/feed/rss/gcoo20', color: '#fd7e14', category: 'Physical/Theoretical Chemistry' },
 
   // Inorganic/Materials Chemistry
   { id: 'taylor_jdispsci', name: 'Journal of Dispersion Science and Technology', abbrev: 'J. Dispers. Sci. Technol.', rss_url: 'https://www.tandfonline.com/feed/rss/ldis20', color: '#7b2d8e', category: 'Inorganic/Materials Chemistry' },
-  { id: 'taylor_matletters', name: 'Materials Letters: X', abbrev: 'Mater. Lett. X', rss_url: 'https://www.tandfonline.com/feed/rss/ymlt20', color: '#1abc9c', category: 'Inorganic/Materials Chemistry' },
   { id: 'taylor_phasettrans', name: 'Phase Transitions', abbrev: 'Phase Transit.', rss_url: 'https://www.tandfonline.com/feed/rss/gpht20', color: '#20c997', category: 'Inorganic/Materials Chemistry' },
 
   // Organic Chemistry
@@ -379,7 +372,6 @@ export const TAYLOR_JOURNALS = [
   { id: 'taylor_synthcomm', name: 'Synthetic Communications', abbrev: 'Synth. Commun.', rss_url: 'https://www.tandfonline.com/feed/rss/lsyc20', color: '#d63384', category: 'Organic Chemistry' },
 
   // Applied/Industrial Chemistry
-  { id: 'taylor_chemengcomm', name: 'Chemical Engineering Communications', abbrev: 'Chem. Eng. Commun.', rss_url: 'https://www.tandfonline.com/feed/rss/gcec20', color: '#6c757d', category: 'Applied/Industrial Chemistry' },
   { id: 'taylor_jenvsciheal', name: 'Journal of Environmental Science and Health', abbrev: 'J. Environ. Sci. Health', rss_url: 'https://www.tandfonline.com/feed/rss/lesa20', color: '#28a745', category: 'Applied/Industrial Chemistry' },
   // Polymers/Macromolecules
   { id: 'taylor_jmacromolscia', name: 'Journal of Macromolecular Science, Part A', abbrev: 'J. Macromol. Sci. A', rss_url: 'https://www.tandfonline.com/feed/rss/lmsa20', color: '#8e44ad', category: 'Polymers/Macromolecules' },
@@ -393,7 +385,7 @@ export const AAAS_JOURNALS = [
   { id: 'aaas_sciadv', name: 'Science Advances', abbrev: 'Sci. Adv.', rss_url: 'https://www.science.org/action/showFeed?type=etoc&feed=rss&jc=sciadv', color: '#e74c3c', category: 'General' },
   { id: 'aaas_sciimmunol', name: 'Science Immunology', abbrev: 'Sci. Immunol.', rss_url: 'https://www.science.org/action/showFeed?type=etoc&feed=rss&jc=sciimmunol', color: '#6f42c1', category: 'General' },
   { id: 'aaas_scirobot', name: 'Science Robotics', abbrev: 'Sci. Robot.', rss_url: 'https://www.science.org/action/showFeed?type=etoc&feed=rss&jc=scirobotics', color: '#0066b3', category: 'General' },
-  { id: 'aaas_scisignal', name: 'Science Signaling', abbrev: 'Sci. Signal.', rss_url: 'https://www.science.org/action/showFeed?type=etoc&feed=rss&jc=scisignal', color: '#d63384', category: 'General' },
+  { id: 'aaas_scisignal', name: 'Science Signaling', abbrev: 'Sci. Signal.', rss_url: 'https://www.science.org/action/showFeed?type=etoc&feed=rss&jc=signaling', color: '#d63384', category: 'General' },
 
   // Biological/Medicinal Chemistry
   { id: 'aaas_scitranslmed', name: 'Science Translational Medicine', abbrev: 'Sci. Transl. Med.', rss_url: 'https://www.science.org/action/showFeed?type=etoc&feed=rss&jc=stm', color: '#2980b9', category: 'Biological/Medicinal Chemistry' },
@@ -441,7 +433,7 @@ export const ACS_MATERIALS_JOURNALS = [
   // Sustainability & Green Chemistry
   { id: 'mat_acs_acsenergylett', name: 'ACS Energy Letters', abbrev: 'ACS Energy Lett.', rss_url: 'https://pubs.acs.org/action/showFeed?type=axatoc&feed=rss&jc=aelccp', color: '#ffc107', category: 'Sustainability & Green Chemistry' },
   { id: 'mat_acs_acssustainchem', name: 'ACS Sustainable Chemistry & Engineering', abbrev: 'ACS Sustain. Chem. Eng.', rss_url: 'https://pubs.acs.org/action/showFeed?type=axatoc&feed=rss&jc=ascecg', color: '#2ecc71', category: 'Sustainability & Green Chemistry' },
-  { id: 'mat_acs_acssustresourcau', name: 'ACS Sustainable Resource Management', abbrev: 'ACS Sustain. Resour. Manag.', rss_url: 'https://pubs.acs.org/action/showFeed?type=axatoc&feed=rss&jc=asrmcm', color: '#2ecc71', category: 'Sustainability & Green Chemistry' },
+  { id: 'mat_acs_acssustresourcau', name: 'ACS Sustainable Resource Management', abbrev: 'ACS Sustain. Resour. Manag.', rss_url: 'https://pubs.acs.org/action/showFeed?type=axatoc&feed=rss&jc=asrmcd', color: '#2ecc71', category: 'Sustainability & Green Chemistry' },
   { id: 'mat_acs_envscitechnol', name: 'Environmental Science & Technology', abbrev: 'Environ. Sci. Technol.', rss_url: 'https://pubs.acs.org/action/showFeed?type=axatoc&feed=rss&jc=esthag', color: '#28a745', category: 'Sustainability & Green Chemistry' },
   // Sensors & Diagnostics
   { id: 'mat_acs_acsapplbiomat', name: 'ACS Applied Bio Materials', abbrev: 'ACS Appl. Bio Mater.', rss_url: 'https://pubs.acs.org/action/showFeed?type=axatoc&feed=rss&jc=aabmcb', color: '#1abc9c', category: 'Sensors & Diagnostics' },
@@ -487,9 +479,9 @@ export const WILEY_MATERIALS_JOURNALS = [
   { id: 'mat_wiley_electrophoresis', name: 'Electrophoresis', abbrev: 'Electrophoresis', rss_url: 'https://onlinelibrary.wiley.com/feed/15222683/most-recent', color: '#d35400', category: 'Analytical & Measurement Science' },
   { id: 'mat_wiley_jms', name: 'Journal of Mass Spectrometry', abbrev: 'J. Mass Spectrom.', rss_url: 'https://onlinelibrary.wiley.com/feed/10969888/most-recent', color: '#c0392b', category: 'Analytical & Measurement Science' },
   // Sustainability & Green Chemistry
-  { id: 'mat_wiley_chemsuschem', name: 'ChemSusChem', abbrev: 'ChemSusChem', rss_url: 'https://onlinelibrary.wiley.com/feed/18645631/most-recent', color: '#2ecc71', category: 'Sustainability & Green Chemistry' },
+  { id: 'mat_wiley_chemsuschem', name: 'ChemSusChem', abbrev: 'ChemSusChem', rss_url: 'https://chemistry-europe.onlinelibrary.wiley.com/feed/1864564x/most-recent', color: '#2ecc71', category: 'Sustainability & Green Chemistry' },
   // Polymers & Soft Matter
-  { id: 'mat_wiley_jpolymscib', name: 'Journal of Polymer Science', abbrev: 'J. Polym. Sci.', rss_url: 'https://onlinelibrary.wiley.com/feed/26429071/most-recent', color: '#6c757d', category: 'Polymers & Soft Matter' },
+  { id: 'mat_wiley_jpolymscib', name: 'Journal of Polymer Science', abbrev: 'J. Polym. Sci.', rss_url: 'https://onlinelibrary.wiley.com/feed/26424169/most-recent', color: '#6c757d', category: 'Polymers & Soft Matter' },
   { id: 'mat_wiley_macromolchem', name: 'Macromolecular Chemistry and Physics', abbrev: 'Macromol. Chem. Phys.', rss_url: 'https://onlinelibrary.wiley.com/feed/15213935/most-recent', color: '#6f42c1', category: 'Polymers & Soft Matter' },
   { id: 'mat_wiley_macromolrapid', name: 'Macromolecular Rapid Communications', abbrev: 'Macromol. Rapid Commun.', rss_url: 'https://onlinelibrary.wiley.com/feed/15213927/most-recent', color: '#8e44ad', category: 'Polymers & Soft Matter' },
 ];
@@ -560,34 +552,29 @@ export const ENGINEERING_CATEGORIES = [
 
 export const ELSEVIER_ENGINEERING_JOURNALS = [
   // Chemical Engineering
-  { id: 'eng_elsevier_chemengscicomm', name: 'Chemical Engineering Communications', abbrev: 'Chem. Eng. Commun.', rss_url: 'https://rss.sciencedirect.com/publication/science/00986445', color: '#ff6c00', category: 'Chemical Engineering' },
   { id: 'eng_elsevier_chemengj', name: 'Chemical Engineering Journal', abbrev: 'Chem. Eng. J.', rss_url: 'https://rss.sciencedirect.com/publication/science/13858947', color: '#ff6c00', category: 'Chemical Engineering' },
   { id: 'eng_elsevier_aiche', name: 'Chemical Engineering Research and Design', abbrev: 'Chem. Eng. Res. Des.', rss_url: 'https://rss.sciencedirect.com/publication/science/02638762', color: '#ff6c00', category: 'Chemical Engineering' },
   { id: 'eng_elsevier_chemengsci', name: 'Chemical Engineering Science', abbrev: 'Chem. Eng. Sci.', rss_url: 'https://rss.sciencedirect.com/publication/science/00092509', color: '#ff6c00', category: 'Chemical Engineering' },
-  { id: 'eng_elsevier_proceng', name: 'Procedia Engineering', abbrev: 'Procedia Eng.', rss_url: 'https://rss.sciencedirect.com/publication/science/18777058', color: '#ff6c00', category: 'Chemical Engineering' },
   // Reaction Engineering
   { id: 'eng_elsevier_cattoday', name: 'Catalysis Today', abbrev: 'Catal. Today', rss_url: 'https://rss.sciencedirect.com/publication/science/09205861', color: '#ff6c00', category: 'Reaction Engineering' },
   { id: 'eng_elsevier_chemengprocess', name: 'Chemical Engineering and Processing', abbrev: 'Chem. Eng. Process.', rss_url: 'https://rss.sciencedirect.com/publication/science/02552701', color: '#ff6c00', category: 'Reaction Engineering' },
   { id: 'eng_elsevier_jcatal', name: 'Journal of Catalysis', abbrev: 'J. Catal.', rss_url: 'https://rss.sciencedirect.com/publication/science/00219517', color: '#ff6c00', category: 'Reaction Engineering' },
-  { id: 'eng_elsevier_reactkineticsmechcat', name: 'Reaction Kinetics, Mechanisms and Catalysis', abbrev: 'React. Kinet. Mech. Catal.', rss_url: 'https://rss.sciencedirect.com/publication/science/18785190', color: '#ff6c00', category: 'Reaction Engineering' },
+  { id: 'eng_elsevier_reactkineticsmechcat', name: 'Reaction Kinetics, Mechanisms and Catalysis', abbrev: 'React. Kinet. Mech. Catal.', rss_url: 'https://link.springer.com/search.rss?facet-journal-id=11144', color: '#ff6c00', category: 'Reaction Engineering' },
   // Separations
   { id: 'eng_elsevier_fluidphaseequilib', name: 'Fluid Phase Equilibria', abbrev: 'Fluid Phase Equilib.', rss_url: 'https://rss.sciencedirect.com/publication/science/03783812', color: '#ff6c00', category: 'Separations' },
   { id: 'eng_elsevier_jchromatagrap', name: 'Journal of Chromatography A', abbrev: 'J. Chromatogr. A', rss_url: 'https://rss.sciencedirect.com/publication/science/00219673', color: '#ff6c00', category: 'Separations' },
   { id: 'eng_elsevier_jmembrsci', name: 'Journal of Membrane Science', abbrev: 'J. Membr. Sci.', rss_url: 'https://rss.sciencedirect.com/publication/science/03767388', color: '#ff6c00', category: 'Separations' },
   { id: 'eng_elsevier_seppur', name: 'Separation and Purification Technology', abbrev: 'Sep. Purif. Technol.', rss_url: 'https://rss.sciencedirect.com/publication/science/13835866', color: '#ff6c00', category: 'Separations' },
   // Process Modeling & Simulation
-  { id: 'eng_elsevier_chemengjour_b', name: 'Chemical Engineering & Technology', abbrev: 'Chem. Eng. Technol.', rss_url: 'https://rss.sciencedirect.com/publication/science/09307516', color: '#ff6c00', category: 'Process Modeling & Simulation' },
   { id: 'eng_elsevier_compchemeng', name: 'Computers & Chemical Engineering', abbrev: 'Comput. Chem. Eng.', rss_url: 'https://rss.sciencedirect.com/publication/science/00981354', color: '#ff6c00', category: 'Process Modeling & Simulation' },
   // Scale-up & Manufacturing Science
   { id: 'eng_elsevier_intjpharm', name: 'International Journal of Pharmaceutics', abbrev: 'Int. J. Pharm.', rss_url: 'https://rss.sciencedirect.com/publication/science/03785173', color: '#ff6c00', category: 'Scale-up & Manufacturing Science' },
-  { id: 'eng_elsevier_orgprocess', name: 'Organic Process Research & Development (Elsevier)', abbrev: 'Org. Process Res. Dev.', rss_url: 'https://rss.sciencedirect.com/publication/science/10836160', color: '#ff6c00', category: 'Scale-up & Manufacturing Science' },
 ];
 
 export const WILEY_ENGINEERING_JOURNALS = [
   // Chemical Engineering
   { id: 'eng_wiley_aiche', name: 'AIChE Journal', abbrev: 'AIChE J.', rss_url: 'https://onlinelibrary.wiley.com/feed/15475905/most-recent', color: '#d63384', category: 'Chemical Engineering' },
   { id: 'eng_wiley_canchemeng', name: 'Canadian Journal of Chemical Engineering', abbrev: 'Can. J. Chem. Eng.', rss_url: 'https://onlinelibrary.wiley.com/feed/1939019x/most-recent', color: '#d63384', category: 'Chemical Engineering' },
-  { id: 'eng_wiley_chemeng', name: 'Chemical Engineering & Technology', abbrev: 'Chem. Eng. Technol.', rss_url: 'https://onlinelibrary.wiley.com/feed/15214125/most-recent', color: '#d63384', category: 'Chemical Engineering' },
   // Reaction Engineering
   { id: 'eng_wiley_chemcat', name: 'ChemCatChem', abbrev: 'ChemCatChem', rss_url: 'https://onlinelibrary.wiley.com/feed/18673899/most-recent', color: '#d63384', category: 'Reaction Engineering' },
   { id: 'eng_wiley_intjchemkinet', name: 'International Journal of Chemical Kinetics', abbrev: 'Int. J. Chem. Kinet.', rss_url: 'https://onlinelibrary.wiley.com/feed/10974601/most-recent', color: '#d63384', category: 'Reaction Engineering' },
@@ -597,7 +584,7 @@ export const WILEY_ENGINEERING_JOURNALS = [
   // Process Modeling & Simulation
   { id: 'eng_wiley_jchemtechnolbiotechnol', name: 'Journal of Chemical Technology & Biotechnology', abbrev: 'J. Chem. Technol. Biotechnol.', rss_url: 'https://onlinelibrary.wiley.com/feed/10974660/most-recent', color: '#d63384', category: 'Process Modeling & Simulation' },
   // Scale-up & Manufacturing Science
-  { id: 'eng_wiley_jpharmscience', name: 'Journal of Pharmaceutical Sciences', abbrev: 'J. Pharm. Sci.', rss_url: 'https://onlinelibrary.wiley.com/feed/15206017/most-recent', color: '#d63384', category: 'Scale-up & Manufacturing Science' },
+  { id: 'eng_wiley_jpharmscience', name: 'Journal of Pharmaceutical Sciences', abbrev: 'J. Pharm. Sci.', rss_url: 'https://rss.sciencedirect.com/publication/science/00223549', color: '#d63384', category: 'Scale-up & Manufacturing Science' },
 ];
 
 export const ACS_ENGINEERING_JOURNALS = [
@@ -649,40 +636,32 @@ export const SPRINGER_ENGINEERING_JOURNALS = [
 ];
 
 export const TAYLOR_ENGINEERING_JOURNALS = [
-  // Chemical Engineering
-  { id: 'eng_taylor_chemengprocesstech', name: 'Chemical Engineering & Technology', abbrev: 'Chem. Eng. Technol.', rss_url: 'https://www.tandfonline.com/feed/rss/tcet', color: '#6f42c1', category: 'Chemical Engineering' },
-  { id: 'eng_taylor_chemengcomm', name: 'Chemical Engineering Communications', abbrev: 'Chem. Eng. Commun.', rss_url: 'https://www.tandfonline.com/feed/rss/gcec20', color: '#6f42c1', category: 'Chemical Engineering' },
-  // Reaction Engineering
-  { id: 'eng_taylor_intjchemreact', name: 'International Journal of Chemical Reactor Engineering', abbrev: 'Int. J. Chem. React. Eng.', rss_url: 'https://www.tandfonline.com/feed/rss/ijcr20', color: '#6f42c1', category: 'Reaction Engineering' },
   // Separations
-  { id: 'eng_taylor_jliquidchrom', name: 'Journal of Liquid Chromatography & Related Technologies', abbrev: 'J. Liq. Chromatogr.', rss_url: 'https://www.tandfonline.com/feed/rss/lchrom', color: '#6f42c1', category: 'Separations' },
+  { id: 'eng_taylor_jliquidchrom', name: 'Journal of Liquid Chromatography & Related Technologies', abbrev: 'J. Liq. Chromatogr.', rss_url: 'https://www.tandfonline.com/feed/rss/ljlc20', color: '#6f42c1', category: 'Separations' },
   { id: 'eng_taylor_sepscitechnol', name: 'Separation Science and Technology', abbrev: 'Sep. Sci. Technol.', rss_url: 'https://www.tandfonline.com/feed/rss/lsst20', color: '#6f42c1', category: 'Separations' },
   // Process Modeling & Simulation
-  { id: 'eng_taylor_intjchemkinet', name: 'International Journal of Chemical Kinetics', abbrev: 'Int. J. Chem. Kinet.', rss_url: 'https://www.tandfonline.com/feed/rss/kin', color: '#6f42c1', category: 'Process Modeling & Simulation' },
+  { id: 'eng_taylor_intjchemkinet', name: 'International Journal of Chemical Kinetics', abbrev: 'Int. J. Chem. Kinet.', rss_url: 'https://onlinelibrary.wiley.com/feed/10974601/most-recent', color: '#6f42c1', category: 'Process Modeling & Simulation' },
   // Scale-up & Manufacturing Science
   { id: 'eng_taylor_drugdevind', name: 'Drug Development and Industrial Pharmacy', abbrev: 'Drug Dev. Ind. Pharm.', rss_url: 'https://www.tandfonline.com/feed/rss/iddi20', color: '#6f42c1', category: 'Scale-up & Manufacturing Science' },
-  { id: 'eng_taylor_pharmdevel', name: 'Pharmaceutical Development and Technology', abbrev: 'Pharm. Dev. Technol.', rss_url: 'https://www.tandfonline.com/feed/rss/ipdt20', color: '#6f42c1', category: 'Scale-up & Manufacturing Science' },
+  { id: 'eng_taylor_pharmdevel', name: 'Pharmaceutical Development and Technology', abbrev: 'Pharm. Dev. Technol.', rss_url: 'https://www.tandfonline.com/feed/rss/iphd20', color: '#6f42c1', category: 'Scale-up & Manufacturing Science' },
 ];
 
 export const ASME_ENGINEERING_JOURNALS = [
   // Chemical Engineering
-  { id: 'eng_asme_jfluideng', name: 'Journal of Fluids Engineering', abbrev: 'J. Fluids Eng.', rss_url: 'https://asmedigitalcollection.asme.org/fluidsengineering/rss/site', color: '#004B87', category: 'Chemical Engineering' },
-  { id: 'eng_asme_jheattransfer', name: 'Journal of Heat and Mass Transfer', abbrev: 'J. Heat Mass Transfer', rss_url: 'https://asmedigitalcollection.asme.org/heattransfer/rss/site', color: '#004B87', category: 'Chemical Engineering' },
+  { id: 'eng_asme_jfluideng', name: 'Journal of Fluids Engineering', abbrev: 'J. Fluids Eng.', rss_url: 'https://asmedigitalcollection.asme.org/rss/site_1000021/LatestOpenIssueArticles_1000012.xml', color: '#004B87', category: 'Chemical Engineering' },
+  { id: 'eng_asme_jheattransfer', name: 'Journal of Heat and Mass Transfer', abbrev: 'J. Heat Mass Transfer', rss_url: 'https://asmedigitalcollection.asme.org/rss/site_1000025/LatestOpenIssueArticles_1000014.xml', color: '#004B87', category: 'Chemical Engineering' },
   // Reaction Engineering
-  { id: 'eng_asme_jenergres', name: 'Journal of Energy Resources Technology', abbrev: 'J. Energy Resour. Technol.', rss_url: 'https://asmedigitalcollection.asme.org/energyresources/rss/site', color: '#004B87', category: 'Reaction Engineering' },
+  { id: 'eng_asme_jenergres', name: 'Journal of Energy Resources Technology', abbrev: 'J. Energy Resour. Technol.', rss_url: 'https://asmedigitalcollection.asme.org/rss/site_1000015/LatestOpenIssueArticles_1000009.xml', color: '#004B87', category: 'Reaction Engineering' },
   // Process Modeling & Simulation
-  { id: 'eng_asme_jdynamsys', name: 'Journal of Dynamic Systems, Measurement, and Control', abbrev: 'J. Dyn. Syst. Meas. Control', rss_url: 'https://asmedigitalcollection.asme.org/dynamicsystems/rss/site', color: '#004B87', category: 'Process Modeling & Simulation' },
+  { id: 'eng_asme_jdynamsys', name: 'Journal of Dynamic Systems, Measurement, and Control', abbrev: 'J. Dyn. Syst. Meas. Control', rss_url: 'https://asmedigitalcollection.asme.org/rss/site_1000011/LatestOpenIssueArticles_1000007.xml', color: '#004B87', category: 'Process Modeling & Simulation' },
   // Scale-up & Manufacturing Science
-  { id: 'eng_asme_jengindust', name: 'Journal of Engineering for Industry', abbrev: 'J. Eng. Ind.', rss_url: 'https://asmedigitalcollection.asme.org/manufacturingscience/rss/site', color: '#004B87', category: 'Scale-up & Manufacturing Science' },
-  { id: 'eng_asme_jmanufscience', name: 'Journal of Manufacturing Science and Engineering', abbrev: 'J. Manuf. Sci. Eng.', rss_url: 'https://asmedigitalcollection.asme.org/manufacturingscience/rss/site', color: '#004B87', category: 'Scale-up & Manufacturing Science' },
+  { id: 'eng_asme_jmanufscience', name: 'Journal of Manufacturing Science and Engineering', abbrev: 'J. Manuf. Sci. Eng.', rss_url: 'https://asmedigitalcollection.asme.org/rss/site_1000027/LatestOpenIssueArticles_1000015.xml', color: '#004B87', category: 'Scale-up & Manufacturing Science' },
 ];
 
 export const ICHEMEE_ENGINEERING_JOURNALS = [
   // Chemical Engineering
   { id: 'eng_icheme_chemengres', name: 'Chemical Engineering Research and Design', abbrev: 'Chem. Eng. Res. Des.', rss_url: 'https://rss.sciencedirect.com/publication/science/02638762', color: '#005A9C', category: 'Chemical Engineering' },
   { id: 'eng_icheme_foodbioprodprocess', name: 'Food and Bioproducts Processing', abbrev: 'Food Bioprod. Process.', rss_url: 'https://rss.sciencedirect.com/publication/science/09603085', color: '#005A9C', category: 'Chemical Engineering' },
-  // Reaction Engineering
-  { id: 'eng_icheme_chemengsciadv', name: 'Chemical Engineering Science: X', abbrev: 'Chem. Eng. Sci. X', rss_url: 'https://rss.sciencedirect.com/publication/science/25900552', color: '#005A9C', category: 'Reaction Engineering' },
   // Separations
   { id: 'eng_icheme_transe', name: 'Transactions of IChemE Part E (Food)', abbrev: 'Trans. IChemE E', rss_url: 'https://rss.sciencedirect.com/publication/science/09603085', color: '#005A9C', category: 'Separations' },
   // Process Modeling & Simulation
@@ -695,18 +674,18 @@ export const ALL_ENGINEERING_JOURNALS = [...ELSEVIER_ENGINEERING_JOURNALS, ...WI
 
 export const IOP_MATERIALS_JOURNALS = [
   // Materials Science & Nanotechnology
-  { id: 'mat_iop_2dmater', name: '2D Materials', abbrev: '2D Mater.', rss_url: 'https://iopscience.iop.org/journal/2053-1583/rss/latest', color: '#C8102E', category: 'Materials Science & Nanotechnology' },
-  { id: 'mat_iop_jphysmater', name: 'Journal of Physics: Materials', abbrev: 'J. Phys.: Mater.', rss_url: 'https://iopscience.iop.org/journal/2515-7639/rss/latest', color: '#C8102E', category: 'Materials Science & Nanotechnology' },
-  { id: 'mat_iop_nanotechnology', name: 'Nanotechnology', abbrev: 'Nanotechnology', rss_url: 'https://iopscience.iop.org/journal/0957-4484/rss/latest', color: '#C8102E', category: 'Materials Science & Nanotechnology' },
-  { id: 'mat_iop_semiscitechnol', name: 'Semiconductor Science and Technology', abbrev: 'Semicond. Sci. Technol.', rss_url: 'https://iopscience.iop.org/journal/0268-1242/rss/latest', color: '#C8102E', category: 'Materials Science & Nanotechnology' },
+  { id: 'mat_iop_2dmater', name: '2D Materials', abbrev: '2D Mater.', rss_url: 'https://iopscience.iop.org/journal/2053-1583/rss', color: '#C8102E', category: 'Materials Science & Nanotechnology' },
+  { id: 'mat_iop_jphysmater', name: 'Journal of Physics: Materials', abbrev: 'J. Phys.: Mater.', rss_url: 'https://iopscience.iop.org/journal/2515-7639/rss', color: '#C8102E', category: 'Materials Science & Nanotechnology' },
+  { id: 'mat_iop_nanotechnology', name: 'Nanotechnology', abbrev: 'Nanotechnology', rss_url: 'https://iopscience.iop.org/journal/0957-4484/rss', color: '#C8102E', category: 'Materials Science & Nanotechnology' },
+  { id: 'mat_iop_semiscitechnol', name: 'Semiconductor Science and Technology', abbrev: 'Semicond. Sci. Technol.', rss_url: 'https://iopscience.iop.org/journal/0268-1242/rss', color: '#C8102E', category: 'Materials Science & Nanotechnology' },
   // Analytical & Measurement Science
-  { id: 'mat_iop_jphysd', name: 'Journal of Physics D: Applied Physics', abbrev: 'J. Phys. D: Appl. Phys.', rss_url: 'https://iopscience.iop.org/journal/0022-3727/rss/latest', color: '#C8102E', category: 'Analytical & Measurement Science' },
-  { id: 'mat_iop_measscitech', name: 'Measurement Science and Technology', abbrev: 'Meas. Sci. Technol.', rss_url: 'https://iopscience.iop.org/journal/0957-0233/rss/latest', color: '#C8102E', category: 'Analytical & Measurement Science' },
+  { id: 'mat_iop_jphysd', name: 'Journal of Physics D: Applied Physics', abbrev: 'J. Phys. D: Appl. Phys.', rss_url: 'https://iopscience.iop.org/journal/0022-3727/rss', color: '#C8102E', category: 'Analytical & Measurement Science' },
+  { id: 'mat_iop_measscitech', name: 'Measurement Science and Technology', abbrev: 'Meas. Sci. Technol.', rss_url: 'https://iopscience.iop.org/journal/0957-0233/rss', color: '#C8102E', category: 'Analytical & Measurement Science' },
   // Sustainability & Green Chemistry
-  { id: 'mat_iop_envreslett', name: 'Environmental Research Letters', abbrev: 'Environ. Res. Lett.', rss_url: 'https://iopscience.iop.org/journal/1748-9326/rss/latest', color: '#C8102E', category: 'Sustainability & Green Chemistry' },
-  { id: 'mat_iop_jphysener', name: 'Journal of Physics: Energy', abbrev: 'J. Phys.: Energy', rss_url: 'https://iopscience.iop.org/journal/2515-7655/rss/latest', color: '#C8102E', category: 'Sustainability & Green Chemistry' },
+  { id: 'mat_iop_envreslett', name: 'Environmental Research Letters', abbrev: 'Environ. Res. Lett.', rss_url: 'https://iopscience.iop.org/journal/1748-9326/rss', color: '#C8102E', category: 'Sustainability & Green Chemistry' },
+  { id: 'mat_iop_jphysener', name: 'Journal of Physics: Energy', abbrev: 'J. Phys.: Energy', rss_url: 'https://iopscience.iop.org/journal/2515-7655/rss', color: '#C8102E', category: 'Sustainability & Green Chemistry' },
   // Polymers & Soft Matter
-  { id: 'mat_iop_jphyscondmat', name: 'Journal of Physics: Condensed Matter', abbrev: 'J. Phys.: Condens. Matter', rss_url: 'https://iopscience.iop.org/journal/0953-8984/rss/latest', color: '#C8102E', category: 'Polymers & Soft Matter' },
+  { id: 'mat_iop_jphyscondmat', name: 'Journal of Physics: Condensed Matter', abbrev: 'J. Phys.: Condens. Matter', rss_url: 'https://iopscience.iop.org/journal/0953-8984/rss', color: '#C8102E', category: 'Polymers & Soft Matter' },
 ];
 
 export const ALL_MATERIALS_JOURNALS = [...ACS_MATERIALS_JOURNALS, ...RSC_MATERIALS_JOURNALS, ...WILEY_MATERIALS_JOURNALS, ...ELSEVIER_MATERIALS_JOURNALS, ...MDPI_MATERIALS_JOURNALS, ...SPRINGER_MATERIALS_JOURNALS, ...IOP_MATERIALS_JOURNALS];

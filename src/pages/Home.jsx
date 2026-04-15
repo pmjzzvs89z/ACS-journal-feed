@@ -82,7 +82,16 @@ export default function Home() {
   // Returns { articles, failedJournals } so ArticleFeed can surface
   // per-journal failure banners instead of showing a silent empty feed.
   const fetchArticlesQuery = useCallback(async () => {
-    const activeJournals = followedJournals.filter(j => j.is_active);
+    const knownIds = new Set(ALL_JOURNALS.map(j => j.id));
+    // Deduplicate by RSS URL so cross-field siblings (same feed, different
+    // journal ID) are only fetched once.
+    const seenRss = new Set();
+    const activeJournals = followedJournals.filter(j => {
+      if (!j.is_active || !knownIds.has(j.journal_id)) return false;
+      if (seenRss.has(j.rss_url)) return false;
+      seenRss.add(j.rss_url);
+      return true;
+    });
     if (activeJournals.length === 0) return { articles: [], failedJournals: [] };
 
     progressSetterRef.current({ done: 0, total: activeJournals.length });

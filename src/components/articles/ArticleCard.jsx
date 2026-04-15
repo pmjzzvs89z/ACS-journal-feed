@@ -4,7 +4,6 @@ import { ExternalLink, Calendar, BookOpen, Users, Bookmark, BookmarkCheck } from
 import ShareButton from './ShareButton';
 
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { format } from 'date-fns';
 import { entities } from '@/api/entities';
 import { renderAuthors } from './AuthorRenderer';
@@ -15,7 +14,6 @@ import { showToast } from '@/components/ui/SimpleToast';
 
 const ArticleCard = React.memo(React.forwardRef(function ArticleCard({ article, index, savedRecord, onSaveToggle, resetKey = 0, onImageFail, cachedImageUrl }, _ref) {
   const [imageFailed, setImageFailed] = useState(false);
-  const [abstractOpen, setAbstractOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [hasBeenSeen, setHasBeenSeen] = React.useState(() => isArticleSeen(article.link));
   const [currentImageUrl, setCurrentImageUrl] = useState(null);
@@ -266,21 +264,6 @@ const ArticleCard = React.memo(React.forwardRef(function ArticleCard({ article, 
       </div>
       </div>
 
-      {/* Abstract Modal */}
-      <Dialog open={abstractOpen} onOpenChange={setAbstractOpen}>
-        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto dark:bg-slate-900 dark:border-slate-700">
-          <DialogHeader>
-            <DialogTitle className="text-base font-semibold text-foreground leading-snug pr-6">
-              {article.title}
-            </DialogTitle>
-            {rawAuthorText && <p className="text-xs text-muted-foreground mt-1">{rawAuthorText}</p>}
-          </DialogHeader>
-          <div className="mt-3">
-            <p className="text-xs font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wide mb-2">Abstract</p>
-            <p className="text-sm text-foreground leading-relaxed whitespace-pre-line">{abstractText}</p>
-          </div>
-        </DialogContent>
-      </Dialog>
     </article>
   );
 }));
