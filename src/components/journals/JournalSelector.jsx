@@ -386,11 +386,12 @@ const JournalSelector = forwardRef(function JournalSelector({ followedJournals, 
               p.journals.forEach(j => { if (!idToPub.has(j.id)) idToPub.set(j.id, key); });
             });
 
-            // Deduplicate followed journals by RSS URL
-            const deduped = followedJournals.filter(j => {
-              const seen = followedJournals.filter(f => f.rss_url === j.rss_url);
-              return seen[0]?.id === j.id;
+            // Deduplicate followed journals by RSS URL (O(N) via Map)
+            const firstByRss = new Map();
+            followedJournals.forEach(j => {
+              if (!firstByRss.has(j.rss_url)) firstByRss.set(j.rss_url, j.id);
             });
+            const deduped = followedJournals.filter(j => firstByRss.get(j.rss_url) === j.id);
 
             // Enrich each entry with catalog data + publisher key
             const enriched = deduped.map(j => {
@@ -463,7 +464,7 @@ const JournalSelector = forwardRef(function JournalSelector({ followedJournals, 
                           >
                             {followed && <span className="w-1.5 h-1.5 rounded-full bg-white" />}
                           </span>
-                          <BookOpen className="w-3.5 h-3.5 flex-shrink-0" style={{ color: followed ? (journal.color || '#94a3b8') : '#94a3b8' }} />
+                          <BookOpen className="w-3.5 h-3.5 flex-shrink-0" style={{ color: followed ? color : '#94a3b8' }} />
                           <span className="text-xs text-foreground truncate">
                             <span className="font-semibold">{journal.abbrev || j.journal_name}</span>
                             {journal.abbrev && journal.name && journal.abbrev !== journal.name && (

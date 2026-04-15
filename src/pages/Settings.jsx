@@ -205,9 +205,6 @@ export default function Settings() {
                   )}
                 </div>
               </div>
-
-
-
               </div>
 
               {/* Journal list — JournalSelector manages its own fixed header + scrollable body */}
@@ -222,7 +219,10 @@ export default function Settings() {
                     queryClient.setQueryData(['followedJournals', userId],
                       (old) => (old || []).filter(f => f.id !== dbEntry.id));
                     entities.FollowedJournal.delete(dbEntry.id)
-                      .catch(() => queryClient.invalidateQueries({ queryKey: ['followedJournals'] }));
+                      .catch((err) => {
+                        console.error('Failed to delete followed journal:', err);
+                        queryClient.invalidateQueries({ queryKey: ['followedJournals'] });
+                      });
                   }}
                   showSelected={showSelected}
                   uniqueActiveJournals={uniqueActiveJournals}

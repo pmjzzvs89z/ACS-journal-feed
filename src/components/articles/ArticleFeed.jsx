@@ -403,21 +403,39 @@ export default function ArticleFeed({ articles, failedJournals = [], isLoading, 
     return () => observer.disconnect();
   }, [hasMore]);
 
-  // Build journal list from both loaded articles AND all active followed journals
+  // Build journal list from both loaded articles AND all active followed journals.
+  // Dedupe by RSS URL so cross-field siblings (same feed, different journal ID)
+  // don't appear twice in the dropdown. Home.jsx fetches a single entry per URL
+  // and tags its articles with one specific journal_id; we preserve that ID here
+  // so the filter actually finds the tagged articles.
   const journalsFromArticles = useMemo(() => {
-    const map = new Map(
-      articles.map(a => [a.journalId, { id: a.journalId, name: a.journalAbbrev, color: a.journalColor }])
-    );
-    const activeFollowed = followedJournals.filter(j => j.is_active);
-    activeFollowed.forEach(j => {
-      if (!map.has(j.journal_id)) {
-        const meta = ALL_JOURNALS.find(x => x.id === j.journal_id);
-        map.set(j.journal_id, {
-          id: j.journal_id,
-          name: meta?.abbrev || j.journal_name,
-          color: meta?.color || '#0066b3',
-        });
+    const map = new Map();                  // key: journal id → journal meta
+    const seenRss = new Set();               // dedupe set
+    const idByRss = new Map();               // rss_url → chosen id (the one articles are tagged with)
+
+    // First pass: journals that have articles — these are authoritative.
+    articles.forEach(a => {
+      if (map.has(a.journalId)) return;
+      map.set(a.journalId, { id: a.journalId, name: a.journalAbbrev, color: a.journalColor });
+      const meta = ALL_JOURNALS.find(x => x.id === a.journalId);
+      if (meta) {
+        seenRss.add(meta.rss_url);
+        idByRss.set(meta.rss_url, a.journalId);
       }
+    });
+
+    // Second pass: active followed journals that have no articles yet.
+    // Skip any whose RSS URL has already been claimed by a sibling.
+    followedJournals.filter(j => j.is_active).forEach(j => {
+      if (seenRss.has(j.rss_url)) return;
+      if (map.has(j.journal_id)) return;
+      const meta = ALL_JOURNALS.find(x => x.id === j.journal_id);
+      map.set(j.journal_id, {
+        id: j.journal_id,
+        name: meta?.abbrev || j.journal_name,
+        color: meta?.color || '#0066b3',
+      });
+      seenRss.add(j.rss_url);
     });
     return map;
   }, [articles, followedJournals]);

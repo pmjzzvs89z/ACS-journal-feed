@@ -189,7 +189,17 @@ export default function Home() {
     refetchArticles();
   };
 
-  const activeJournalCount = followedJournals.filter(j => j.is_active).length;
+  // Dedupe by RSS URL so cross-field siblings count as one journal
+  // (matches the dedup used for fetching and for the Settings panel).
+  const activeJournalCount = (() => {
+    const seen = new Set();
+    return followedJournals.filter(j => {
+      if (!j.is_active) return false;
+      if (seen.has(j.rss_url)) return false;
+      seen.add(j.rss_url);
+      return true;
+    }).length;
+  })();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-100 via-slate-50 to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900">
