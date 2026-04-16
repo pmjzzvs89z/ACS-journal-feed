@@ -6,23 +6,29 @@ import { cn } from '@/lib/utils';
 import Tooltip from '@/components/ui/Tooltip';
 
 import JournalSearch from './JournalSearch';
-function FilterDropdown({ value, onChange, options, allLabel, style }) {
+function FilterDropdown({ value, onChange, options, allLabel, style, onOpenChange }) {
   const [open, setOpen] = useState(false);
   const wrapRef = useRef(null);
+
+  const setOpenAndNotify = (next) => {
+    const val = typeof next === 'function' ? next(open) : next;
+    setOpen(val);
+    if (onOpenChange) onOpenChange(val);
+  };
 
   useEffect(() => {
     if (!open) return;
     const onDocClick = (e) => {
-      if (wrapRef.current && !wrapRef.current.contains(e.target)) setOpen(false);
+      if (wrapRef.current && !wrapRef.current.contains(e.target)) setOpenAndNotify(false);
     };
-    const onKey = (e) => { if (e.key === 'Escape') setOpen(false); };
+    const onKey = (e) => { if (e.key === 'Escape') setOpenAndNotify(false); };
     document.addEventListener('mousedown', onDocClick);
     document.addEventListener('keydown', onKey);
     return () => {
       document.removeEventListener('mousedown', onDocClick);
       document.removeEventListener('keydown', onKey);
     };
-  }, [open]);
+  }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const selected = options.find(o => o.value === value);
   const label = selected ? selected.label : allLabel;
@@ -31,7 +37,7 @@ function FilterDropdown({ value, onChange, options, allLabel, style }) {
     <div ref={wrapRef} className="relative" style={style}>
       <button
         type="button"
-        onClick={() => setOpen(o => !o)}
+        onClick={() => setOpenAndNotify(o => !o)}
         aria-haspopup="listbox"
         aria-expanded={open}
         className="w-full flex items-center gap-2 rounded-lg border border-border px-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-foreground bg-slate-300 dark:bg-[rgb(38,42,56)]"
@@ -41,9 +47,6 @@ function FilterDropdown({ value, onChange, options, allLabel, style }) {
         <ChevronDown className="w-[1.09rem] h-[1.09rem] opacity-70 flex-shrink-0" />
       </button>
       {open && (
-        <>
-        {/* Backdrop — dims content behind the dropdown */}
-        <div className="fixed inset-0 bg-black/15 dark:bg-black/30" style={{ zIndex: 9998 }} onMouseDown={() => setOpen(false)} />
         <div
           role="listbox"
           className="absolute left-0 top-full mt-1 min-w-full max-h-[60vh] overflow-y-auto rounded-xl py-1 shadow-2xl bg-white dark:bg-[rgb(28,30,38)] border border-slate-300 dark:border-slate-500"
@@ -60,7 +63,7 @@ function FilterDropdown({ value, onChange, options, allLabel, style }) {
                 type="button"
                 role="option"
                 aria-selected={isSelected}
-                onClick={() => { onChange(opt.value); setOpen(false); }}
+                onClick={() => { onChange(opt.value); setOpenAndNotify(false); }}
                 className="w-full flex items-center gap-2 pl-3 pr-4 py-[0.192rem] text-sm text-left transition-colors text-foreground hover:bg-slate-100 dark:hover:bg-white/10"
               >
                 <span className="w-4 flex-shrink-0 flex items-center justify-center">
@@ -75,7 +78,6 @@ function FilterDropdown({ value, onChange, options, allLabel, style }) {
             );
           })}
         </div>
-        </>
       )}
     </div>
   );
@@ -139,6 +141,7 @@ const JournalSelector = forwardRef(function JournalSelector({ followedJournals, 
   const [filterPublisher, setFilterPublisher] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   // Clear everything — same effect as pressing the blue "Close" button, plus
   // collapsing any expanded publisher/category accordion.
@@ -338,6 +341,7 @@ const JournalSelector = forwardRef(function JournalSelector({ followedJournals, 
           options={PUBLISHERS.map(p => ({ value: p.id, label: p.label, color: p.color }))}
           allLabel="(By Publisher)"
           style={{ flex: '1 1 0', minWidth: 0 }}
+          onOpenChange={setDropdownOpen}
         />
 
         <FilterDropdown
@@ -346,13 +350,18 @@ const JournalSelector = forwardRef(function JournalSelector({ followedJournals, 
           options={CATEGORIES.map(c => ({ value: c, label: c, color: '#2563eb' }))}
           allLabel="(By Category across Publishers)"
           style={{ flex: '1 1 0', minWidth: 0 }}
+          onOpenChange={setDropdownOpen}
         />
       </div>
       </div>
       )}{/* end fixed header */}
 
       {/* Scrollable body */}
-      <div className="flex-1 min-h-0 overflow-y-auto journal-scroll px-4 pt-1 pb-4 bg-muted/50">
+      <div className="relative flex-1 min-h-0 overflow-y-auto journal-scroll px-4 pt-1 pb-4 bg-muted/50">
+        {/* Dim overlay when a filter dropdown is open */}
+        {dropdownOpen && (
+          <div className="absolute inset-0 bg-black/15 dark:bg-black/30 rounded-b-2xl pointer-events-none" style={{ zIndex: 10 }} />
+        )}
 
       {/* Results */}
       {showSelected ? (
