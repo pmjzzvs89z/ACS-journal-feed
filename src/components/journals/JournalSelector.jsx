@@ -32,6 +32,8 @@ function FilterDropdown({ value, onChange, options, allLabel, style }) {
       <button
         type="button"
         onClick={() => setOpen(o => !o)}
+        aria-haspopup="listbox"
+        aria-expanded={open}
         className="w-full flex items-center gap-2 rounded-lg border border-border px-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-foreground bg-slate-300 dark:bg-[rgb(38,42,56)]"
         style={{ fontSize: '0.828rem', height: '2.013rem' }}
       >
@@ -40,6 +42,7 @@ function FilterDropdown({ value, onChange, options, allLabel, style }) {
       </button>
       {open && (
         <div
+          role="listbox"
           className="absolute left-0 top-full mt-1 min-w-full max-h-[60vh] overflow-y-auto rounded-xl py-1 shadow-2xl bg-white dark:bg-[rgb(28,30,38)] border border-slate-300 dark:border-slate-500"
           style={{
             zIndex: 9999,
@@ -52,6 +55,8 @@ function FilterDropdown({ value, onChange, options, allLabel, style }) {
               <button
                 key={opt.value || '__all'}
                 type="button"
+                role="option"
+                aria-selected={isSelected}
                 onClick={() => { onChange(opt.value); setOpen(false); }}
                 className="w-full flex items-center gap-2 pl-3 pr-4 py-[0.192rem] text-sm text-left transition-colors text-foreground hover:bg-slate-100 dark:hover:bg-white/10"
               >

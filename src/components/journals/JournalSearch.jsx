@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Search, X } from 'lucide-react';
 import { entities } from '@/api/entities';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 
 // Broad category-level fallback keywords so journals without indexed scopes still appear
 const CATEGORY_FALLBACK = {
@@ -54,10 +54,7 @@ export default function JournalSearch({ allJournals, publishers, onResults, plac
   const [query, setQuery] = useState('');
   const inputRef = useRef(null);
   const containerRef = useRef(null);
-  const queryClient = useQueryClient();
   const { data: scopeRecords } = useJournalScopes();
-  const generatingRef = useRef(new Set());
-
   const scopeMap = useMemo(() => {
     const map = {};
     (scopeRecords || []).forEach(s => {
@@ -89,15 +86,6 @@ export default function JournalSearch({ allJournals, publishers, onResults, plac
     if (onResults) onResults(query.trim(), results);
   }, [results, query]);
 
-  // Silently generate missing scopes in background (only once per journal)
-  useEffect(() => {
-    if (!query.trim()) return;
-    const missing = results.filter(j => !scopeMap[j.id] && !generatingRef.current.has(j.id)).slice(0, 5);
-    if (missing.length === 0) return;
-    missing.forEach(j => {
-      generatingRef.current.add(j.id);
-    });
-  }, [results.map(j => j.id).join(','), query]);
 
   // Close search on click outside
   useEffect(() => {

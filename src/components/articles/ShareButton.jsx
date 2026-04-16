@@ -68,7 +68,7 @@ export default function ShareButton({ title, url, authors, journal, doi, pubDate
   // string may contain newlines from some RSS feeds).
   const authorLine = authors ? authors.replace(/\n/g, ', ').replace(/,\s*,/g, ',') : '';
   const emailBody = encodeURIComponent(
-    `${title || ''}\n\n${authorLine ? `Authors: ${authorLine}\n\n` : ''}${journal ? `Journal: ${journal}\n\n` : ''}${url || ''}\n\nSent from Literature Tracker (https://literature-tracker.com)`
+    `${title || ''}\n\n${authorLine ? `Authors: ${authorLine}\n\n` : ''}${journal ? `Journal: ${journal}\n\n` : ''}${url || ''}\n\nSent from Literature Tracker (https://literature-tracker.app)`
   );
   const emailHref = `mailto:?subject=${emailSubject}&body=${emailBody}`;
 
@@ -132,7 +132,7 @@ export default function ShareButton({ title, url, authors, journal, doi, pubDate
         </button>
       </Tooltip>
       {open && (
-        <div className="absolute bottom-full left-0 mb-1.5 bg-card border border-border rounded-lg shadow-lg z-50 py-1 min-w-[140px]">
+        <div role="menu" aria-label="Share options" className="absolute bottom-full left-0 mb-1.5 bg-card border border-border rounded-lg shadow-lg z-50 py-1 min-w-[140px]">
           <a
             href={emailHref}
             onClick={(e) => e.stopPropagation()}

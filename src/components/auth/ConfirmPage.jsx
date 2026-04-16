@@ -7,39 +7,46 @@ export default function ConfirmPage() {
 
   useEffect(() => {
     // Supabase appends token_hash & type as URL hash fragments or query params.
-    // The JS client picks them up automatically via onAuthStateChange,
-    // but we also try to handle the PKCE / token_hash flow explicitly.
+    // The JS client picks them up automatically via onAuthStateChange.
     const hash = window.location.hash;
     const params = new URLSearchParams(window.location.search);
 
-    // If Supabase redirected with a hash fragment (#access_token=... or #type=signup)
-    if (hash && hash.includes('type=signup')) {
-      // Supabase JS client auto-processes the hash on init — just wait a moment
-      setTimeout(() => setStatus('success'), 1500);
-      return;
-    }
-
-    // If redirected with query params (token_hash flow)
-    const tokenHash = params.get('token_hash');
-    const type = params.get('type');
-    if (tokenHash && type) {
-      supabase.auth.verifyOtp({ token_hash: tokenHash, type })
-        .then(({ error }) => {
-          setStatus(error ? 'error' : 'success');
-        })
-        .catch(() => setStatus('error'));
-      return;
-    }
-
-    // If there's an error in the hash
+    // If there's an error in the hash, fail immediately
     if (hash && hash.includes('error')) {
       setStatus('error');
       return;
     }
 
-    // Default: assume confirmation happened (Supabase auto-processes the hash)
-    const timer = setTimeout(() => setStatus('success'), 2000);
-    return () => clearTimeout(timer);
+    // If redirected with query params (token_hash flow), verify explicitly
+    const tokenHash = params.get('token_hash');
+    const type = params.get('type');
+    if (tokenHash && type) {
+      supabase.auth.verifyOtp({ token_hash: tokenHash, type })
+        .then(({ error }) => setStatus(error ? 'error' : 'success'))
+        .catch(() => setStatus('error'));
+      return;
+    }
+
+    // For hash-fragment flows (#access_token=...), Supabase auto-processes
+    // the hash on init. Listen for the resulting auth state change to
+    // confirm success rather than using a blind timeout.
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'SIGNED_IN' || event === 'USER_UPDATED') {
+        setStatus('success');
+      }
+    });
+
+    // If Supabase never fires an event (e.g. the link was already consumed
+    // or the hash is malformed), show an error after a generous timeout
+    // rather than spinning forever.
+    const timer = setTimeout(() => {
+      setStatus(prev => prev === 'verifying' ? 'error' : prev);
+    }, 8000);
+
+    return () => {
+      subscription.unsubscribe();
+      clearTimeout(timer);
+    };
   }, []);
 
   return (

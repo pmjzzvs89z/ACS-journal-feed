@@ -56,6 +56,8 @@ export default function Home() {
   const { logout, user } = useAuth();
   const userId = user?.id;
 
+  useEffect(() => { document.title = 'Literature Tracker'; }, []);
+
   const location = useLocation();
   const isSettingsActive = location.pathname === createPageUrl('Settings');
   const isGuideActive = location.pathname === createPageUrl('Guide');
@@ -348,30 +350,27 @@ export default function Home() {
             </div>
 
             <div className="flex-1 flex items-center gap-2 justify-end">
-              <Link to={createPageUrl('Settings')}>
-                <button className={`flex items-center gap-1.5 px-3 py-1 rounded-lg border text-sm font-medium transition-colors ${
-                  isSettingsActive
+              <Link to={createPageUrl('Settings')} className={`flex items-center gap-1.5 px-3 py-1 rounded-lg border text-sm font-medium transition-colors ${
+                isSettingsActive
+                  ? 'bg-slate-200/80 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-700'
+                  : 'bg-slate-200/80 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700 hover:bg-slate-300/80 dark:hover:bg-slate-700'
+              }`}>
+                <Settings className={`w-4 h-4 ${isSettingsActive ? 'text-blue-600 dark:text-blue-400' : ''}`} />
+                <span className="hidden sm:inline">Journal Selector</span>
+              </Link>
+              <Tooltip label="User Guide" delay={500}>
+                <Link to={createPageUrl('Guide')} aria-label="User Guide" className={`flex items-center gap-1.5 px-3 py-1 rounded-lg border text-sm font-medium transition-colors ${
+                  isGuideActive
                     ? 'bg-slate-200/80 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-700'
                     : 'bg-slate-200/80 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700 hover:bg-slate-300/80 dark:hover:bg-slate-700'
                 }`}>
-                  <Settings className={`w-4 h-4 ${isSettingsActive ? 'text-blue-600 dark:text-blue-400' : ''}`} />
-                  <span className="hidden sm:inline">Journal Selector</span>
-                </button>
-              </Link>
-              <Tooltip label="User Guide" delay={500}>
-                <Link to={createPageUrl('Guide')}>
-                  <button className={`flex items-center gap-1.5 px-3 py-1 rounded-lg border text-sm font-medium transition-colors ${
-                    isGuideActive
-                      ? 'bg-slate-200/80 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-700'
-                      : 'bg-slate-200/80 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700 hover:bg-slate-300/80 dark:hover:bg-slate-700'
-                  }`}>
-                    <BookOpen className={`w-4 h-4 ${isGuideActive ? 'text-blue-600 dark:text-blue-400' : ''}`} />
-                  </button>
+                  <BookOpen className={`w-4 h-4 ${isGuideActive ? 'text-blue-600 dark:text-blue-400' : ''}`} />
                 </Link>
               </Tooltip>
               <Tooltip label={isDark ? 'Switch to light mode' : 'Switch to dark mode'} delay={500}>
                 <button
                   onClick={toggleDark}
+                  aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
                   className="flex items-center justify-center w-8 h-8 rounded-lg border transition-colors bg-slate-200/80 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700 hover:bg-slate-300/80 dark:hover:bg-slate-700"
                 >
                   {isDark ? <Sun className="w-4 h-4 text-orange-400" /> : <Moon className="w-4 h-4 text-blue-500" />}
@@ -380,6 +379,7 @@ export default function Home() {
               <Tooltip label={`Log out from ${user?.email}`} delay={500}>
                 <button
                   onClick={logout}
+                  aria-label="Log out"
                   className="flex items-center justify-center w-8 h-8 rounded-lg border transition-colors bg-slate-200/80 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700 hover:bg-red-100/60 dark:hover:bg-red-900/30 hover:text-red-600 dark:hover:text-red-400"
                 >
                   <LogOut className="w-4 h-4" />
@@ -433,9 +433,29 @@ export default function Home() {
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
           onClick={() => setShowShortcutsHelp(false)}
           role="dialog"
+          aria-modal="true"
           aria-label="Keyboard shortcuts"
+          onKeyDown={(e) => {
+            if (e.key === 'Tab') {
+              // Simple focus trap — keep Tab cycling within the dialog
+              const dialog = e.currentTarget.querySelector('[data-shortcuts-panel]');
+              if (!dialog) return;
+              const focusable = dialog.querySelectorAll('button, [tabindex]:not([tabindex="-1"])');
+              if (focusable.length === 0) return;
+              const first = focusable[0];
+              const last = focusable[focusable.length - 1];
+              if (e.shiftKey && document.activeElement === first) {
+                e.preventDefault();
+                if (last instanceof HTMLElement) last.focus();
+              } else if (!e.shiftKey && document.activeElement === last) {
+                e.preventDefault();
+                if (first instanceof HTMLElement) first.focus();
+              }
+            }
+          }}
         >
           <div
+            data-shortcuts-panel
             className="bg-card rounded-2xl border-container border-border shadow-xl p-6 max-w-sm w-[92%]"
             onClick={(e) => e.stopPropagation()}
           >
@@ -449,6 +469,7 @@ export default function Home() {
               <li className="flex justify-between"><span>This help</span><kbd className="font-mono text-xs bg-muted px-2 py-0.5 rounded">?</kbd></li>
             </ul>
             <button
+              ref={(el) => { if (el instanceof HTMLElement) el.focus(); }}
               onClick={() => setShowShortcutsHelp(false)}
               className="mt-4 w-full px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition-colors"
             >

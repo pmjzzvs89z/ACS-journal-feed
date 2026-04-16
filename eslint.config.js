@@ -55,6 +55,7 @@ export default [
         { ignore: ["cmdk-input-wrapper", "toast-close"] },
       ],
       "react-hooks/rules-of-hooks": "error",
+      "react-hooks/exhaustive-deps": "warn",
       // Prefer <Tooltip> over bare `title=` on interactive elements —
       // the custom Tooltip renders consistently across browsers, respects
       // our delay conventions, and matches the rest of the UI.

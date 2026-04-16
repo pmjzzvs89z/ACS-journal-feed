@@ -277,9 +277,9 @@ export default function SavedFeed({ savedArticles, onRefresh, articles = [] }) {
     ? visibleArticles.filter(a => selectedIds.has(a.id))
     : visibleArticles;
 
-  const RulesToggle = () => (
+  const rulesToggle = (
     <button
-      onClick={() => setRulesExpanded(!rulesExpanded)}
+      onClick={() => setRulesExpanded(v => !v)}
       className="w-full bg-card rounded-2xl border-container border-border shadow-sm px-4 py-2 mb-4 flex items-center justify-between hover:shadow-md transition-shadow"
     >
       <div className="flex items-center gap-3 flex-1 text-left min-w-0">
@@ -305,7 +305,7 @@ export default function SavedFeed({ savedArticles, onRefresh, articles = [] }) {
   if (visibleArticles.length === 0) {
     return (
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-        <RulesToggle />
+        {rulesToggle}
         {rulesExpanded && (
           <motion.div
             initial={{ height: 0, opacity: 0 }}
@@ -383,7 +383,7 @@ export default function SavedFeed({ savedArticles, onRefresh, articles = [] }) {
         </div>
       </div>
 
-      <RulesToggle />
+      {rulesToggle}
 
       {rulesExpanded && (
         <motion.div

@@ -17,7 +17,7 @@ function toRIS(articles) {
       `AB  - ${a.abstract || ''}`,
       'ER  - ',
       '',
-    ].filter(l => l !== undefined && l !== null && !(l.endsWith('- '))).join('\n');
+    ].filter(l => l !== undefined && l !== null && !(l.endsWith('- ') && !l.startsWith('ER'))).join('\n');
   }).join('\n');
 }
 

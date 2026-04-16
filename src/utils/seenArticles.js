@@ -29,13 +29,28 @@ const getSeenArticles = () => {
   return _seenCache;
 };
 
+// Debounced localStorage flush — batches rapid markArticleSeen calls
+// (e.g. scrolling through many articles) into a single write.
+let _flushTimer = null;
+const FLUSH_DELAY_MS = 1000;
+
+function scheduleFlush() {
+  if (_flushTimer) return; // already scheduled
+  _flushTimer = setTimeout(() => {
+    _flushTimer = null;
+    const key = seenKeyForCurrent();
+    if (!key || !_seenCache) return;
+    try { localStorage.setItem(key, JSON.stringify([..._seenCache])); } catch { /* ignore */ }
+  }, FLUSH_DELAY_MS);
+}
+
 export const markArticleSeen = (articleId) => {
   const key = seenKeyForCurrent();
   if (!key) return; // logged out — don't persist read state
   const seen = getSeenArticles();
   if (seen.has(articleId)) return; // skip redundant writes
   seen.add(articleId);
-  localStorage.setItem(key, JSON.stringify([...seen]));
+  scheduleFlush();
 };
 
 export const isArticleSeen = (articleId) => getSeenArticles().has(articleId);
@@ -43,6 +58,7 @@ export const isArticleSeen = (articleId) => getSeenArticles().has(articleId);
 export const getSeenArticleIds = () => new Set(getSeenArticles());
 
 export const clearAllSeenArticles = () => {
+  if (_flushTimer) { clearTimeout(_flushTimer); _flushTimer = null; }
   const key = seenKeyForCurrent();
   _seenCache = null;
   if (key) localStorage.removeItem(key);

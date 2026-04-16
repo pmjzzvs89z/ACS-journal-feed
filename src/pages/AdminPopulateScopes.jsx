@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import { entities } from '@/api/entities';
 import { useQuery } from '@tanstack/react-query';
 import { ALL_JOURNALS } from '@/components/journals/JournalList';
@@ -46,6 +46,8 @@ function MiniBar({ label, value, max, color }) {
 
 export default function AdminDashboard() {
   const [isDark, toggleDark] = useDarkMode();
+
+  useEffect(() => { document.title = 'Admin Dashboard — Literature Tracker'; }, []);
 
   const { data: followedData = [], isLoading: loadingFollowed, isError: errorFollowed } = useQuery({
     queryKey: ['admin-followed'],
@@ -120,6 +122,13 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-100 via-slate-50 to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900">
+      {/* Skip-to-content link */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:px-3 focus:py-2 focus:rounded-lg focus:bg-blue-600 focus:text-white focus:shadow-lg"
+      >
+        Skip to main content
+      </a>
       {/* Header */}
       <header className="sticky top-0 z-40 bg-card/80 backdrop-blur-xl border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -132,20 +141,17 @@ export default function AdminDashboard() {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <Link to={createPageUrl('Home')}>
-                <button className="feed-pulse flex items-center gap-1.5 px-3 py-1 rounded-lg border text-sm font-semibold transition-colors bg-slate-200/80 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-700 hover:bg-slate-300/80 dark:hover:bg-blue-900/40">
-                  <Rss className="w-4 h-4 feed-pulse-inner" />
-                  <span className="hidden sm:inline feed-pulse-inner">Feed</span>
-                </button>
+              <Link to={createPageUrl('Home')} className="feed-pulse flex items-center gap-1.5 px-3 py-1 rounded-lg border text-sm font-semibold transition-colors bg-slate-200/80 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-700 hover:bg-slate-300/80 dark:hover:bg-blue-900/40">
+                <Rss className="w-4 h-4 feed-pulse-inner" />
+                <span className="hidden sm:inline feed-pulse-inner">Feed</span>
               </Link>
-              <Link to={createPageUrl('Settings')}>
-                <button className="flex items-center gap-1.5 px-3 py-1 rounded-lg border text-sm font-medium transition-colors bg-slate-200/80 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700 hover:bg-slate-300/80 dark:hover:bg-slate-700">
-                  <Settings className="w-4 h-4" />
-                </button>
+              <Link to={createPageUrl('Settings')} aria-label="Journal Selector" className="flex items-center gap-1.5 px-3 py-1 rounded-lg border text-sm font-medium transition-colors bg-slate-200/80 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700 hover:bg-slate-300/80 dark:hover:bg-slate-700">
+                <Settings className="w-4 h-4" />
               </Link>
               <Tooltip label={isDark ? 'Switch to light mode' : 'Switch to dark mode'} delay={500}>
                 <button
                   onClick={toggleDark}
+                  aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
                   className="flex items-center justify-center w-8 h-8 rounded-lg border transition-colors bg-slate-200/80 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700 hover:bg-slate-300/80 dark:hover:bg-slate-700"
                 >
                   {isDark ? <Sun className="w-4 h-4 text-orange-400" /> : <Moon className="w-4 h-4 text-blue-500" />}
@@ -156,7 +162,7 @@ export default function AdminDashboard() {
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+      <main id="main-content" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
 
         {/* Query-level error banner — surfaces RLS/network failures */}
         {(errorFollowed || errorSaved) && !isLoading && (
@@ -280,7 +286,7 @@ export default function AdminDashboard() {
             </div>
           )}
         </div>
-      </div>
+      </main>
     </div>
   );
 }

@@ -1,5 +1,5 @@
 // @ts-nocheck — see ArticleCard for rationale
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Sparkles, Loader2, ExternalLink, Calendar, BookOpen, Users, Bookmark, BookmarkCheck, Plus, X, Tag, User, ChevronDown } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -40,8 +40,8 @@ export default function RecommendedFeed({ followedJournals, savedArticles, onSav
   const [userAuthors, setUserAuthors] = useState('');
   const [selectedAuthors, setSelectedAuthors] = useState([]);
 
-  const savedLinks = new Set(savedArticles.map(a => a.link || a.article_id));
-  const savedIds = new Set(savedArticles.map(a => a.article_id));
+  const savedLinks = useMemo(() => new Set(savedArticles.map(a => a.link || a.article_id)), [savedArticles]);
+  const savedIds = useMemo(() => new Set(savedArticles.map(a => a.article_id)), [savedArticles]);
 
   const addKeyword = () => {
     const val = userKeywords.trim();
@@ -399,7 +399,7 @@ export default function RecommendedFeed({ followedJournals, savedArticles, onSav
                           )}
                         </div>
 
-                        <a href={article.link} target="_blank" rel="noopener noreferrer">
+                        <a href={article.link} target="_blank" rel="noopener noreferrer" referrerPolicy="no-referrer">
                           <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100 leading-snug mb-2 hover:text-blue-600 dark:hover:text-blue-400 transition-colors line-clamp-2">
                             {article.title}
                           </h3>
@@ -427,7 +427,7 @@ export default function RecommendedFeed({ followedJournals, savedArticles, onSav
                       <a
                         href={article.link}
                         target="_blank"
-                        rel="noopener noreferrer"
+                        rel="noopener noreferrer" referrerPolicy="no-referrer"
                         className="flex-shrink-0 w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:bg-blue-600 hover:text-white dark:hover:bg-blue-600 dark:hover:text-white transition-all duration-200"
                       >
                         <ExternalLink className="w-4 h-4" />

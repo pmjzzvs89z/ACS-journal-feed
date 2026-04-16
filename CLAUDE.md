@@ -27,6 +27,7 @@ npm run build      # production build
 npm run lint       # ESLint
 npm run lint:fix   # auto-fix
 npm run typecheck  # TypeScript / JSDoc type check
+npm test           # Vitest unit tests (articleMeta, articleMatch)
 npm run preview    # preview production build
 ```
 
@@ -43,14 +44,17 @@ src/
     entities.js             CRUD: FollowedJournal, SavedArticle, JournalScope, Admin
   components/
     articles/               ArticleFeed, ArticleCard, SavedFeed, RecommendedFeed,
-                            AutoSaveRules, ArticleFilters, ExportModal, ShareButton,
-                            AuthorRenderer
+                            AutoSaveRules, ArticleFilters (with search history),
+                            ExportModal, ShareButton, AuthorRenderer,
+                            JournalDropdown, SkeletonCard, SmartImage
     auth/                   LoginPage, ConfirmPage
     journals/               JournalList (the data source), JournalSelector,
-                            JournalSearch, AddCustomJournal
+                            JournalSearch, AddCustomJournal, SelectedJournalsList
     ui/                     shadcn/ui primitives — DO NOT HAND-EDIT
   hooks/
     useDarkMode.js          Dark-mode toggle, localStorage-backed
+    useAutoSave.js          Auto-save articles matching user rules
+    useSharedObserver.js    Singleton IntersectionObserver for large lists
     use-mobile.jsx
   lib/
     AuthContext.jsx         Supabase auth provider + useAuth() hook
@@ -65,6 +69,11 @@ src/
     AdminPopulateScopes.jsx Admin dashboard (usage analytics)
   utils/
     fetchRss.js             RSS fetch with timeout + Supabase proxy fallback
+    articleMeta.js          extractAbstract, extractImage, buildPdfUrl, getCachedImage
+    articleMatch.js         articleMatchesRules (keyword/author OR matching)
+    seenArticles.js         Read/unread article tracking (debounced localStorage)
+    articleMeta.test.js     Vitest tests for articleMeta
+    articleMatch.test.js    Vitest tests for articleMatch
   pages.config.js           Auto-generated page → route map
 index.html                  Contains pre-paint theme bootstrap script
 vercel.json                 SPA rewrite rule — required for deep-link refresh
@@ -93,10 +102,12 @@ When you need to change…
   `src/components/journals/JournalList.jsx`
   (exports `ALL_JOURNALS` and `CHEMISTRY_CATEGORIES`; all publishers are
   defined inline in this one file — there are no separate publisher files)
-- **Publisher colors / dropdown grouping** →
+- **Publisher colors / labels / order** →
+  `src/components/journals/JournalList.jsx`
+  (canonical exports: `PUBLISHER_COLORS`, `PUBLISHER_LABELS`, `PUBLISHER_ORDER`)
+- **Publisher → journal ID mapping** →
   `src/components/articles/ArticleFeed.jsx`
-  (`PUBLISHER_COLORS`, `PUBLISHER_ID_MAP`, `publisherColorForJournalId`,
-  `PUBLISHER_ORDER`)
+  (`PUBLISHER_ID_MAP`, `publisherColorForJournalId`)
 - **Supabase CRUD** → `src/api/entities.js`
 - **Auth state** → `src/lib/AuthContext.jsx` (`useAuth()`)
 - **RSS fetching** → `src/utils/fetchRss.js`
@@ -176,6 +187,7 @@ it cannot bleed between accounts on the same browser:
 | `cjf_autosave_rules:<userId>` | Auto-save keywords & authors | SavedFeed.jsx, Home.jsx |
 | `seenArticles:<userId>` | Read/unread article history | ArticleCard.jsx, Home.jsx |
 | `cjf_feed_filters:<userId>` | Feed journal filter selection | ArticleFeed.jsx |
+| `cjf_search_history:<userId>` | Search bar recent terms (max 10) | ArticleFilters.jsx |
 | `darkMode` | Theme preference (per-browser, not per-user — intentional) | useDarkMode.js |
 
 **Never add a new un-namespaced localStorage key for per-user data.** The

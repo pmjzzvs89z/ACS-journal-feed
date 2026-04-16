@@ -40,6 +40,8 @@ export default function JournalDropdown({ value, onChange, journals, publisherKe
       <button
         type="button"
         onClick={() => setOpen(o => !o)}
+        aria-haspopup="listbox"
+        aria-expanded={open}
         className="flex items-center gap-2 h-9 text-sm border border-slate-300 dark:border-blue-700 rounded-lg px-3 bg-slate-200/80 dark:bg-blue-900/30 text-slate-600 dark:text-slate-300 focus:outline-none focus:ring-1 focus:ring-blue-500 hover:bg-slate-300/80 dark:hover:bg-blue-900/40 transition-colors cursor-pointer"
       >
         <span className="truncate max-w-[220px]">{label}</span>
@@ -47,6 +49,8 @@ export default function JournalDropdown({ value, onChange, journals, publisherKe
       </button>
       {open && (
         <div
+          role="listbox"
+          aria-label="Filter by journal"
           className="absolute left-1/2 -translate-x-1/2 top-full mt-1 min-w-[220px] max-h-[90vh] overflow-y-auto rounded-xl py-1 shadow-2xl bg-neutral-100 dark:bg-[rgb(28,30,38)] border border-neutral-300 dark:border-white/10"
           style={{ zIndex: 9999, isolation: 'isolate' }}
         >
@@ -90,6 +94,8 @@ export default function JournalDropdown({ value, onChange, journals, publisherKe
                 <button
                   key={j.id || '__all'}
                   type="button"
+                  role="option"
+                  aria-selected={isSelected}
                   onClick={() => { onChange(j.id); setOpen(false); }}
                   className="w-full flex items-center gap-2 pl-3 pr-4 py-[0.08rem] text-sm text-left transition-colors text-slate-900 dark:text-white hover:bg-black/5 dark:hover:bg-white/10"
                 >

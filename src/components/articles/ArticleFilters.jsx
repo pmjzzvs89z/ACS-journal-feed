@@ -138,20 +138,24 @@ export default function ArticleFilters({ filters, onChange }) {
               </button>
             </div>
             {visibleHistory.map(term => (
-              <button
+              <div
                 key={term}
+                role="option"
+                tabIndex={0}
                 onClick={() => handleHistorySelect(term)}
-                className="w-full flex items-center gap-2 px-3 py-1.5 text-sm text-foreground hover:bg-blue-50 dark:hover:bg-slate-700 transition-colors text-left"
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleHistorySelect(term); } }}
+                className="w-full flex items-center gap-2 px-3 py-1.5 text-sm text-foreground hover:bg-blue-50 dark:hover:bg-slate-700 transition-colors text-left cursor-pointer"
               >
                 <Clock className="w-3 h-3 text-muted-foreground flex-shrink-0" />
                 <span className="flex-1 truncate">{term}</span>
                 <button
                   onClick={(e) => removeHistoryItem(term, e)}
+                  aria-label={`Remove "${term}" from search history`}
                   className="flex-shrink-0 w-5 h-5 flex items-center justify-center rounded text-muted-foreground hover:text-red-500 transition-colors"
                 >
                   <X className="w-3 h-3" />
                 </button>
-              </button>
+              </div>
             ))}
           </div>
         </div>

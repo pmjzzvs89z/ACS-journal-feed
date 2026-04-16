@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Settings, Bookmark, Rss, BookOpen, Moon, Sun, LogOut } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -23,6 +23,8 @@ export default function Guide() {
   const { logout, user } = useAuth();
   const userId = user?.id;
 
+  useEffect(() => { document.title = 'User Guide — Literature Tracker'; }, []);
+
   const { data: savedArticles = [] } = useQuery({
     queryKey: ['savedArticles', userId],
     queryFn: () => entities.SavedArticle.list(),
@@ -31,6 +33,13 @@ export default function Guide() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-100 via-slate-50 to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900">
+      {/* Skip-to-content link */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:px-3 focus:py-2 focus:rounded-lg focus:bg-blue-600 focus:text-white focus:shadow-lg"
+      >
+        Skip to main content
+      </a>
       {/* Header */}
       <header className="sticky top-0 z-40 bg-card/80 backdrop-blur-xl border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -48,40 +57,33 @@ export default function Guide() {
             </div>
 
             <div className="flex items-center gap-4">
-              <Link to={createPageUrl('Home')}>
-                <button className="feed-pulse flex items-center gap-1.5 px-3 py-1 rounded-lg border text-sm font-semibold transition-colors bg-slate-200/80 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-700 hover:bg-slate-300/80 dark:hover:bg-blue-900/40">
-                  <Rss className="w-4 h-4" />
-                  <span className="hidden sm:inline">Feed</span>
-                </button>
+              <Link to={createPageUrl('Home')} className="feed-pulse flex items-center gap-1.5 px-3 py-1 rounded-lg border text-sm font-semibold transition-colors bg-slate-200/80 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-700 hover:bg-slate-300/80 dark:hover:bg-blue-900/40">
+                <Rss className="w-4 h-4" />
+                <span className="hidden sm:inline">Feed</span>
               </Link>
-              <Link to={createPageUrl('Home') + '?tab=saved'}>
-                <button className="flex items-center gap-1.5 px-3 py-1 rounded-lg border text-sm font-medium transition-colors bg-slate-200/80 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700 hover:bg-slate-300/80 dark:hover:bg-slate-700">
-                  <Bookmark className="w-4 h-4" />
-                  <span className="hidden sm:inline">Saved</span>
-                  {savedArticles.length > 0 && (
-                    <span className="bg-amber-500 text-white text-xs rounded-full px-1.5 py-0.5 leading-none">{savedArticles.length}</span>
-                  )}
-                </button>
+              <Link to={createPageUrl('Home') + '?tab=saved'} className="flex items-center gap-1.5 px-3 py-1 rounded-lg border text-sm font-medium transition-colors bg-slate-200/80 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700 hover:bg-slate-300/80 dark:hover:bg-slate-700">
+                <Bookmark className="w-4 h-4" />
+                <span className="hidden sm:inline">Saved</span>
+                {savedArticles.length > 0 && (
+                  <span className="bg-amber-500 text-white text-xs rounded-full px-1.5 py-0.5 leading-none">{savedArticles.length}</span>
+                )}
               </Link>
             </div>
 
             <div className="flex-1 flex items-center gap-2 justify-end">
-              <Link to={createPageUrl('Settings')}>
-                <button className={`flex items-center gap-1.5 px-3 py-1 rounded-lg border text-sm font-medium transition-colors ${isSettingsActive ? 'bg-slate-200/80 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-700' : 'bg-slate-200/80 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700 hover:bg-slate-300/80 dark:hover:bg-slate-700'}`}>
-                  <Settings className={`w-4 h-4 ${isSettingsActive ? 'text-blue-600 dark:text-blue-400' : ''}`} />
-                  <span className="hidden sm:inline">Journal Selector</span>
-                </button>
+              <Link to={createPageUrl('Settings')} className={`flex items-center gap-1.5 px-3 py-1 rounded-lg border text-sm font-medium transition-colors ${isSettingsActive ? 'bg-slate-200/80 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-700' : 'bg-slate-200/80 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700 hover:bg-slate-300/80 dark:hover:bg-slate-700'}`}>
+                <Settings className={`w-4 h-4 ${isSettingsActive ? 'text-blue-600 dark:text-blue-400' : ''}`} />
+                <span className="hidden sm:inline">Journal Selector</span>
               </Link>
               <Tooltip label="User Guide" delay={500}>
-                <Link to={createPageUrl('Guide')}>
-                  <button className={`flex items-center gap-1.5 px-3 py-1 rounded-lg border text-sm font-medium transition-colors ${isGuideActive ? 'bg-slate-200/80 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-700' : 'bg-slate-200/80 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700 hover:bg-slate-300/80 dark:hover:bg-slate-700'}`}>
-                    <BookOpen className={`w-4 h-4 ${isGuideActive ? 'text-blue-600 dark:text-blue-400' : ''}`} />
-                  </button>
+                <Link to={createPageUrl('Guide')} aria-label="User Guide" className={`flex items-center gap-1.5 px-3 py-1 rounded-lg border text-sm font-medium transition-colors ${isGuideActive ? 'bg-slate-200/80 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-700' : 'bg-slate-200/80 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700 hover:bg-slate-300/80 dark:hover:bg-slate-700'}`}>
+                  <BookOpen className={`w-4 h-4 ${isGuideActive ? 'text-blue-600 dark:text-blue-400' : ''}`} />
                 </Link>
               </Tooltip>
               <Tooltip label={isDark ? 'Switch to light mode' : 'Switch to dark mode'} delay={500}>
                 <button
                   onClick={toggleDark}
+                  aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
                   className="flex items-center justify-center w-8 h-8 rounded-lg border transition-colors bg-slate-200/80 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700 hover:bg-slate-300/80 dark:hover:bg-slate-700"
                 >
                   {isDark ? <Sun className="w-4 h-4 text-orange-400" /> : <Moon className="w-4 h-4 text-blue-500" />}
@@ -90,6 +92,7 @@ export default function Guide() {
               <Tooltip label="Log out" delay={500}>
                 <button
                   onClick={logout}
+                  aria-label="Log out"
                   className="flex items-center justify-center w-8 h-8 rounded-lg border transition-colors bg-slate-200/80 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700 hover:bg-red-100/60 dark:hover:bg-red-900/30 hover:text-red-600 dark:hover:text-red-400"
                 >
                   <LogOut className="w-4 h-4" />
@@ -101,7 +104,7 @@ export default function Guide() {
       </header>
 
       {/* Guide content */}
-      <div className="w-full mx-auto px-4 sm:px-6 lg:px-8 py-10 max-w-[620px] sm:max-w-[806px]">
+      <main id="main-content" className="w-full mx-auto px-4 sm:px-6 lg:px-8 py-10 max-w-[620px] sm:max-w-[806px]">
         <div className="bg-card rounded-2xl border-container border-border shadow-sm p-8">
           <h1 className="text-2xl font-bold text-foreground mb-2">User Guide</h1>
           <p className="text-muted-foreground text-sm mb-8">Everything you need to know to get started with Literature Tracker.</p>
@@ -173,7 +176,7 @@ export default function Guide() {
               <li>Auto-save rules and read/unread history are stored <span className="font-medium">per account</span> — switching accounts on the same browser keeps everything separate</li>
               <li>Use the <span className="font-medium">moon/sun</span> icon in the header to toggle between dark and light mode</li>
               <li>Use the <span className="font-medium">logout</span> button (top-right) to sign out of your account</li>
-              <li>The app is available at <a href="https://literature-tracker.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline font-medium">literature-tracker.com</a></li>
+              <li>The app is available at <a href="https://literature-tracker.app" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline font-medium">literature-tracker.app</a></li>
             </ul>
           </Section>
         </div>
@@ -192,7 +195,7 @@ export default function Guide() {
             </p>
           </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 }

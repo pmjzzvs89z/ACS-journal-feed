@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { entities } from '@/api/entities';
 import { articleMatchesRules } from '@/utils/articleMatch';
+import { extractAbstract, getCachedImage } from '@/utils/articleMeta';
 
 // Read rules from localStorage as a fast cache. The canonical source is
 // the Supabase auto_save_rules table — SavedFeed.jsx keeps the cache in
@@ -85,32 +86,8 @@ export function useAutoSave(articles, userId) {
         if (toSave.length > 0) {
 
           await Promise.all(toSave.map(a => {
-            const abstract = (() => {
-              const sources = [a.content, a.description];
-              for (const src of sources) {
-                if (!src) continue;
-                const pMatches = src.match(/<p[^>]*>([\s\S]*?)<\/p>/gi);
-                if (pMatches) { for (const p of pMatches) { const t = p.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim(); if (t.length > 60) return t; } }
-                const plain = src.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
-                if (plain.length > 60) return plain;
-              }
-              return '';
-            })();
-            const thumbnail = (() => {
-              if (a.enclosure?.link) return a.enclosure.link;
-              if (a.enclosure?.url) return a.enclosure.url;
-              if (a.thumbnail) return a.thumbnail;
-              const sources = [a.content, a.description];
-              for (const src of sources) {
-                if (!src) continue;
-                const el = document.createElement('textarea');
-                el.innerHTML = src;
-                const decoded = el.value;
-                const m = decoded.match(/\bsrc=["']([^"']+\.(?:png|jpg|jpeg|gif|webp))["']/i);
-                if (m) return m[1];
-              }
-              return '';
-            })();
+            const abstract = extractAbstract(a) || '';
+            const thumbnail = getCachedImage(a) || '';
             return entities.SavedArticle.create({
               article_id: a.link,
               title: a.title,

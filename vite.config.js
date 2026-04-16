@@ -30,7 +30,6 @@ export default defineConfig({
           'vendor-ui': [
             '@radix-ui/react-dialog',
             '@radix-ui/react-slot',
-            '@radix-ui/react-toast',
             'class-variance-authority',
             'clsx',
             'tailwind-merge',

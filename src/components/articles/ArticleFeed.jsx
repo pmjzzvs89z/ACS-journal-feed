@@ -167,7 +167,7 @@ export default function ArticleFeed({ articles, failedJournals = [], isLoading, 
       else next.delete('journal');
       return next;
     }, { replace: true });
-  }, [setSearchParams]);
+  }, [setSearchParams, userId]);
   const [resetKey, setResetKey] = useState(0);
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [failedImageIds, setFailedImageIds] = useState(new Set());
@@ -371,11 +371,9 @@ export default function ArticleFeed({ articles, failedJournals = [], isLoading, 
           <span className="text-yellow-800 dark:text-yellow-500">Materials Science</span> — from ACS,
           RSC, Wiley, Elsevier, Springer Nature, and more.
         </p>
-        <Link to={createPageUrl('Settings')}>
-          <button className="feed-pulse inline-flex items-center gap-1.5 px-3 py-1 rounded-lg border text-welcome-cta font-semibold transition-colors bg-blue-50/60 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-700 hover:bg-blue-100/60 dark:hover:bg-blue-900/40 shadow-sm">
-            <Settings className="w-4 h-4" />
-            <span>Journal Selector</span>
-          </button>
+        <Link to={createPageUrl('Settings')} className="feed-pulse inline-flex items-center gap-1.5 px-3 py-1 rounded-lg border text-welcome-cta font-semibold transition-colors bg-blue-50/60 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-700 hover:bg-blue-100/60 dark:hover:bg-blue-900/40 shadow-sm">
+          <Settings className="w-4 h-4" />
+          <span>Journal Selector</span>
         </Link>
       </motion.div>
     );
