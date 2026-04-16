@@ -61,7 +61,11 @@ function FilterDropdown({ value, onChange, options, allLabel, style }) {
                 className="w-full flex items-center gap-2 pl-3 pr-4 py-[0.192rem] text-sm text-left transition-colors text-foreground hover:bg-slate-100 dark:hover:bg-white/10"
               >
                 <span className="w-4 flex-shrink-0 flex items-center justify-center">
-                  {isSelected && <Check className="w-3.5 h-3.5 text-foreground" />}
+                  {isSelected ? (
+                    <Check className="w-3.5 h-3.5 text-foreground" />
+                  ) : opt.color ? (
+                    <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: opt.color }} />
+                  ) : null}
                 </span>
                 <span className="truncate">{opt.label}</span>
               </button>
@@ -327,7 +331,7 @@ const JournalSelector = forwardRef(function JournalSelector({ followedJournals, 
         <FilterDropdown
           value={filterPublisher}
           onChange={setFilterPublisher}
-          options={PUBLISHERS.map(p => ({ value: p.id, label: p.label }))}
+          options={PUBLISHERS.map(p => ({ value: p.id, label: p.label, color: p.color }))}
           allLabel="(By Publisher)"
           style={{ flex: '1 1 0', minWidth: 0 }}
         />
