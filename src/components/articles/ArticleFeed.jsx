@@ -2,7 +2,7 @@
 import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Inbox, Settings, ArrowUp, AlertTriangle, RefreshCw, ChevronDown } from 'lucide-react';
+import { Inbox, Settings, ArrowUp, AlertTriangle, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { createPageUrl } from '@/utils';
 import ArticleCard from './ArticleCard';
@@ -243,26 +243,9 @@ export default function ArticleFeed({ articles, failedJournals = [], isLoading, 
     return results;
   }, [articles, filters, failedImageIds]);
 
-  // Collapse old articles — articles older than 7 days are hidden behind
-  // a "Show older articles" button to reduce initial visual clutter.
-  const OLD_DAYS = 7;
-  const [showOlderArticles, setShowOlderArticles] = useState(false);
-  const cutoffMs = useMemo(() => Date.now() - OLD_DAYS * 86400000, []);
-  const { recentFiltered, olderFiltered } = useMemo(() => {
-    const recent = [];
-    const older = [];
-    filtered.forEach(a => {
-      const t = a.pubDate ? new Date(a.pubDate).getTime() : 0;
-      if (t && t < cutoffMs) older.push(a);
-      else recent.push(a);
-    });
-    return { recentFiltered: recent, olderFiltered: older };
-  }, [filtered, cutoffMs]);
-  const displayFiltered = showOlderArticles ? filtered : recentFiltered;
-
   // Slice for rendering — only mount what's needed
-  const visibleArticles = useMemo(() => displayFiltered.slice(0, visibleCount), [displayFiltered, visibleCount]);
-  const hasMore = visibleCount < displayFiltered.length;
+  const visibleArticles = useMemo(() => filtered.slice(0, visibleCount), [filtered, visibleCount]);
+  const hasMore = visibleCount < filtered.length;
 
   // Infinite scroll observer — loads more articles when sentinel enters viewport
   useEffect(() => {
@@ -475,17 +458,6 @@ export default function ArticleFeed({ articles, failedJournals = [], isLoading, 
         {/* Sentinel for infinite scroll */}
         {hasMore && <div ref={sentinelRef} className="h-4" />}
       </div>
-
-      {/* "Show older" toggle — only when there are collapsed articles */}
-      {!showOlderArticles && olderFiltered.length > 0 && (
-        <button
-          onClick={() => setShowOlderArticles(true)}
-          className="w-full flex items-center justify-center gap-2 mt-4 py-2.5 rounded-xl border border-dashed border-slate-300 dark:border-slate-600 text-sm font-medium text-muted-foreground hover:text-foreground hover:border-slate-400 dark:hover:border-slate-500 transition-colors"
-        >
-          <ChevronDown className="w-4 h-4" />
-          Show {olderFiltered.length} older article{olderFiltered.length !== 1 ? 's' : ''} (over {OLD_DAYS} days)
-        </button>
-      )}
 
       {filtered.length === 0 && !isLoading && (
         <motion.div
