@@ -360,7 +360,7 @@ const JournalSelector = forwardRef(function JournalSelector({ followedJournals, 
       <div className="relative flex-1 min-h-0 overflow-y-auto journal-scroll px-4 pt-1 pb-4 bg-muted/50">
         {/* Dim overlay when a filter dropdown is open */}
         {dropdownOpen && (
-          <div className="absolute inset-0 bg-black/15 dark:bg-black/30 rounded-b-2xl pointer-events-none" style={{ zIndex: 10 }} />
+          <div className="absolute inset-0 bg-black/20 dark:bg-black/40 rounded-b-2xl pointer-events-none" style={{ zIndex: 10 }} />
         )}
 
       {/* Results */}
