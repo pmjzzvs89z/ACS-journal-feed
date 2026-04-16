@@ -339,7 +339,7 @@ const JournalSelector = forwardRef(function JournalSelector({ followedJournals, 
         <FilterDropdown
           value={filterCategory}
           onChange={setFilterCategory}
-          options={CATEGORIES.map(c => ({ value: c, label: c }))}
+          options={CATEGORIES.map(c => ({ value: c, label: c, color: '#2563eb' }))}
           allLabel="(By Category across Publishers)"
           style={{ flex: '1 1 0', minWidth: 0 }}
         />
