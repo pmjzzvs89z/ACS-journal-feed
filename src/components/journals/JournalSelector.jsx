@@ -64,7 +64,7 @@ function FilterDropdown({ value, onChange, options, allLabel, style }) {
                   {isSelected ? (
                     <Check className="w-3.5 h-3.5 text-foreground" />
                   ) : opt.color ? (
-                    <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: opt.color }} />
+                    <span className="w-[0.47rem] h-[0.47rem] rounded-full" style={{ backgroundColor: opt.color }} />
                   ) : null}
                 </span>
                 <span className="truncate">{opt.label}</span>
