@@ -41,6 +41,9 @@ function FilterDropdown({ value, onChange, options, allLabel, style }) {
         <ChevronDown className="w-[1.09rem] h-[1.09rem] opacity-70 flex-shrink-0" />
       </button>
       {open && (
+        <>
+        {/* Backdrop — dims content behind the dropdown */}
+        <div className="fixed inset-0 bg-black/15 dark:bg-black/30" style={{ zIndex: 9998 }} />
         <div
           role="listbox"
           className="absolute left-0 top-full mt-1 min-w-full max-h-[60vh] overflow-y-auto rounded-xl py-1 shadow-2xl bg-white dark:bg-[rgb(28,30,38)] border border-slate-300 dark:border-slate-500"
@@ -72,6 +75,7 @@ function FilterDropdown({ value, onChange, options, allLabel, style }) {
             );
           })}
         </div>
+        </>
       )}
     </div>
   );
