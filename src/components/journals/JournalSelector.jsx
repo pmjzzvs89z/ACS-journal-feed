@@ -79,9 +79,9 @@ import {
   ACS_MATERIALS_JOURNALS, RSC_MATERIALS_JOURNALS, WILEY_MATERIALS_JOURNALS,
   ELSEVIER_MATERIALS_JOURNALS, MDPI_MATERIALS_JOURNALS, SPRINGER_MATERIALS_JOURNALS,
   IOP_MATERIALS_JOURNALS,
-  PUBLISHER_ORDER
 } from './JournalList';
 import AddCustomJournal from './AddCustomJournal';
+import SelectedJournalsList from './SelectedJournalsList';
 
 // ⚠️  Publisher colors — keep in sync with PUBLISHER_COLORS in
 //     ArticleFeed.jsx and the table in CLAUDE.md.
@@ -343,146 +343,12 @@ const JournalSelector = forwardRef(function JournalSelector({ followedJournals, 
 
       {/* Results */}
       {showSelected ? (
-        /* Selected journals view — grouped by publisher matching the Feed dropdown.
-           Clicking the row toggles active/inactive (deselect keeps the journal on
-           the list but removes it from the Feed). The X button fully deletes. */
-        <div>
-          <div className="flex items-center gap-2 px-1 pb-2">
-            <button
-              onClick={onUnselectAll}
-              className="text-sm text-amber-500 hover:text-amber-600 dark:text-amber-400 dark:hover:text-amber-300 font-medium"
-            >
-              Unselect All
-            </button>
-          </div>
-          {(() => {
-            // Publisher order (shared with Feed dropdown) + labels/colors
-            const PUB_COLORS = {
-              acs: '#2563eb', elsevier: '#ea580c', rsc: '#c026d3', wiley: '#16a34a',
-              aaas: '#dc2626', mdpi: '#0891b2', springer: '#ca8a04', taylor: '#7c3aed',
-              asme: '#475569', icheme: '#475569', iop: '#475569', other: '#64748b',
-            };
-            const PUB_LABELS = {
-              acs: 'ACS', elsevier: 'Elsevier', rsc: 'RSC', wiley: 'Wiley',
-              aaas: 'AAAS', mdpi: 'MDPI', springer: 'Springer Nature',
-              taylor: 'Taylor & Francis', asme: 'ASME', icheme: 'IChemE',
-              iop: 'IOP Publishing', other: 'Other',
-            };
-
-            // Build journal ID → publisher key map
-            const idToPub = new Map();
-            const allPubs = [...CHEMISTRY_PUBLISHERS, ...ENGINEERING_PUBLISHERS, ...MATERIALS_PUBLISHERS];
-            allPubs.forEach(p => {
-              // Normalise publisher id: strip field prefixes (eng_, mat_)
-              const key = p.id.replace(/^(eng_|mat_)/, '');
-              p.journals.forEach(j => { if (!idToPub.has(j.id)) idToPub.set(j.id, key); });
-            });
-
-            // Deduplicate followed journals by RSS URL (O(N) via Map)
-            const firstByRss = new Map();
-            followedJournals.forEach(j => {
-              if (!firstByRss.has(j.rss_url)) firstByRss.set(j.rss_url, j.id);
-            });
-            const deduped = followedJournals.filter(j => firstByRss.get(j.rss_url) === j.id);
-
-            // Enrich each entry with catalog data + publisher key
-            const enriched = deduped.map(j => {
-              let journal = null;
-              for (const p of allPubs) {
-                const found = p.journals.find(pj => pj.id === j.journal_id);
-                if (found) { journal = found; break; }
-              }
-              if (!journal) {
-                const fromCatalog = ALL_JOURNALS.find(aj => aj.rss_url === j.rss_url);
-                if (fromCatalog) journal = fromCatalog;
-              }
-              if (!journal) journal = { id: j.journal_id, name: j.journal_name, abbrev: j.journal_name, rss_url: j.rss_url };
-              const pubKey = idToPub.get(j.journal_id) || idToPub.get(journal.id) || 'other';
-              return { dbEntry: j, journal, pubKey };
-            });
-
-            // Sort by publisher order, then A→Z within each group
-            enriched.sort((a, b) => {
-              const pa = PUBLISHER_ORDER.indexOf(a.pubKey);
-              const pb = PUBLISHER_ORDER.indexOf(b.pubKey);
-              const ia = pa === -1 ? PUBLISHER_ORDER.length : pa;
-              const ib = pb === -1 ? PUBLISHER_ORDER.length : pb;
-              if (ia !== ib) return ia - ib;
-              return (a.journal.abbrev || a.journal.name).localeCompare(b.journal.abbrev || b.journal.name, undefined, { sensitivity: 'base' });
-            });
-
-            // Group by publisher
-            const groups = [];
-            let lastPub = null;
-            enriched.forEach(item => {
-              if (item.pubKey !== lastPub) {
-                groups.push({ pubKey: item.pubKey, items: [] });
-                lastPub = item.pubKey;
-              }
-              groups[groups.length - 1].items.push(item);
-            });
-
-            return groups.map((group, gi) => (
-              <div key={group.pubKey}>
-                {gi > 0 && (
-                  <div className="my-1.5 mx-3 border-t border-slate-300 dark:border-white/15" />
-                )}
-                <div className="px-1 pb-1">
-                  <span className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: PUB_COLORS[group.pubKey] }}>
-                    {PUB_LABELS[group.pubKey] || group.pubKey}
-                  </span>
-                </div>
-                <div className="space-y-1">
-                  {group.items.map(({ dbEntry: j, journal, pubKey }) => {
-                    const followed = j.is_active;
-                    const color = PUB_COLORS[pubKey];
-                    return (
-                      <div
-                        key={j.id}
-                        className={cn(
-                          "w-full flex items-center gap-2.5 px-3 py-[0.4rem] rounded-lg transition-all",
-                          followed
-                            ? "bg-card border-[1.05px] border-border hover:border-red-400 dark:hover:border-red-500"
-                            : "bg-slate-100 dark:bg-[rgb(40,44,55)] border-[1.05px] border-transparent hover:border-green-400 dark:hover:border-green-500"
-                        )}
-                      >
-                        <button
-                          onClick={() => onToggleJournal(journal)}
-                          className="flex items-center gap-2.5 flex-1 min-w-0 text-left"
-                        >
-                          <span
-                            className="w-4 h-4 rounded-full flex-shrink-0 border-2 flex items-center justify-center transition-all"
-                            style={{ borderColor: color, backgroundColor: followed ? color : 'transparent' }}
-                          >
-                            {followed && <span className="w-1.5 h-1.5 rounded-full bg-white" />}
-                          </span>
-                          <BookOpen className="w-3.5 h-3.5 flex-shrink-0" style={{ color: followed ? color : '#94a3b8' }} />
-                          <span className="text-xs text-foreground truncate">
-                            <span className="font-semibold">{journal.abbrev || j.journal_name}</span>
-                            {journal.abbrev && journal.name && journal.abbrev !== journal.name && (
-                              <span className="text-muted-foreground/80"> ({journal.name})</span>
-                            )}
-                          </span>
-                        </button>
-                        <Tooltip label="Remove journal" delay={500}>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              if (onDeleteJournal) onDeleteJournal(j);
-                            }}
-                            className="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded text-slate-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors"
-                          >
-                            <X className="w-3.5 h-3.5" />
-                          </button>
-                        </Tooltip>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            ));
-          })()}
-        </div>
+        <SelectedJournalsList
+          followedJournals={followedJournals}
+          onToggleJournal={onToggleJournal}
+          onDeleteJournal={onDeleteJournal}
+          onUnselectAll={onUnselectAll}
+        />
       ) : searchQuery ? (
         /* Keyword search results — flat list grouped by publisher */
         <div className="space-y-[5px]">

@@ -2,13 +2,15 @@
 import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Inbox, Settings, ArrowUp, Check, ChevronDown, AlertTriangle, RefreshCw } from 'lucide-react';
+import { Inbox, Settings, ArrowUp, AlertTriangle, RefreshCw, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { createPageUrl } from '@/utils';
 import ArticleCard from './ArticleCard';
 import { clearAllSeenArticles } from '@/utils/seenArticles';
 import { getCachedImage } from '@/utils/articleMeta';
 import ArticleFilters from './ArticleFilters';
+import JournalDropdown from './JournalDropdown';
+import SkeletonCard from './SkeletonCard';
 import Tooltip from '@/components/ui/Tooltip';
 import { useAuth } from '@/lib/AuthContext';
 import {
@@ -20,29 +22,8 @@ import {
   ACS_ENGINEERING_JOURNALS, RSC_ENGINEERING_JOURNALS, WILEY_ENGINEERING_JOURNALS,
   ELSEVIER_ENGINEERING_JOURNALS, SPRINGER_ENGINEERING_JOURNALS,
   TAYLOR_ENGINEERING_JOURNALS, ASME_ENGINEERING_JOURNALS, ICHEMEE_ENGINEERING_JOURNALS,
-  PUBLISHER_ORDER,
+  PUBLISHER_ORDER, PUBLISHER_COLORS,
 } from '@/components/journals/JournalList';
-
-// Distinct per-publisher accent colors used to underline journal names in
-// the "All Selected Journals" dropdown so the user can recognize at a
-// glance which publisher a journal belongs to.
-//
-// ⚠️  KEEP IN SYNC with the publisher color table in CLAUDE.md (section
-//     "Publisher colors").  If you change a hex value here, update CLAUDE.md
-//     and vice-versa so future sessions don't get conflicting guidance.
-const PUBLISHER_COLORS = {
-  acs:      '#2563eb', // blue-600
-  elsevier: '#ea580c', // orange-600
-  rsc:      '#c026d3', // fuchsia-600
-  wiley:    '#16a34a', // green-600
-  aaas:     '#dc2626', // red-600
-  mdpi:     '#0891b2', // cyan-600
-  springer: '#ca8a04', // yellow-600
-  taylor:   '#7c3aed', // violet-600
-  asme:     '#475569', // slate-600
-  icheme:   '#475569', // slate-600
-  iop:      '#475569', // slate-600
-};
 
 const PUBLISHER_ID_MAP = (() => {
   const map = new Map();
@@ -126,132 +107,6 @@ const GA_HIDE_ON_FAIL_IDS = new Set([
   ...ELSEVIER_JOURNALS, ...SPRINGER_JOURNALS,
 ].map(j => j.id));
 
-function JournalDropdown({ value, onChange, journals }) {
-  const [open, setOpen] = useState(false);
-  const wrapRef = useRef(null);
-
-  useEffect(() => {
-    if (!open) return;
-    const onDocClick = (e) => {
-      if (wrapRef.current && !wrapRef.current.contains(e.target)) setOpen(false);
-    };
-    const onKey = (e) => { if (e.key === 'Escape') setOpen(false); };
-    document.addEventListener('mousedown', onDocClick);
-    document.addEventListener('keydown', onKey);
-    return () => {
-      document.removeEventListener('mousedown', onDocClick);
-      document.removeEventListener('keydown', onKey);
-    };
-  }, [open]);
-
-  const selected = journals.find(j => j.id === value);
-  const label = selected ? selected.name : 'All Selected Journals';
-
-  return (
-    <div ref={wrapRef} className="relative">
-      <button
-        type="button"
-        onClick={() => setOpen(o => !o)}
-        className="flex items-center gap-2 h-9 text-sm border border-slate-300 dark:border-blue-700 rounded-lg px-3 bg-slate-200/80 dark:bg-blue-900/30 text-slate-600 dark:text-slate-300 focus:outline-none focus:ring-1 focus:ring-blue-500 hover:bg-slate-300/80 dark:hover:bg-blue-900/40 transition-colors cursor-pointer"
-      >
-        <span className="truncate max-w-[220px]">{label}</span>
-        <ChevronDown className="w-3.5 h-3.5 opacity-70" />
-      </button>
-      {open && (
-        <div
-          className="absolute left-1/2 -translate-x-1/2 top-full mt-1 min-w-[220px] max-h-[90vh] overflow-y-auto rounded-xl py-1 shadow-2xl bg-neutral-100 dark:bg-[rgb(28,30,38)] border border-neutral-300 dark:border-white/10"
-          style={{
-            zIndex: 9999,
-            isolation: 'isolate',
-          }}
-        >
-          {(() => {
-            const PUB_LABELS = {
-              acs: 'ACS', elsevier: 'Elsevier', rsc: 'RSC', wiley: 'Wiley',
-              aaas: 'AAAS', mdpi: 'MDPI', springer: 'Springer Nature',
-              taylor: 'Taylor & Francis', asme: 'ASME', icheme: 'IChemE',
-              iop: 'IOP Publishing', other: 'Other',
-            };
-            const rows = [];
-            rows.push({ type: 'item', journal: { id: '', name: 'All Selected Journals' }, isFirstInGroup: true, pub: null });
-            let prevPub = null;
-            journals.forEach((j, idx) => {
-              const pub = PUBLISHER_ID_MAP.get(j.id) || 'other';
-              const isFirstInGroup = idx === 0 || pub !== prevPub;
-              if (isFirstInGroup) {
-                rows.push({ type: 'sep', key: `sep-${idx}-${pub}` });
-                rows.push({ type: 'label', key: `lbl-${pub}`, pub });
-              }
-              rows.push({ type: 'item', journal: j, isFirstInGroup, pub });
-              prevPub = pub;
-            });
-            return rows.map((row) => {
-              if (row.type === 'sep') {
-                return (
-                  <div
-                    key={row.key}
-                    className="my-1 mx-3 border-t border-slate-300 dark:border-white/15"
-                  />
-                );
-              }
-              if (row.type === 'label') {
-                const labelColor = PUBLISHER_COLORS[row.pub] || '#64748b';
-                return (
-                  <div key={row.key} className="px-3 pt-0.5 pb-[1px]">
-                    <span className="text-[10px] font-semibold uppercase tracking-wide" style={{ color: labelColor }}>
-                      {PUB_LABELS[row.pub] || row.pub}
-                    </span>
-                  </div>
-                );
-              }
-              const j = row.journal;
-              const isSelected = j.id === value;
-              const publisherColor = j.id ? publisherColorForJournalId(j.id) : null;
-              return (
-                <button
-                  key={j.id || '__all'}
-                  type="button"
-                  onClick={() => { onChange(j.id); setOpen(false); }}
-                  className="w-full flex items-center gap-2 pl-3 pr-4 py-[0.08rem] text-sm text-left transition-colors text-slate-900 dark:text-white hover:bg-black/5 dark:hover:bg-white/10"
-                >
-                  <span className="w-4 flex-shrink-0 flex items-center justify-center">
-                    {isSelected ? (
-                      <Check className="w-3.5 h-3.5" />
-                    ) : publisherColor ? (
-                      <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: publisherColor }} />
-                    ) : null}
-                  </span>
-                  <span className="truncate">
-                    {j.name}
-                  </span>
-                </button>
-              );
-            });
-          })()}
-        </div>
-      )}
-    </div>
-  );
-}
-
-function SkeletonCard() {
-  return (
-    <div className="bg-slate-50 dark:bg-card rounded-2xl border-card border-slate-400/80 dark:border-slate-600 overflow-hidden animate-pulse">
-      <div className="flex items-stretch gap-0">
-        <div className="hidden sm:flex flex-shrink-0 w-[405px] bg-slate-200 dark:bg-slate-700" style={{ minHeight: '160px' }} />
-        <div className="flex-1 py-5 pr-5 pl-10 space-y-3">
-          <div className="flex gap-2 items-center">
-            <div className="h-5 w-20 bg-slate-200 dark:bg-slate-700 rounded-full" />
-            <div className="h-4 w-24 bg-slate-200 dark:bg-slate-700 rounded-full" />
-          </div>
-          <div className="h-5 w-3/4 bg-slate-200 dark:bg-slate-700 rounded" />
-          <div className="h-4 w-1/2 bg-slate-200 dark:bg-slate-700 rounded" />
-          <div className="h-3 w-1/3 bg-slate-200 dark:bg-slate-700 rounded" />
-        </div>
-      </div>
-    </div>
-  );
-}
 
 export default function ArticleFeed({ articles, failedJournals = [], isLoading, loadingProgress, onRefresh, followedCount, savedArticles = [], onSaveToggle, followedJournals = [] }) {
   const { user } = useAuth();
@@ -388,9 +243,26 @@ export default function ArticleFeed({ articles, failedJournals = [], isLoading, 
     return results;
   }, [articles, filters, failedImageIds]);
 
+  // Collapse old articles — articles older than 7 days are hidden behind
+  // a "Show older articles" button to reduce initial visual clutter.
+  const OLD_DAYS = 7;
+  const [showOlderArticles, setShowOlderArticles] = useState(false);
+  const cutoffMs = useMemo(() => Date.now() - OLD_DAYS * 86400000, []);
+  const { recentFiltered, olderFiltered } = useMemo(() => {
+    const recent = [];
+    const older = [];
+    filtered.forEach(a => {
+      const t = a.pubDate ? new Date(a.pubDate).getTime() : 0;
+      if (t && t < cutoffMs) older.push(a);
+      else recent.push(a);
+    });
+    return { recentFiltered: recent, olderFiltered: older };
+  }, [filtered, cutoffMs]);
+  const displayFiltered = showOlderArticles ? filtered : recentFiltered;
+
   // Slice for rendering — only mount what's needed
-  const visibleArticles = useMemo(() => filtered.slice(0, visibleCount), [filtered, visibleCount]);
-  const hasMore = visibleCount < filtered.length;
+  const visibleArticles = useMemo(() => displayFiltered.slice(0, visibleCount), [displayFiltered, visibleCount]);
+  const hasMore = visibleCount < displayFiltered.length;
 
   // Infinite scroll observer — loads more articles when sentinel enters viewport
   useEffect(() => {
@@ -542,6 +414,7 @@ export default function ArticleFeed({ articles, failedJournals = [], isLoading, 
             value={filters.journal}
             onChange={(id) => setFilters({ ...filters, journal: id })}
             journals={journals}
+            publisherKeyForId={(id) => PUBLISHER_ID_MAP.get(id) || 'other'}
           />
         </div>
 
@@ -604,6 +477,17 @@ export default function ArticleFeed({ articles, failedJournals = [], isLoading, 
         {/* Sentinel for infinite scroll */}
         {hasMore && <div ref={sentinelRef} className="h-4" />}
       </div>
+
+      {/* "Show older" toggle — only when there are collapsed articles */}
+      {!showOlderArticles && olderFiltered.length > 0 && (
+        <button
+          onClick={() => setShowOlderArticles(true)}
+          className="w-full flex items-center justify-center gap-2 mt-4 py-2.5 rounded-xl border border-dashed border-slate-300 dark:border-slate-600 text-sm font-medium text-muted-foreground hover:text-foreground hover:border-slate-400 dark:hover:border-slate-500 transition-colors"
+        >
+          <ChevronDown className="w-4 h-4" />
+          Show {olderFiltered.length} older article{olderFiltered.length !== 1 ? 's' : ''} (over {OLD_DAYS} days)
+        </button>
+      )}
 
       {filtered.length === 0 && !isLoading && (
         <motion.div

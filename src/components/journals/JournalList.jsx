@@ -692,6 +692,32 @@ export const ALL_MATERIALS_JOURNALS = [...ACS_MATERIALS_JOURNALS, ...RSC_MATERIA
 
 export const ALL_JOURNALS = [...ACS_JOURNALS, ...RSC_JOURNALS, ...WILEY_JOURNALS, ...ELSEVIER_JOURNALS, ...MDPI_JOURNALS, ...SPRINGER_JOURNALS, ...TAYLOR_JOURNALS, ...AAAS_JOURNALS, ...OTHER_JOURNALS, ...ALL_ENGINEERING_JOURNALS, ...ALL_MATERIALS_JOURNALS];
 
+// Canonical publisher accent colors used in Feed dropdown, Journal Selector,
+// and anywhere publisher identity needs a visual cue.
+//
+// ⚠️  KEEP IN SYNC with the table in CLAUDE.md ("Publisher colors").
+export const PUBLISHER_COLORS = {
+  acs:      '#2563eb', // blue-600
+  elsevier: '#ea580c', // orange-600
+  rsc:      '#c026d3', // fuchsia-600
+  wiley:    '#16a34a', // green-600
+  aaas:     '#dc2626', // red-600
+  mdpi:     '#0891b2', // cyan-600
+  springer: '#ca8a04', // yellow-600
+  taylor:   '#7c3aed', // violet-600
+  asme:     '#475569', // slate-600
+  icheme:   '#475569', // slate-600
+  iop:      '#475569', // slate-600
+  other:    '#64748b', // slate-500
+};
+
+export const PUBLISHER_LABELS = {
+  acs: 'ACS', elsevier: 'Elsevier', rsc: 'RSC', wiley: 'Wiley',
+  aaas: 'AAAS', mdpi: 'MDPI', springer: 'Springer Nature',
+  taylor: 'Taylor & Francis', asme: 'ASME', icheme: 'IChemE',
+  iop: 'IOP Publishing', other: 'Other',
+};
+
 // Canonical publisher ordering for Feed dropdown and Selected-journals panel.
 // Kept here so ArticleFeed and JournalSelector share a single source of truth.
 export const PUBLISHER_ORDER = ['acs', 'elsevier', 'rsc', 'wiley', 'mdpi', 'springer', 'taylor', 'aaas', 'asme', 'icheme', 'iop', 'other'];
