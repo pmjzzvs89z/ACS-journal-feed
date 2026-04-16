@@ -43,7 +43,7 @@ function FilterDropdown({ value, onChange, options, allLabel, style }) {
       {open && (
         <>
         {/* Backdrop — dims content behind the dropdown */}
-        <div className="fixed inset-0 bg-black/15 dark:bg-black/30" style={{ zIndex: 9998 }} />
+        <div className="fixed inset-0 bg-black/15 dark:bg-black/30" style={{ zIndex: 9998 }} onMouseDown={() => setOpen(false)} />
         <div
           role="listbox"
           className="absolute left-0 top-full mt-1 min-w-full max-h-[60vh] overflow-y-auto rounded-xl py-1 shadow-2xl bg-white dark:bg-[rgb(28,30,38)] border border-slate-300 dark:border-slate-500"
