@@ -38,7 +38,7 @@ function FilterDropdown({ value, onChange, options, allLabel, style }) {
         style={{ fontSize: '0.828rem', height: '2.013rem' }}
       >
         <span className="truncate flex-1 text-left">{label}</span>
-        <ChevronDown className="w-3.5 h-3.5 opacity-70 flex-shrink-0" />
+        <ChevronDown className="w-[1.09rem] h-[1.09rem] opacity-70 flex-shrink-0" />
       </button>
       {open && (
         <div
@@ -336,7 +336,7 @@ const JournalSelector = forwardRef(function JournalSelector({ followedJournals, 
           value={filterCategory}
           onChange={setFilterCategory}
           options={CATEGORIES.map(c => ({ value: c, label: c }))}
-          allLabel="(By Category)"
+          allLabel="(By Category across Publishers)"
           style={{ flex: '1 1 0', minWidth: 0 }}
         />
       </div>
