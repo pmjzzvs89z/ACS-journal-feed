@@ -67,8 +67,84 @@ export async function fetchRssFeed(rssUrl) {
     if (import.meta.env.DEV) console.warn('[fetchRss] corsproxy.io failed:', e.message);
   }
 
+  // Strategy 3: CrossRef API — free, no auth, no bot walls.
+  // ONLY for IOP journals whose RSS feeds are blocked by Radware Bot Manager.
+  if (rssUrl.includes('iopscience.iop.org')) {
+    try {
+      const result = await fetchCrossRefFallback(rssUrl);
+      if (result) return result;
+    } catch (e) {
+      if (import.meta.env.DEV) console.warn('[fetchRss] CrossRef fallback failed:', e.message);
+    }
+  }
+
   if (import.meta.env.DEV) console.warn(`[fetchRss] all strategies failed for ${rssUrl.slice(0, 60)}`);
   return { status: 'error', items: [] };
+}
+
+// ── CrossRef fallback for IOP journals ────────────────────────────────────────
+const CROSSREF_API = 'https://api.crossref.org/journals';
+const CROSSREF_ROWS = 25;
+
+function extractIssnFromIopUrl(rssUrl) {
+  const m = rssUrl.match(/iopscience\.iop\.org\/journal\/([0-9]{4}-[0-9]{3}[0-9X])\/rss/i);
+  return m ? m[1] : null;
+}
+
+function crossrefDateToIso(dateObj) {
+  if (!dateObj?.['date-parts']?.[0]) return '';
+  const [y, mo, d] = dateObj['date-parts'][0];
+  if (!y) return '';
+  const month = (mo || 1).toString().padStart(2, '0');
+  const day = (d || 1).toString().padStart(2, '0');
+  return `${y}-${month}-${day}`;
+}
+
+function stripJatsXml(html) {
+  if (!html) return '';
+  return html.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+}
+
+async function fetchCrossRefFallback(rssUrl) {
+  const issn = extractIssnFromIopUrl(rssUrl);
+  if (!issn) return null;
+
+  const apiUrl = `${CROSSREF_API}/${issn}/works?rows=${CROSSREF_ROWS}&sort=published&order=desc`
+    + '&select=title,author,DOI,published-online,published-print,abstract,container-title,URL';
+
+  const response = await fetchWithTimeout(apiUrl);
+  if (!response.ok) return null;
+
+  const data = await response.json();
+  const works = data?.message?.items;
+  if (!works?.length) return null;
+
+  const items = works.map(w => {
+    const title = w.title?.[0] || '';
+    const doi = w.DOI || '';
+    const link = w.URL || (doi ? `https://doi.org/${doi}` : '');
+    const authorList = (w.author || [])
+      .map(a => [a.given, a.family].filter(Boolean).join(' '))
+      .filter(Boolean);
+    const author = authorList.length > 1 ? authorList : (authorList[0] || '');
+    const pubDate = crossrefDateToIso(w['published-online']) || crossrefDateToIso(w['published-print']);
+    const abstract = stripJatsXml(w.abstract);
+
+    return {
+      title,
+      link,
+      description: abstract,
+      content: '',
+      pubDate,
+      author,
+      doi,
+      thumbnail: '',
+      enclosure: null,
+    };
+  });
+
+  if (import.meta.env.DEV) console.log(`[fetchRss] CrossRef fallback ok: ${items.length} items for ISSN ${issn}`);
+  return { status: 'ok', items };
 }
 
 function parseRssXml(xml) {
