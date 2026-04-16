@@ -9,6 +9,12 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  test: {
+    environment: 'jsdom',
+    globals: true,
+    include: ['src/**/*.test.{js,jsx}'],
+    setupFiles: [],
+  },
   build: {
     // Split the 855 KB monolith into cacheable vendor chunks so a React
     // patch release doesn't bust the cache for the entire app. Priority:

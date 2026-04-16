@@ -323,7 +323,7 @@ const JournalSelector = forwardRef(function JournalSelector({ followedJournals, 
           value={filterPublisher}
           onChange={setFilterPublisher}
           options={PUBLISHERS.map(p => ({ value: p.id, label: p.label }))}
-          allLabel="All Publishers"
+          allLabel="(By Publisher)"
           style={{ flex: '1 1 0', minWidth: 0 }}
         />
 
@@ -331,7 +331,7 @@ const JournalSelector = forwardRef(function JournalSelector({ followedJournals, 
           value={filterCategory}
           onChange={setFilterCategory}
           options={CATEGORIES.map(c => ({ value: c, label: c }))}
-          allLabel="All Categories"
+          allLabel="(By Category)"
           style={{ flex: '1 1 0', minWidth: 0 }}
         />
       </div>
