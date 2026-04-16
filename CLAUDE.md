@@ -2,7 +2,7 @@
 
 React + Vite + Supabase PWA for following scientific journal RSS feeds across
 Chemistry, Engineering, and Materials Science. Deployed on Vercel at
-**https://literature-tracker.app**.
+**https://literature-tracker.com**.
 
 - **Repo:** github.com/pmjzzvs89z/ACS-journal-feed
 - **Branch:** `main` (Vercel auto-deploys on push)
@@ -235,4 +235,4 @@ J. Catalysis, Catalysts (MDPI), Nature Catalysis, and **Organometallics**
   has pre-existing errors in `Settings.jsx` (Supabase return types aren't
   inferrable in `.jsx`) — these are known and accepted. Verify that your
   changes don't introduce *new* errors beyond that baseline.
-- **Deploy target:** https://literature-tracker.app (Vercel).
+- **Deploy target:** https://literature-tracker.com (Vercel).

@@ -68,7 +68,7 @@ export default function ShareButton({ title, url, authors, journal, doi, pubDate
   // string may contain newlines from some RSS feeds).
   const authorLine = authors ? authors.replace(/\n/g, ', ').replace(/,\s*,/g, ',') : '';
   const emailBody = encodeURIComponent(
-    `${title || ''}\n\n${authorLine ? `Authors: ${authorLine}\n\n` : ''}${journal ? `Journal: ${journal}\n\n` : ''}${url || ''}\n\nSent from Literature Tracker (https://literature-tracker.app)`
+    `${title || ''}\n\n${authorLine ? `Authors: ${authorLine}\n\n` : ''}${journal ? `Journal: ${journal}\n\n` : ''}${url || ''}\n\nSent from Literature Tracker (https://literature-tracker.com)`
   );
   const emailHref = `mailto:?subject=${emailSubject}&body=${emailBody}`;
 

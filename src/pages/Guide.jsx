@@ -176,7 +176,7 @@ export default function Guide() {
               <li>Auto-save rules and read/unread history are stored <span className="font-medium">per account</span> — switching accounts on the same browser keeps everything separate</li>
               <li>Use the <span className="font-medium">moon/sun</span> icon in the header to toggle between dark and light mode</li>
               <li>Use the <span className="font-medium">logout</span> button (top-right) to sign out of your account</li>
-              <li>The app is available at <a href="https://literature-tracker.app" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline font-medium">literature-tracker.app</a></li>
+              <li>The app is available at <a href="https://literature-tracker.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline font-medium">literature-tracker.com</a></li>
             </ul>
           </Section>
         </div>
