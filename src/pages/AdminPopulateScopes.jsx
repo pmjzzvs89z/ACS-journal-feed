@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { useDarkMode } from '@/hooks/useDarkMode';
 import Tooltip from '@/components/ui/Tooltip';
-import Skeleton from '@/components/ui/Skeleton';
+import Skeleton from '@/components/ui/skeleton';
 import { format } from 'date-fns';
 
 function StatCard({ icon: Icon, label, value, sub, color = 'blue' }) {
