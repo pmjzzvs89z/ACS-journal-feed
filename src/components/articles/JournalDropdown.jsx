@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Check, ChevronDown } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 import { PUBLISHER_COLORS, PUBLISHER_LABELS } from '@/components/journals/JournalList';
 
 // Dropdown that lets the user filter the feed to a single journal or
@@ -35,6 +35,8 @@ export default function JournalDropdown({ value, onChange, journals, publisherKe
     return PUBLISHER_COLORS[key] || '#64748b';
   };
 
+  const selectedColor = selected ? colorFor(selected.id) : null;
+
   return (
     <div ref={wrapRef} className="relative">
       <button
@@ -44,6 +46,9 @@ export default function JournalDropdown({ value, onChange, journals, publisherKe
         aria-expanded={open}
         className="flex items-center justify-center gap-2 h-9 min-w-[135px] text-sm border border-slate-300 dark:border-blue-700 rounded-lg px-3 bg-slate-200/80 dark:bg-blue-900/30 text-slate-600 dark:text-slate-300 focus:outline-none focus:ring-1 focus:ring-blue-500 hover:bg-slate-300/80 dark:hover:bg-blue-900/40 transition-colors cursor-pointer"
       >
+        {selectedColor && (
+          <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: selectedColor }} />
+        )}
         <span className="truncate max-w-[220px] text-center">{label}</span>
         <ChevronDown className="w-3.5 h-3.5 opacity-70" />
       </button>
@@ -51,7 +56,7 @@ export default function JournalDropdown({ value, onChange, journals, publisherKe
         <div
           role="listbox"
           aria-label="Filter by journal"
-          className="absolute left-1/2 -translate-x-1/2 top-full mt-1 min-w-[220px] max-h-[41rem] overflow-y-auto rounded-xl py-1 shadow-2xl bg-neutral-100 dark:bg-[rgb(28,30,38)] border border-neutral-300 dark:border-white/10 journal-scroll"
+          className="absolute left-1/2 -translate-x-1/2 top-full mt-1 min-w-[220px] max-h-[41rem] overflow-y-auto rounded-xl py-1 shadow-2xl bg-white dark:bg-[rgb(44,48,60)] border border-neutral-300 dark:border-white/10 journal-scroll"
           style={{ zIndex: 9999, isolation: 'isolate' }}
         >
           {(() => {
@@ -89,7 +94,8 @@ export default function JournalDropdown({ value, onChange, journals, publisherKe
               }
               const j = row.journal;
               const isSelected = j.id === value;
-              const pubColor = j.id ? colorFor(j.id) : null;
+              // "All Selected Journals" has no publisher — use a neutral slate dot
+              const pubColor = j.id ? colorFor(j.id) : '#64748b';
               return (
                 <button
                   key={j.id || '__all'}
@@ -97,12 +103,11 @@ export default function JournalDropdown({ value, onChange, journals, publisherKe
                   role="option"
                   aria-selected={isSelected}
                   onClick={() => { onChange(j.id); setOpen(false); }}
-                  className="w-full flex items-center gap-2 pl-3 pr-4 py-[0.08rem] text-sm text-left transition-colors text-slate-900 dark:text-white hover:bg-black/5 dark:hover:bg-white/10"
+                  className="w-full flex items-center gap-2 pl-3 pr-4 py-[0.08rem] text-sm text-left transition-colors hover:bg-black/5 dark:hover:bg-white/10 text-slate-900 dark:text-white"
+                  style={isSelected && pubColor ? { color: pubColor, fontWeight: 600 } : undefined}
                 >
                   <span className="w-4 flex-shrink-0 flex items-center justify-center">
-                    {isSelected ? (
-                      <Check className="w-3.5 h-3.5" />
-                    ) : pubColor ? (
+                    {pubColor ? (
                       <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: pubColor }} />
                     ) : null}
                   </span>
