@@ -42,9 +42,9 @@ export default function JournalDropdown({ value, onChange, journals, publisherKe
         onClick={() => setOpen(o => !o)}
         aria-haspopup="listbox"
         aria-expanded={open}
-        className="flex items-center gap-2 h-9 text-sm border border-slate-300 dark:border-blue-700 rounded-lg px-3 bg-slate-200/80 dark:bg-blue-900/30 text-slate-600 dark:text-slate-300 focus:outline-none focus:ring-1 focus:ring-blue-500 hover:bg-slate-300/80 dark:hover:bg-blue-900/40 transition-colors cursor-pointer"
+        className="flex items-center justify-center gap-2 h-9 min-w-[135px] text-sm border border-slate-300 dark:border-blue-700 rounded-lg px-3 bg-slate-200/80 dark:bg-blue-900/30 text-slate-600 dark:text-slate-300 focus:outline-none focus:ring-1 focus:ring-blue-500 hover:bg-slate-300/80 dark:hover:bg-blue-900/40 transition-colors cursor-pointer"
       >
-        <span className="truncate max-w-[220px]">{label}</span>
+        <span className="truncate max-w-[220px] text-center">{label}</span>
         <ChevronDown className="w-3.5 h-3.5 opacity-70" />
       </button>
       {open && (
