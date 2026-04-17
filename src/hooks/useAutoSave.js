@@ -3,6 +3,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { entities } from '@/api/entities';
 import { articleMatchesRules } from '@/utils/articleMatch';
 import { extractAbstract, getCachedImage } from '@/utils/articleMeta';
+import { getDismissedSet } from '@/utils/dismissedArticles';
 
 // Read rules from localStorage as a fast cache. The canonical source is
 // the Supabase auto_save_rules table — SavedFeed.jsx keeps the cache in
@@ -82,7 +83,8 @@ export function useAutoSave(articles, userId) {
         const currentSaved = await entities.SavedArticle.list();
         if (userIdRef.current !== userId) return;
         const savedIds = new Set(currentSaved.map(s => s.article_id));
-        const toSave = unprocessed.filter(a => !savedIds.has(a.link) && articleMatchesRules(a, rules));
+        const dismissed = getDismissedSet(userId);
+        const toSave = unprocessed.filter(a => !savedIds.has(a.link) && !dismissed.has(a.link) && articleMatchesRules(a, rules));
         if (toSave.length > 0) {
 
           await Promise.all(toSave.map(a => {

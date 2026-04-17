@@ -11,6 +11,7 @@ import AutoSaveRules from './AutoSaveRules';
 import ShareButton from './ShareButton';
 import SmartImage from './SmartImage';
 import { useAuth } from '@/lib/AuthContext';
+import { dismissArticle, dismissArticles } from '@/utils/dismissedArticles';
 
 // Auto-save rules are stored in Supabase (auto_save_rules table) so they
 // sync across devices. localStorage is used as a fast read cache so the
@@ -204,6 +205,9 @@ export default function SavedFeed({ savedArticles, onRefresh, articles = [] }) {
     : savedArticles;
 
   const handleOptimisticUnsave = (id) => {
+    // Mark as dismissed so auto-save won't re-add it
+    const article = savedArticles.find(a => a.id === id);
+    if (article) dismissArticle(userId, article.article_id);
     setRemovingIds(prev => new Set(prev).add(id));
     entities.SavedArticle.delete(id)
       .then(() => onRefresh())
@@ -354,6 +358,9 @@ export default function SavedFeed({ savedArticles, onRefresh, articles = [] }) {
                 const isAll = count === visibleArticles.length;
                 if (!window.confirm(`Remove ${isAll ? 'all ' : ''}${count} ${isAll ? '' : 'selected '}article${count !== 1 ? 's' : ''}?`)) return;
                 const ids = [...selectedIds];
+                // Mark all removed articles as dismissed so auto-save won't re-add them
+                const links = ids.map(id => savedArticles.find(a => a.id === id)?.article_id).filter(Boolean);
+                dismissArticles(userId, links);
                 setRemovingIds(prev => new Set([...prev, ...ids]));
                 (isAll ? entities.SavedArticle.deleteAll() : entities.SavedArticle.deleteMany(ids))
                   .then(() => { onRefresh(); setSelectedIds(new Set()); })

@@ -14,9 +14,12 @@ import { renderAuthors } from './AuthorRenderer';
 import { observeElement, unobserveElement } from '@/hooks/useSharedObserver';
 import { extractAbstract, extractImage } from '@/utils/articleMeta';
 import { markArticleSeen, isArticleSeen } from '@/utils/seenArticles';
+import { dismissArticle } from '@/utils/dismissedArticles';
 import { showToast } from '@/components/ui/SimpleToast';
+import { useAuth } from '@/lib/AuthContext';
 
 const ArticleCard = React.memo(React.forwardRef(function ArticleCard({ article, index, savedRecord, onSaveToggle, resetKey = 0, onImageFail, cachedImageUrl }, _ref) {
+  const { user } = useAuth();
   const [imageFailed, setImageFailed] = useState(false);
   const [saving, setSaving] = useState(false);
   const [hasBeenSeen, setHasBeenSeen] = React.useState(() => isArticleSeen(article.link));
@@ -97,6 +100,9 @@ const ArticleCard = React.memo(React.forwardRef(function ArticleCard({ article, 
     setOptimisticSaved(!wasSaved);
     showToast(wasSaved ? 'Article removed' : 'Article saved');
     setSaving(true);
+
+    // When unsaving, mark article as dismissed so auto-save won't re-add it
+    if (wasSaved) dismissArticle(user?.id, article.link);
 
     const promise = wasSaved
       ? entities.SavedArticle.delete(savedRecord.id)

@@ -10,6 +10,8 @@ import { entities } from '@/api/entities';
 import { format } from 'date-fns';
 import { ALL_JOURNALS } from '@/components/journals/JournalList';
 import { fetchRssFeed } from '@/utils/fetchRss';
+import { useAuth } from '@/lib/AuthContext';
+import { dismissArticle } from '@/utils/dismissedArticles';
 
 function extractKeywords(savedArticles) {
   const text = savedArticles.map(a => `${a.title} ${a.abstract || ''}`).join(' ');
@@ -33,6 +35,7 @@ function scoreArticle(article, keywords, authors, followedJournalIds, savedLinks
 }
 
 export default function RecommendedFeed({ followedJournals, savedArticles, onSaveToggle, userKeywords, setUserKeywords, selectedKeywords, setSelectedKeywords, filterEnabled, setFilterEnabled }) {
+  const { user } = useAuth();
   const [recommendations, setRecommendations] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [savingIds, setSavingIds] = useState(new Set());
@@ -151,6 +154,7 @@ export default function RecommendedFeed({ followedJournals, savedArticles, onSav
     try {
       const savedRecord = savedArticles.find(s => s.article_id === article.link);
       if (savedRecord) {
+        dismissArticle(user?.id, article.link);
         await entities.SavedArticle.delete(savedRecord.id);
       } else {
         await entities.SavedArticle.create({

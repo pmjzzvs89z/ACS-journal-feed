@@ -1,7 +1,7 @@
 // @ts-nocheck — see ArticleCard for rationale
 import React, { useState, useMemo, useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BookOpen, ChevronRight, ChevronDown, X, FlaskConical, Cog, Layers, Check } from 'lucide-react';
+import { BookOpen, ChevronRight, ChevronDown, ArrowDown, X, FlaskConical, Cog, Layers, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Tooltip from '@/components/ui/Tooltip';
 
@@ -352,6 +352,16 @@ const JournalSelector = forwardRef(function JournalSelector({ followedJournals, 
           style={{ flex: '1 1 0', minWidth: 0 }}
           onOpenChange={setDropdownOpen}
         />
+      </div>
+
+      {/* Static label — indicates the list below is grouped by publisher across categories */}
+      <div
+        className="flex items-center justify-center gap-2 rounded-xl border border-border px-4 py-[0.325rem] text-foreground text-sm -mb-1"
+        style={{ backgroundColor: '#2563eb10' }}
+      >
+        <ArrowDown className="w-[1.09rem] h-[1.09rem] opacity-70 flex-shrink-0" />
+        <span>By Publisher across Categories</span>
+        <ArrowDown className="w-[1.09rem] h-[1.09rem] opacity-70 flex-shrink-0" />
       </div>
       </div>
       )}{/* end fixed header */}
