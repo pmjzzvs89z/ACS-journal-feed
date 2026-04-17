@@ -339,7 +339,7 @@ const JournalSelector = forwardRef(function JournalSelector({ followedJournals, 
           value={filterPublisher}
           onChange={setFilterPublisher}
           options={PUBLISHERS.map(p => ({ value: p.id, label: p.label, color: p.color }))}
-          allLabel="(By Publisher)"
+          allLabel="By Publisher"
           style={{ flex: '1 1 0', minWidth: 0 }}
           onOpenChange={setDropdownOpen}
         />
@@ -348,7 +348,7 @@ const JournalSelector = forwardRef(function JournalSelector({ followedJournals, 
           value={filterCategory}
           onChange={setFilterCategory}
           options={CATEGORIES.map(c => ({ value: c, label: c, color: '#2563eb' }))}
-          allLabel="(By Category across Publishers)"
+          allLabel="By Category across Publishers"
           style={{ flex: '1 1 0', minWidth: 0 }}
           onOpenChange={setDropdownOpen}
         />

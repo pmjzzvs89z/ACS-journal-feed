@@ -51,7 +51,7 @@ export default function JournalDropdown({ value, onChange, journals, publisherKe
         <div
           role="listbox"
           aria-label="Filter by journal"
-          className="absolute left-1/2 -translate-x-1/2 top-full mt-1 min-w-[220px] max-h-[90vh] overflow-y-auto rounded-xl py-1 shadow-2xl bg-neutral-100 dark:bg-[rgb(28,30,38)] border border-neutral-300 dark:border-white/10"
+          className="absolute left-1/2 -translate-x-1/2 top-full mt-1 min-w-[220px] max-h-[41rem] overflow-y-auto rounded-xl py-1 shadow-2xl bg-neutral-100 dark:bg-[rgb(28,30,38)] border border-neutral-300 dark:border-white/10 journal-scroll"
           style={{ zIndex: 9999, isolation: 'isolate' }}
         >
           {(() => {
