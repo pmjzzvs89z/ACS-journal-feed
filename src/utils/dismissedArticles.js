@@ -1,11 +1,19 @@
 // Tracks articles the user has explicitly unsaved so auto-save rules
-// never re-add them. Persisted in localStorage per user.
+// never re-add them.
 //
-// Storage key: cjf_dismissed_articles:<userId>
-// Storage value: JSON array of article link strings, oldest-first.
+// Storage strategy: Supabase is the source of truth (syncs across devices,
+// survives browser data clears). localStorage is a fast read cache so
+// auto-save can bail out without waiting for a network round-trip on
+// every page load.
 //
-// A Set isn't preserved through JSON; storing an array preserves insertion
-// order so we can do FIFO eviction when we hit the cap.
+// LocalStorage key: cjf_dismissed_articles:<userId>
+// LocalStorage value: JSON array of article link strings, oldest-first.
+//
+// If the Supabase table doesn't exist yet (missing migration), the code
+// gracefully falls back to localStorage-only — the user still gets the
+// per-browser guarantee and sees no errors.
+
+import { entities } from '@/api/entities';
 
 const KEY_BASE = 'cjf_dismissed_articles';
 const MAX_ENTRIES = 10000;
@@ -41,7 +49,6 @@ function persist(userId, arr) {
       const shrunk = toWrite.slice(-Math.floor(MAX_ENTRIES / 2));
       localStorage.setItem(storageKey(userId), JSON.stringify(shrunk));
     } catch {
-      // Still failing — nothing we can do; auto-save may re-add articles.
       if (import.meta.env.DEV) console.error('[dismissedArticles] localStorage quota exceeded:', e);
     }
   }
@@ -51,6 +58,32 @@ function notifyChanged() {
   try {
     window.dispatchEvent(new CustomEvent('dismissed-articles-changed'));
   } catch { /* non-browser environment */ }
+}
+
+// Sync helper — pull the full dismissed list from Supabase and merge into
+// the local cache. Called once on mount via syncFromServer() below.
+export async function syncFromServer(userId) {
+  if (!userId) return;
+  try {
+    const serverIds = await entities.DismissedArticle.list();
+    const localArr = getArray(userId);
+    // Union of server + local; local ordering preserved for LRU.
+    // Server entries we don't have locally are appended at the end.
+    const localSet = new Set(localArr);
+    const merged = [...localArr];
+    for (const id of serverIds) {
+      if (!localSet.has(id)) {
+        merged.push(id);
+        localSet.add(id);
+      }
+    }
+    persist(userId, merged);
+    notifyChanged();
+  } catch (e) {
+    // Table may not exist yet (migration not run), or network error.
+    // Fall back silently to localStorage-only behavior.
+    if (import.meta.env.DEV) console.warn('[dismissedArticles] sync from server failed:', e?.message || e);
+  }
 }
 
 /** Mark one article link as dismissed (user explicitly unsaved it). */
@@ -64,6 +97,10 @@ export function dismissArticle(userId, articleLink) {
   arr.push(articleLink);
   persist(userId, arr);
   notifyChanged();
+  // Fire-and-forget Supabase write — errors are non-critical.
+  entities.DismissedArticle.add(articleLink).catch((e) => {
+    if (import.meta.env.DEV) console.warn('[dismissedArticles] server add failed:', e?.message || e);
+  });
 }
 
 /** Mark multiple article links as dismissed. */
@@ -71,6 +108,7 @@ export function dismissArticles(userId, articleLinks) {
   if (!userId || !articleLinks?.length) return;
   const arr = getArray(userId);
   const existing = new Set(arr);
+  const toPersistOnServer = [];
   for (const link of articleLinks) {
     if (!link) continue;
     if (existing.has(link)) {
@@ -81,9 +119,13 @@ export function dismissArticles(userId, articleLinks) {
       existing.add(link);
     }
     arr.push(link);
+    toPersistOnServer.push(link);
   }
   persist(userId, arr);
   notifyChanged();
+  entities.DismissedArticle.addMany(toPersistOnServer).catch((e) => {
+    if (import.meta.env.DEV) console.warn('[dismissedArticles] server addMany failed:', e?.message || e);
+  });
 }
 
 /** Check whether an article link was previously dismissed. */

@@ -43,7 +43,7 @@ function FilterDropdown({ value, onChange, options, allLabel, style, onOpenChang
         className="w-full flex items-center gap-2 rounded-lg border border-border px-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-foreground bg-slate-300 dark:bg-[rgb(38,42,56)]"
         style={{ fontSize: '0.828rem', height: '2.013rem' }}
       >
-        <span className="truncate flex-1 text-left">{label}</span>
+        <span className="truncate flex-1 text-center">{label}</span>
         <ChevronDown className="w-[1.09rem] h-[1.09rem] opacity-70 flex-shrink-0" />
       </button>
       {open && (
@@ -355,7 +355,7 @@ const JournalSelector = forwardRef(function JournalSelector({ followedJournals, 
       </div>
 
       {/* Static label — indicates the list below is grouped by publisher across categories */}
-      <div className="flex items-center justify-center gap-2 rounded-xl border border-border px-4 py-[0.325rem] text-sm -mb-1 bg-slate-800 dark:bg-black text-white">
+      <div className="flex items-center justify-center gap-2 rounded-xl border border-border px-4 py-[0.325rem] text-sm -mb-2 bg-slate-300 dark:bg-[rgb(38,42,56)] text-foreground">
         <ArrowDown className="w-[1.09rem] h-[1.09rem] opacity-70 flex-shrink-0" />
         <span>By Publisher across Categories</span>
         <ArrowDown className="w-[1.09rem] h-[1.09rem] opacity-70 flex-shrink-0" />
@@ -364,7 +364,7 @@ const JournalSelector = forwardRef(function JournalSelector({ followedJournals, 
       )}{/* end fixed header */}
 
       {/* Scrollable body */}
-      <div className="relative flex-1 min-h-0 overflow-y-auto journal-scroll px-4 pt-1 pb-4 bg-muted/50">
+      <div className="relative flex-1 min-h-0 overflow-y-auto journal-scroll px-4 pt-0 pb-4 bg-muted/50">
         {/* Dim overlay when a filter dropdown is open */}
         {dropdownOpen && (
           <div className="absolute inset-0 bg-black/25 dark:bg-black/50 rounded-b-2xl pointer-events-none" style={{ zIndex: 10 }} />

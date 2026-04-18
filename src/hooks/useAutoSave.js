@@ -3,7 +3,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { entities } from '@/api/entities';
 import { articleMatchesRules } from '@/utils/articleMatch';
 import { extractAbstract, getCachedImage } from '@/utils/articleMeta';
-import { getDismissedSet } from '@/utils/dismissedArticles';
+import { getDismissedSet, syncFromServer } from '@/utils/dismissedArticles';
 
 // Read rules from localStorage as a fast cache. The canonical source is
 // the Supabase auto_save_rules table — SavedFeed.jsx keeps the cache in
@@ -52,6 +52,15 @@ export function useAutoSave(articles, userId) {
       .catch((err) => {
         if (import.meta.env.DEV) console.error('[useAutoSave] rules fetch failed:', err);
       });
+  }, [userId]);
+
+  // Pull dismissed article list from Supabase into the local cache.
+  // Runs once per user session so auto-save can skip articles dismissed
+  // on any device. If the table doesn't exist yet (migration not run),
+  // this silently falls back to localStorage-only.
+  useEffect(() => {
+    if (!userId) return;
+    syncFromServer(userId);
   }, [userId]);
 
   // Listen for real-time rule changes from SavedFeed so the enabled

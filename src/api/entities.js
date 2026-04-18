@@ -122,6 +122,39 @@ export const entities = {
     }
   },
 
+  DismissedArticle: {
+    // Fetch all dismissed article_ids for the current user.
+    // Returns an array of article_id strings (the article link URLs).
+    list: async () => {
+      const userId = await getUserId();
+      const { data, error } = await supabase
+        .from('dismissed_articles')
+        .select('article_id')
+        .eq('user_id', userId);
+      if (error) throw error;
+      return (data || []).map(r => r.article_id);
+    },
+    // Add a single dismissal. Idempotent — primary key (user_id, article_id)
+    // means re-dismissing an already-dismissed article is a no-op.
+    add: async (articleId) => {
+      const userId = await getUserId();
+      const { error } = await supabase
+        .from('dismissed_articles')
+        .upsert({ user_id: userId, article_id: articleId }, { onConflict: 'user_id,article_id' });
+      if (error) throw error;
+    },
+    // Bulk add — used by "delete all" / bulk-unsave paths.
+    addMany: async (articleIds) => {
+      if (!articleIds?.length) return;
+      const userId = await getUserId();
+      const rows = articleIds.map(article_id => ({ user_id: userId, article_id }));
+      const { error } = await supabase
+        .from('dismissed_articles')
+        .upsert(rows, { onConflict: 'user_id,article_id' });
+      if (error) throw error;
+    },
+  },
+
   AutoSaveRules: {
     get: async () => {
       const userId = await getUserId();
