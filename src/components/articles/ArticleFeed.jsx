@@ -22,7 +22,7 @@ import {
   ACS_ENGINEERING_JOURNALS, RSC_ENGINEERING_JOURNALS, WILEY_ENGINEERING_JOURNALS,
   ELSEVIER_ENGINEERING_JOURNALS, SPRINGER_ENGINEERING_JOURNALS,
   TAYLOR_ENGINEERING_JOURNALS, ASME_ENGINEERING_JOURNALS, ICHEMEE_ENGINEERING_JOURNALS,
-  PUBLISHER_ORDER, PUBLISHER_COLORS,
+  PUBLISHER_ORDER,
 } from '@/components/journals/JournalList';
 
 const PUBLISHER_ID_MAP = (() => {
@@ -53,11 +53,6 @@ const PUBLISHER_ID_MAP = (() => {
   add(IOP_MATERIALS_JOURNALS, 'iop');
   return map;
 })();
-
-function publisherColorForJournalId(id) {
-  const key = PUBLISHER_ID_MAP.get(id);
-  return key ? PUBLISHER_COLORS[key] : '#64748b';
-}
 
 const FILTERS_KEY_BASE = 'cjf_feed_filters';
 const LEGACY_FILTERS_KEY = 'cjf_feed_filters';

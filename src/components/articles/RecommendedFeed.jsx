@@ -12,6 +12,8 @@ import { ALL_JOURNALS } from '@/components/journals/JournalList';
 import { fetchRssFeed } from '@/utils/fetchRss';
 import { useAuth } from '@/lib/AuthContext';
 import { dismissArticle } from '@/utils/dismissedArticles';
+import { showToast } from '@/components/ui/SimpleToast';
+import { publisherColorForJournalId } from '@/components/journals/JournalList';
 
 function extractKeywords(savedArticles) {
   const text = savedArticles.map(a => `${a.title} ${a.abstract || ''}`).join(' ');
@@ -63,8 +65,10 @@ export default function RecommendedFeed({ followedJournals, savedArticles, onSav
       setUserAuthors('');
       return;
     }
-    setSelectedAuthors(prev => [...prev, val]);
+    const next = [...selectedAuthors, val];
+    setSelectedAuthors(next);
     setUserAuthors('');
+    fetchRecommendations(undefined, next);
   };
 
   const removeKeyword = (kw) => {
@@ -74,7 +78,9 @@ export default function RecommendedFeed({ followedJournals, savedArticles, onSav
   };
 
   const removeAuthor = (au) => {
-    setSelectedAuthors(prev => prev.filter(a => a !== au));
+    const next = selectedAuthors.filter(a => a !== au);
+    setSelectedAuthors(next);
+    fetchRecommendations(undefined, next);
   };
 
   const handleKeyDown = (e, addFn) => {
@@ -84,7 +90,7 @@ export default function RecommendedFeed({ followedJournals, savedArticles, onSav
     }
   };
 
-  const fetchRecommendations = async (manualOverride) => {
+  const fetchRecommendations = async (manualOverride, authorOverride) => {
     const activeJournals = followedJournals.filter(j => j.is_active);
     if (activeJournals.length === 0) return;
 
@@ -92,7 +98,7 @@ export default function RecommendedFeed({ followedJournals, savedArticles, onSav
     const autoKeywords = extractKeywords(savedArticles);
     const manualKeywords = (manualOverride ?? selectedKeywords).map(k => k.trim().toLowerCase()).filter(k => k.length > 1);
     const keywords = [...new Set([...manualKeywords, ...autoKeywords])];
-    const authors = selectedAuthors.map(a => a.trim().toLowerCase()).filter(a => a.length > 1);
+    const authors = (authorOverride ?? selectedAuthors).map(a => a.trim().toLowerCase()).filter(a => a.length > 1);
     const followedJournalIds = new Set(activeJournals.map(j => j.journal_id));
 
     // Pick journals NOT currently followed to discover new ones, plus some followed ones
@@ -141,20 +147,30 @@ export default function RecommendedFeed({ followedJournals, savedArticles, onSav
     .sort()
     .join(',');
 
+  const selectedKeywordsKey = [...selectedKeywords].sort().join(',');
+  const selectedAuthorsKey = [...selectedAuthors].sort().join(',');
+
   useEffect(() => {
     if (followedJournals.length > 0) fetchRecommendations();
 
-  }, [activeJournalKey, selectedKeywords.length]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [activeJournalKey, selectedKeywordsKey, selectedAuthorsKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSaveToggle = async (e, article) => {
     e.preventDefault();
     e.stopPropagation();
     const id = article.link;
+    const savedRecord = savedArticles.find(s => s.article_id === article.link);
+    const wasSaved = !!savedRecord;
+
+    // Flip UI immediately — don't wait for the server
+    showToast(wasSaved ? 'Article removed' : 'Article saved');
     setSavingIds(prev => new Set(prev).add(id));
+
+    // When unsaving, mark as dismissed so auto-save won't re-add it
+    if (wasSaved) dismissArticle(user?.id, article.link);
+
     try {
-      const savedRecord = savedArticles.find(s => s.article_id === article.link);
-      if (savedRecord) {
-        dismissArticle(user?.id, article.link);
+      if (wasSaved) {
         await entities.SavedArticle.delete(savedRecord.id);
       } else {
         await entities.SavedArticle.create({
@@ -173,6 +189,7 @@ export default function RecommendedFeed({ followedJournals, savedArticles, onSav
       if (onSaveToggle) onSaveToggle();
     } catch (err) {
       if (import.meta.env.DEV) console.error('Failed to save/unsave article:', err);
+      showToast('Something went wrong');
     } finally {
       setSavingIds(prev => { const next = new Set(prev); next.delete(id); return next; });
     }
@@ -353,7 +370,7 @@ export default function RecommendedFeed({ followedJournals, savedArticles, onSav
               const authorText = Array.isArray(article.author) ? article.author.join(', ') : article.author;
               return (
                 <article
-                  key={article.link}
+                  key={`${article.journalId}-${article.link}`}
                   className="group bg-card rounded-2xl border-card border-slate-400/80 dark:border-slate-600 hover:shadow-xl transition-all duration-300 overflow-hidden"
                 >
                   <div className="flex items-stretch gap-0">
@@ -382,14 +399,19 @@ export default function RecommendedFeed({ followedJournals, savedArticles, onSav
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-2 flex-wrap">
-                          <Badge
-                            variant="secondary"
-                            className="text-xs font-medium px-2.5 py-0.5"
-                            style={{ backgroundColor: `${article.journalColor}18`, color: article.journalColor, borderColor: `${article.journalColor}35` }}
-                          >
-                            <BookOpen className="w-3 h-3 mr-1" />
-                            {article.journalAbbrev}
-                          </Badge>
+                          {(() => {
+                            const badgeColor = publisherColorForJournalId(article.journalId) || article.journalColor;
+                            return (
+                              <Badge
+                                variant="secondary"
+                                className="text-xs font-medium px-2.5 py-0.5"
+                                style={{ backgroundColor: `${badgeColor}18`, color: badgeColor, borderColor: `${badgeColor}35` }}
+                              >
+                                <BookOpen className="w-3 h-3 mr-1" />
+                                {article.journalAbbrev}
+                              </Badge>
+                            );
+                          })()}
                           {article.pubDate && (
                             <span className="text-xs text-slate-400 flex items-center gap-1">
                               <Calendar className="w-3 h-3" />

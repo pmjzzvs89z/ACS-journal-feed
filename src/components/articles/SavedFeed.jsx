@@ -12,6 +12,7 @@ import ShareButton from './ShareButton';
 import SmartImage from './SmartImage';
 import { useAuth } from '@/lib/AuthContext';
 import { dismissArticle, dismissArticles } from '@/utils/dismissedArticles';
+import { publisherColorForJournalNameOrAbbrev } from '@/components/journals/JournalList';
 
 // Auto-save rules are stored in Supabase (auto_save_rules table) so they
 // sync across devices. localStorage is used as a fast read cache so the
@@ -104,18 +105,25 @@ const SavedCard = React.memo(function SavedCard({ saved, onUnsave, selected, onT
           <div className="flex items-start justify-between gap-3">
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-2 flex-wrap">
+                {(() => {
+                  // Use publisher color (blue for ACS, orange for Elsevier, etc.)
+                  // instead of the per-journal hex stored when the article was saved.
+                  const badgeColor = publisherColorForJournalNameOrAbbrev(saved.journal_abbrev || saved.journal_name) || saved.journal_color;
+                  return (
                 <Badge
                   variant="secondary"
                   className="text-xs font-medium px-2.5 py-0.5"
                   style={{
-                    backgroundColor: `${saved.journal_color}18`,
-                    color: saved.journal_color,
-                    borderColor: `${saved.journal_color}35`
+                    backgroundColor: `${badgeColor}18`,
+                    color: badgeColor,
+                    borderColor: `${badgeColor}35`
                   }}
                 >
                   <BookOpen className="w-3 h-3 mr-1" />
                   {saved.journal_abbrev}
                 </Badge>
+                  );
+                })()}
                 {saved.pub_date && (
                   <span className="text-xs text-muted-foreground flex items-center gap-1">
                     <Calendar className="w-3 h-3" />
@@ -256,7 +264,7 @@ export default function SavedFeed({ savedArticles, onRefresh, articles = [] }) {
     // Persist to Supabase in the background
     if (userId) {
       entities.AutoSaveRules.upsert(newRules).catch((err) => {
-        console.error('[AutoSaveRules] upsert failed:', err);
+        if (import.meta.env.DEV) console.error('[AutoSaveRules] upsert failed:', err);
       });
     }
   }, [userId]);
@@ -358,14 +366,18 @@ export default function SavedFeed({ savedArticles, onRefresh, articles = [] }) {
                 const isAll = count === visibleArticles.length;
                 if (!window.confirm(`Remove ${isAll ? 'all ' : ''}${count} ${isAll ? '' : 'selected '}article${count !== 1 ? 's' : ''}?`)) return;
                 const ids = [...selectedIds];
-                // Mark all removed articles as dismissed so auto-save won't re-add them
-                const links = ids.map(id => savedArticles.find(a => a.id === id)?.article_id).filter(Boolean);
-                dismissArticles(userId, links);
+                // Mark all removed articles as dismissed so auto-save won't re-add them.
+                // On "delete all" (isAll), dismiss EVERY saved article — not just the
+                // selection — because deleteAll() wipes the entire table in Supabase.
+                const linksToDismiss = isAll
+                  ? savedArticles.map(a => a.article_id).filter(Boolean)
+                  : ids.map(id => savedArticles.find(a => a.id === id)?.article_id).filter(Boolean);
+                dismissArticles(userId, linksToDismiss);
                 setRemovingIds(prev => new Set([...prev, ...ids]));
                 (isAll ? entities.SavedArticle.deleteAll() : entities.SavedArticle.deleteMany(ids))
                   .then(() => { onRefresh(); setSelectedIds(new Set()); })
                   .catch((err) => {
-                    console.error('[SavedFeed] bulk delete failed:', err);
+                    if (import.meta.env.DEV) console.error('[SavedFeed] bulk delete failed:', err);
                     setRemovingIds(prev => { const next = new Set(prev); ids.forEach(id => next.delete(id)); return next; });
                   })
                   .finally(() => {

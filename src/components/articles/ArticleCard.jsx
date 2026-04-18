@@ -17,6 +17,7 @@ import { markArticleSeen, isArticleSeen } from '@/utils/seenArticles';
 import { dismissArticle } from '@/utils/dismissedArticles';
 import { showToast } from '@/components/ui/SimpleToast';
 import { useAuth } from '@/lib/AuthContext';
+import { publisherColorForJournalId } from '@/components/journals/JournalList';
 
 const ArticleCard = React.memo(React.forwardRef(function ArticleCard({ article, index, savedRecord, onSaveToggle, resetKey = 0, onImageFail, cachedImageUrl }, _ref) {
   const { user } = useAuth();
@@ -104,6 +105,14 @@ const ArticleCard = React.memo(React.forwardRef(function ArticleCard({ article, 
     // When unsaving, mark article as dismissed so auto-save won't re-add it
     if (wasSaved) dismissArticle(user?.id, article.link);
 
+    // Guard: savedRecord could theoretically be undefined if the parent
+    // refetched between render and click. Bail safely in that case.
+    if (wasSaved && !savedRecord?.id) {
+      setSaving(false);
+      setOptimisticSaved(null);
+      return;
+    }
+
     const promise = wasSaved
       ? entities.SavedArticle.delete(savedRecord.id)
       : entities.SavedArticle.create({
@@ -188,18 +197,26 @@ const ArticleCard = React.memo(React.forwardRef(function ArticleCard({ article, 
             <div className="flex-1 min-w-0">
               {/* Journal + date badge row */}
               <div className="flex items-center gap-2 mb-2 flex-wrap">
+                {(() => {
+                  // Use the PUBLISHER color (not the per-journal color) so
+                  // badges read as a unified family: every ACS journal is
+                  // blue, every Elsevier journal is orange, etc.
+                  const badgeColor = publisherColorForJournalId(article.journalId) || article.journalColor;
+                  return (
                 <Badge
                   variant="secondary"
                   className="text-xs font-medium px-2.5 py-0.5"
                   style={{
-                    backgroundColor: `${article.journalColor}18`,
-                    color: article.journalColor,
-                    borderColor: `${article.journalColor}35`
+                    backgroundColor: `${badgeColor}18`,
+                    color: badgeColor,
+                    borderColor: `${badgeColor}35`
                   }}
                 >
                   <BookOpen className="w-3 h-3 mr-1" />
                   {article.journalAbbrev}
                 </Badge>
+                  );
+                })()}
                 {article.pubDate && (
                   <span className="text-xs text-muted-foreground flex items-center gap-1.5">
                     <Calendar className="w-3 h-3" />

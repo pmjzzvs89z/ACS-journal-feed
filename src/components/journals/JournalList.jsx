@@ -722,4 +722,54 @@ export const PUBLISHER_LABELS = {
 // Kept here so ArticleFeed and JournalSelector share a single source of truth.
 export const PUBLISHER_ORDER = ['acs', 'elsevier', 'rsc', 'wiley', 'mdpi', 'springer', 'taylor', 'aaas', 'asme', 'icheme', 'iop', 'other'];
 
+// Lookup: journal id → publisher key. Built once from ALL_JOURNALS using
+// a prefix-based heuristic (matches the ids in JournalList). Used to derive
+// the publisher accent color for article badges.
+const PUBLISHER_KEY_BY_PREFIX = [
+  // Engineering prefix 'eng_' or Materials prefix 'mat_' come first so they
+  // don't get swallowed by the ACS/RSC/etc. root groups.
+  ['eng_acs_', 'acs'], ['eng_elsevier_', 'elsevier'], ['eng_rsc_', 'rsc'],
+  ['eng_wiley_', 'wiley'], ['eng_springer_', 'springer'], ['eng_taylor_', 'taylor'],
+  ['eng_asme_', 'asme'], ['eng_icheme_', 'icheme'],
+  ['mat_acs_', 'acs'], ['mat_rsc_', 'rsc'], ['mat_wiley_', 'wiley'],
+  ['mat_elsevier_', 'elsevier'], ['mat_mdpi_', 'mdpi'], ['mat_springer_', 'springer'],
+  ['mat_iop_', 'iop'],
+  // Chemistry root groups (no prefix) — checked via explicit id lookup
+];
+
+export function publisherKeyForJournalId(journalId) {
+  if (!journalId) return 'other';
+  for (const [prefix, key] of PUBLISHER_KEY_BY_PREFIX) {
+    if (journalId.startsWith(prefix)) return key;
+  }
+  // Root-group chemistry journals — look up in ALL_JOURNALS by id and match
+  // against the publisher-specific arrays.
+  const j = ALL_JOURNALS.find(x => x.id === journalId);
+  if (!j) return 'other';
+  if (ACS_JOURNALS.includes(j)) return 'acs';
+  if (ELSEVIER_JOURNALS.includes(j)) return 'elsevier';
+  if (RSC_JOURNALS.includes(j)) return 'rsc';
+  if (WILEY_JOURNALS.includes(j)) return 'wiley';
+  if (AAAS_JOURNALS.includes(j)) return 'aaas';
+  if (MDPI_JOURNALS.includes(j)) return 'mdpi';
+  if (SPRINGER_JOURNALS.includes(j)) return 'springer';
+  if (TAYLOR_JOURNALS.includes(j)) return 'taylor';
+  return 'other';
+}
+
+export function publisherColorForJournalId(journalId) {
+  return PUBLISHER_COLORS[publisherKeyForJournalId(journalId)] || PUBLISHER_COLORS.other;
+}
+
+// For saved articles: the Supabase row stores journal_name/journal_abbrev
+// but NOT journal_id. Resolve the publisher color by looking up the journal
+// in ALL_JOURNALS by name or abbreviation.
+export function publisherColorForJournalNameOrAbbrev(nameOrAbbrev) {
+  if (!nameOrAbbrev) return PUBLISHER_COLORS.other;
+  const j = ALL_JOURNALS.find(x =>
+    x.name === nameOrAbbrev || x.abbrev === nameOrAbbrev
+  );
+  return j ? publisherColorForJournalId(j.id) : PUBLISHER_COLORS.other;
+}
+
 export default ALL_JOURNALS;

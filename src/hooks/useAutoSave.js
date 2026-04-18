@@ -49,7 +49,9 @@ export function useAutoSave(articles, userId) {
           try { localStorage.setItem(`${RULES_KEY_BASE}:${userId}`, JSON.stringify(synced)); } catch {}
         }
       })
-      .catch((err) => { console.error('[useAutoSave] rules fetch failed:', err); });
+      .catch((err) => {
+        if (import.meta.env.DEV) console.error('[useAutoSave] rules fetch failed:', err);
+      });
   }, [userId]);
 
   // Listen for real-time rule changes from SavedFeed so the enabled
@@ -62,6 +64,27 @@ export function useAutoSave(articles, userId) {
     };
     window.addEventListener('autosave-rules-changed', handler);
     return () => window.removeEventListener('autosave-rules-changed', handler);
+  }, []);
+
+  // Listen for storage events from other tabs — when the user dismisses
+  // articles in another tab, the localStorage change fires here so we can
+  // skip those articles on the next auto-save cycle.
+  useEffect(() => {
+    const storageHandler = (e) => {
+      if (!e.key) return;
+      if (e.key.startsWith('cjf_dismissed_articles:') || e.key.startsWith('cjf_autosave_rules:')) {
+        processedRef.current = new Set();
+      }
+    };
+    // Same-tab dismissals dispatch a custom event (storage events only fire
+    // across tabs, not within the tab that wrote to localStorage).
+    const sameTabHandler = () => { processedRef.current = new Set(); };
+    window.addEventListener('storage', storageHandler);
+    window.addEventListener('dismissed-articles-changed', sameTabHandler);
+    return () => {
+      window.removeEventListener('storage', storageHandler);
+      window.removeEventListener('dismissed-articles-changed', sameTabHandler);
+    };
   }, []);
 
   useEffect(() => {
@@ -84,32 +107,43 @@ export function useAutoSave(articles, userId) {
         if (userIdRef.current !== userId) return;
         const savedIds = new Set(currentSaved.map(s => s.article_id));
         const dismissed = getDismissedSet(userId);
-        const toSave = unprocessed.filter(a => !savedIds.has(a.link) && !dismissed.has(a.link) && articleMatchesRules(a, rules));
-        if (toSave.length > 0) {
+        const candidates = unprocessed.filter(a =>
+          !savedIds.has(a.link) &&
+          !dismissed.has(a.link) &&
+          articleMatchesRules(a, rules)
+        );
+        if (!candidates.length) return;
 
-          await Promise.all(toSave.map(a => {
-            const abstract = extractAbstract(a) || '';
-            const thumbnail = getCachedImage(a) || '';
-            return entities.SavedArticle.create({
-              article_id: a.link,
-              title: a.title,
-              link: a.link,
-              authors: Array.isArray(a.author) ? a.author.join(', ') : (a.author || ''),
-              pub_date: a.pubDate,
-              journal_name: a.journalName,
-              journal_abbrev: a.journalAbbrev,
-              journal_color: a.journalColor,
-              thumbnail,
-              abstract,
-            });
-          }));
-          queryClient.invalidateQueries({ queryKey: ['savedArticles'] });
-        }
+        // Re-check dismissed set RIGHT BEFORE each create — the user may
+        // have unsaved an article in a different tab while we were
+        // fetching. This extra read is cheap (pure localStorage) and
+        // plugs the last race window between list() and create().
+        const latestDismissed = getDismissedSet(userId);
+        const toSave = candidates.filter(a => !latestDismissed.has(a.link));
+        if (!toSave.length) return;
+
+        await Promise.all(toSave.map(a => {
+          const abstract = extractAbstract(a) || '';
+          const thumbnail = getCachedImage(a) || '';
+          return entities.SavedArticle.create({
+            article_id: a.link,
+            title: a.title,
+            link: a.link,
+            authors: Array.isArray(a.author) ? a.author.join(', ') : (a.author || ''),
+            pub_date: a.pubDate,
+            journal_name: a.journalName,
+            journal_abbrev: a.journalAbbrev,
+            journal_color: a.journalColor,
+            thumbnail,
+            abstract,
+          });
+        }));
+        queryClient.invalidateQueries({ queryKey: ['savedArticles'] });
       } catch (e) {
         if (import.meta.env.DEV) console.error('Auto-save error:', e);
       }
     })();
-  }, [articles, userId, serverRules]);
+  }, [articles, userId, serverRules, queryClient]);
 
   // Expose whether auto-save is currently enabled so the UI can show an indicator
   const rules = serverRules || getCachedRules(userId);
