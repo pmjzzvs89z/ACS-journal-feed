@@ -205,10 +205,10 @@ export default function Settings() {
                   ) : (
                     <button
                       onClick={() => setShowSelected(!showSelected)}
-                      className="text-sm font-normal text-blue-600 dark:text-blue-400 hover:underline cursor-pointer flex items-center gap-1"
+                      className="text-sm font-normal text-blue-500 dark:text-blue-500 hover:underline cursor-pointer flex items-center gap-1"
                     >
                       {activeCount} journal{activeCount !== 1 ? 's' : ''} selected
-                      <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showSelected ? 'rotate-180' : ''}`} />
+                      <ChevronDown className={`w-[1.09rem] h-[1.09rem] text-blue-500 transition-transform ${showSelected ? 'rotate-180' : ''}`} />
                     </button>
                   )}
                 </div>

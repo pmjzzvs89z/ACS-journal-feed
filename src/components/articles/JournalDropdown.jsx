@@ -160,7 +160,7 @@ export default function JournalDropdown({ value, onChange, journals, publisherKe
                   aria-selected={isSelected}
                   onMouseEnter={() => setActiveId(j.id)}
                   onClick={() => { onChange(j.id); setOpen(false); }}
-                  className={`w-full flex items-center gap-2 pl-3 pr-4 py-[0.08rem] text-sm text-left transition-colors text-slate-900 dark:text-white ${isSelected ? 'bg-slate-300 dark:bg-[rgb(20,34,71)] border border-slate-400 dark:border-blue-700 rounded-lg' : `border border-transparent ${isActive ? 'bg-black/5 dark:bg-white/10' : 'hover:bg-black/5 dark:hover:bg-white/10'}`}`}
+                  className={`mx-3 w-[calc(100%-1.5rem)] flex items-center gap-2 pl-3 pr-4 py-[0.08rem] text-sm text-left transition-colors text-slate-900 dark:text-white ${isSelected ? 'bg-slate-300 dark:bg-[rgb(20,34,71)] border border-slate-400 dark:border-blue-700 rounded-lg' : `border border-transparent ${isActive ? 'bg-black/5 dark:bg-white/10' : 'hover:bg-black/5 dark:hover:bg-white/10'}`}`}
                 >
                   <span className="w-4 flex-shrink-0 flex items-center justify-center">
                     {pubColor ? (
