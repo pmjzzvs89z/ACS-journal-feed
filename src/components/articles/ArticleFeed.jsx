@@ -255,6 +255,48 @@ export default function ArticleFeed({ articles, failedJournals = [], isLoading, 
     return () => observer.disconnect();
   }, [hasMore]);
 
+  // Keyboard shortcut: tap Cmd (Mac) or Ctrl (Windows/Linux) alone to toggle
+  // the journal-filter dropdown. "Tap" means press + release without any
+  // other key pressed in between — so Cmd+C, Ctrl+A, etc. are not affected.
+  useEffect(() => {
+    let modifierIsolated = false;
+    const isModifier = (key) => key === 'Meta' || key === 'Control';
+    const isTypingTarget = () => {
+      const el = document.activeElement;
+      if (!el) return false;
+      const tag = el.tagName;
+      return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || el.isContentEditable;
+    };
+    const onKeyDown = (e) => {
+      if (e.repeat) return;
+      if (isModifier(e.key)) {
+        modifierIsolated = true;
+      } else {
+        // Any non-modifier key press — the modifier is being used in a combo
+        modifierIsolated = false;
+      }
+    };
+    const onKeyUp = (e) => {
+      if (!isModifier(e.key)) return;
+      const tapped = modifierIsolated;
+      modifierIsolated = false;
+      if (!tapped) return;
+      if (isTypingTarget()) return;
+      const btn = document.getElementById('feed-journal-dropdown-trigger');
+      if (btn) {
+        btn.click();
+        // Focus the button so Arrow Up/Down keys flow to its keydown handler
+        btn.focus();
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    window.addEventListener('keyup', onKeyUp);
+    return () => {
+      window.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener('keyup', onKeyUp);
+    };
+  }, []);
+
   // Build journal list from both loaded articles AND all active followed journals.
   // Dedupe by RSS URL so cross-field siblings (same feed, different journal ID)
   // don't appear twice in the dropdown. Home.jsx fetches a single entry per URL

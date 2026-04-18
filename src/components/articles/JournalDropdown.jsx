@@ -89,8 +89,9 @@ export default function JournalDropdown({ value, onChange, journals, publisherKe
   return (
     <div ref={wrapRef} className="relative">
       <button
+        id="feed-journal-dropdown-trigger"
         type="button"
-        onClick={() => setOpen(o => !o)}
+        onClick={(e) => { setOpen(o => !o); e.currentTarget.focus(); }}
         onKeyDown={handleKeyDown}
         aria-haspopup="listbox"
         aria-expanded={open}
