@@ -281,6 +281,17 @@ const ArticleCard = React.memo(React.forwardRef(function ArticleCard({ article, 
                   pubDate={article.pubDate}
                   abstract={abstractText}
                 />
+                {/* ReadCube integration marker. The Papers by ReadCube browser
+                    extension detects this element by class + data-doi and
+                    injects a "Save to Library" button next to it. Invisible
+                    for users without the extension. */}
+                {doi && (
+                  <span
+                    className="__readcube-library-button"
+                    data-doi={doi}
+                    aria-hidden="true"
+                  />
+                )}
               </div>
             </div>
 

@@ -447,6 +447,17 @@ export default function RecommendedFeed({ followedJournals, savedArticles, onSav
                             {isSaved ? <BookmarkCheck className="w-3.5 h-3.5" /> : <Bookmark className="w-3.5 h-3.5" />}
                             {isSaved ? 'Saved' : 'Save'}
                           </button>
+                          {/* ReadCube integration marker — see ArticleCard.jsx */}
+                          {(() => {
+                            const recDoi = article.doi || (article.link ? (article.link.match(/10\.\d{4,}\/[^\s?&#"'<>]+/) || [])[0] : null);
+                            return recDoi ? (
+                              <span
+                                className="__readcube-library-button"
+                                data-doi={recDoi}
+                                aria-hidden="true"
+                              />
+                            ) : null;
+                          })()}
                         </div>
                       </div>
 

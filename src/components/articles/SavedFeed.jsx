@@ -168,6 +168,17 @@ const SavedCard = React.memo(function SavedCard({ saved, onUnsave, selected, onT
                   pubDate={saved.pub_date}
                   abstract={saved.abstract}
                 />
+                {/* ReadCube integration marker — see ArticleCard.jsx */}
+                {(() => {
+                  const savedDoi = saved.doi || (saved.link ? (saved.link.match(/10\.\d{4,}\/[^\s?&#"'<>]+/) || [])[0] : null);
+                  return savedDoi ? (
+                    <span
+                      className="__readcube-library-button"
+                      data-doi={savedDoi}
+                      aria-hidden="true"
+                    />
+                  ) : null;
+                })()}
               </div>
               {(() => {
                 const reasons = getMatchReasons(saved, rules);
