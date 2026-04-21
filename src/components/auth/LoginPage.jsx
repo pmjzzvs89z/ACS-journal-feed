@@ -20,10 +20,19 @@ export default function LoginPage() {
     setMessage('');
     setIsLoading(true);
 
+    // Use the production domain for email links regardless of where the
+    // user signed up. This keeps confirmation/reset emails working even
+    // if somebody signs up from localhost during development — the email
+    // is sent to their personal inbox, which may be opened on a phone or
+    // different machine without access to the local dev server.
+    const PRODUCTION_ORIGIN = 'https://literature-tracker.com';
+    const isLocalhost = /^https?:\/\/(localhost|127\.0\.0\.1)/.test(window.location.origin);
+    const emailRedirectOrigin = isLocalhost ? PRODUCTION_ORIGIN : window.location.origin;
+
     try {
       if (isForgotPassword) {
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
-          redirectTo: window.location.origin,
+          redirectTo: emailRedirectOrigin,
         });
         if (error) throw error;
         setMessage('Password reset email sent! Check your inbox and follow the link to reset your password.');
@@ -35,7 +44,7 @@ export default function LoginPage() {
         const { error } = await supabase.auth.signUp({
           email,
           password,
-          options: { emailRedirectTo: `${window.location.origin}/confirm` },
+          options: { emailRedirectTo: `${emailRedirectOrigin}/confirm` },
         });
         if (error) throw error;
         // Always show the confirmation prompt on successful signUp.

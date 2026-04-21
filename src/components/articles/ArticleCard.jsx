@@ -18,6 +18,7 @@ import { dismissArticle } from '@/utils/dismissedArticles';
 import { showToast } from '@/components/ui/SimpleToast';
 import { useAuth } from '@/lib/AuthContext';
 import { publisherColorForJournalId } from '@/components/journals/JournalList';
+import { extractPii, getCachedDoi, resolveDoiFromPii } from '@/utils/doiResolver';
 
 const ArticleCard = React.memo(React.forwardRef(function ArticleCard({ article, index, savedRecord, onSaveToggle, resetKey = 0, onImageFail, cachedImageUrl }, _ref) {
   const { user } = useAuth();
@@ -44,8 +45,27 @@ const ArticleCard = React.memo(React.forwardRef(function ArticleCard({ article, 
   // DOI extraction — used in both the visible DOI row and the hidden
   // citation metadata that reference-manager extensions (ReadCube Papers,
   // Zotero Connector, Mendeley, etc.) scan for.
+  //
+  // Elsevier RSS feeds carry a PII (not a DOI), so for those articles we
+  // fall back to the async PII → DOI resolver via CrossRef. Cached
+  // results come back synchronously on re-renders.
+  const pii = extractPii(article.link);
+  const [resolvedDoi, setResolvedDoi] = useState(() => pii ? getCachedDoi(pii) : null);
   const doi = article.doi ||
-    (article.link ? (article.link.match(/10\.\d{4,}\/[^\s?&#"'<>]+/) || [])[0] : null);
+    (article.link ? (article.link.match(/10\.\d{4,}\/[^\s?&#"'<>]+/) || [])[0] : null) ||
+    resolvedDoi ||
+    null;
+
+  useEffect(() => {
+    if (!pii) return;
+    if (article.doi) return;                         // already have one
+    if (resolvedDoi) return;                         // already resolved
+    let cancelled = false;
+    resolveDoiFromPii(pii).then(d => {
+      if (!cancelled && d) setResolvedDoi(d);
+    });
+    return () => { cancelled = true; };
+  }, [pii, article.doi, resolvedDoi]);
 
   useEffect(() => {
     setImageFailed(false);
