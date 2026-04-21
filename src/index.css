@@ -75,6 +75,60 @@
   }
 }
 
+/* ── Papers by ReadCube browser extension ────────────────────────────────
+   The extension injects "Papers" and "PDF" buttons next to our
+   `.__readcube-library-button` marker. Match the color/size/weight of
+   our Save and Share buttons (text-xs font-semibold text-slate-400
+   dark:text-slate-500), and turn magenta on hover.
+
+   We can't predict ReadCube's exact class names, so these selectors
+   cast a wide net: any link/button whose class contains "readcube" (or
+   is a direct sibling/child of our marker). If the visible styling
+   isn't picked up, inspect the injected DOM in devtools and tighten
+   the selector for the real class name. */
+[class*="readcube" i] a,
+[class*="readcube" i] button,
+a[class*="readcube" i],
+button[class*="readcube" i],
+.__readcube-library-button ~ a,
+.__readcube-library-button ~ button,
+.__readcube-library-button + * a,
+.__readcube-library-button + * button {
+  color: rgb(148 163 184) !important;   /* text-slate-400 */
+  font-size: 0.75rem !important;         /* text-xs */
+  font-weight: 600 !important;           /* font-semibold */
+  transition: color 0.15s ease !important;
+  text-decoration: none !important;
+}
+.dark [class*="readcube" i] a,
+.dark [class*="readcube" i] button,
+.dark a[class*="readcube" i],
+.dark button[class*="readcube" i],
+.dark .__readcube-library-button ~ a,
+.dark .__readcube-library-button ~ button,
+.dark .__readcube-library-button + * a,
+.dark .__readcube-library-button + * button {
+  color: rgb(100 116 139) !important;   /* text-slate-500 */
+}
+[class*="readcube" i] a:hover,
+[class*="readcube" i] button:hover,
+a[class*="readcube" i]:hover,
+button[class*="readcube" i]:hover,
+.__readcube-library-button ~ a:hover,
+.__readcube-library-button ~ button:hover,
+.__readcube-library-button + * a:hover,
+.__readcube-library-button + * button:hover,
+.dark [class*="readcube" i] a:hover,
+.dark [class*="readcube" i] button:hover,
+.dark a[class*="readcube" i]:hover,
+.dark button[class*="readcube" i]:hover,
+.dark .__readcube-library-button ~ a:hover,
+.dark .__readcube-library-button ~ button:hover,
+.dark .__readcube-library-button + * a:hover,
+.dark .__readcube-library-button + * button:hover {
+  color: #c026d3 !important;             /* fuchsia-600 (magenta) */
+}
+
 /* Custom scrollbar for journal selector */
 .journal-scroll::-webkit-scrollbar {
   width: 6px;
