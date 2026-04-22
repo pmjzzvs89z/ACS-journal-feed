@@ -118,12 +118,12 @@ export default function Guide() {
           <Section title="Feed">
             <ul className="space-y-1 text-sm text-foreground list-disc list-inside">
               <li>Articles are sorted by <span className="font-medium">journal name A&ndash;Z</span>, with the newest articles first within each journal</li>
-              <li>Each article card shows a <span className="font-medium">graphical abstract</span> (when available from the publisher), title, authors, date, DOI, and journal badge</li>
+              <li>Each article card shows a <span className="font-medium">graphical abstract</span> (when available from the publisher), title, authors, date, DOI, and a <span className="font-medium">publisher-colored journal badge</span> (blue for ACS, orange for Elsevier, fuchsia for RSC, green for Wiley, etc.)</li>
               <li><span className="font-medium">Unread articles</span> are marked with a <span className="text-blue-600 dark:text-blue-400 font-medium">blue vertical bar</span> on the left edge of the card and a blue title; once you scroll past an article, it becomes &ldquo;read&rdquo; — the bar disappears and the title turns gray</li>
               <li>Click the title or the arrow icon to open the full article on the publisher's website</li>
               <li>Use the <span className="font-medium">Save</span> button to bookmark an article for later</li>
-              <li>Use the <span className="font-medium">Share</span> button to share an article via <span className="font-medium">Email</span>, <span className="font-medium">Microsoft Teams</span>, or export a citation to <span className="font-medium">ReadCube Papers</span> (downloads a .ris file)</li>
-              <li>Use the <span className="font-medium">journal dropdown</span> (top center, highlighted with a gentle pulse) to filter the feed to a single journal or publisher group</li>
+              <li>Use the <span className="font-medium">Share</span> button to share an article via <span className="font-medium">Email</span>, <span className="font-medium">Microsoft Teams</span>, or download a citation as <span className="font-medium">RIS</span> — opens in any reference manager (ReadCube Papers, Zotero, EndNote, Mendeley)</li>
+              <li>Use the <span className="font-medium">journal dropdown</span> (top center, highlighted with a gentle pulse) to filter the feed to a single journal or publisher group. Tap the <span className="font-medium">Cmd</span> key (Mac) or <span className="font-medium">Ctrl</span> key (Windows/Linux) to open it via keyboard; use <span className="font-medium">Arrow Up/Down</span> to navigate and <span className="font-medium">Enter</span> to select</li>
               <li>Use the <span className="font-medium">Reset</span> button to mark all articles as unread (blue) again</li>
               <li>A <span className="font-medium">Back to Top</span> button appears when you scroll down; a floating <span className="font-medium">up-arrow</span> sits to the right of the feed for quick jumps</li>
             </ul>
@@ -139,6 +139,7 @@ export default function Guide() {
               <li>Auto-saved articles show the <span className="font-medium">matching reason</span> (keyword or author) on each card so you know why they were saved</li>
               <li>Auto-save rules are <span className="font-medium">synced across devices</span> via your account — set them up once and they work everywhere you log in</li>
               <li>Unsave articles individually with the trash icon</li>
+              <li><span className="font-medium">Removed articles stay removed</span> — once you unsave an article, auto-save rules will never re-add it, even after page refresh or on a different device. Dismissals sync across all your logged-in browsers</li>
             </ul>
           </Section>
 
@@ -156,6 +157,8 @@ export default function Guide() {
             <ul className="space-y-1 text-sm text-foreground list-disc list-inside">
               <li>Switch between <span className="font-medium">Chemistry</span>, <span className="font-medium">Engineering</span>, and <span className="font-medium">Materials Science</span> fields using the tabs at the top</li>
               <li>Browse by publisher (e.g., ACS, RSC, Wiley) or by research category (e.g., Organic Chemistry, Catalysis)</li>
+              <li>Two filter dropdowns above the journal list: <span className="font-medium">By Publisher</span> narrows to a single publisher, and <span className="font-medium">By Category across Publishers</span> shows one category (e.g., Catalysis) from every publisher side by side</li>
+              <li>When no filter is active, the default <span className="font-medium">By Publisher across Categories</span> view groups journals by publisher, with categories expanding underneath</li>
               <li>Use <span className="font-medium">Search Journals</span> to find journals by name or keyword — results appear in the main body grouped by publisher, with no limit on matches</li>
               <li>Click the <span className="font-medium">&ldquo;X journals selected&rdquo;</span> panel to view all your active journals in one place — you can unselect journals directly from this view or use <span className="font-medium">Unselect All</span></li>
               <li>Clicking outside the search results or selected-journals panel closes it automatically</li>
@@ -166,9 +169,21 @@ export default function Guide() {
             </ul>
           </Section>
 
+          <Section title="ReadCube Papers integration">
+            <ul className="space-y-1 text-sm text-foreground list-disc list-inside">
+              <li>If you have the <span className="font-medium">Papers by ReadCube</span> browser extension installed, additional action buttons (e.g., <span className="font-medium">Papers</span> and <span className="font-medium">PDF</span>) appear next to <span className="font-medium">Save</span> and <span className="font-medium">Share</span> on every article card that has a DOI</li>
+              <li>Click <span className="font-medium">Papers</span> to save the article directly to your ReadCube Papers library</li>
+              <li>Click <span className="font-medium">PDF</span> to open the article PDF through your ReadCube library</li>
+              <li>Users without the extension see no visual change — the buttons are completely hidden</li>
+              <li>Even without the extension, the <span className="font-medium">Share → RIS</span> option downloads a citation file that ReadCube Papers (and Zotero, EndNote, Mendeley) imports automatically when opened</li>
+            </ul>
+          </Section>
+
           <Section title="Tips">
             <ul className="space-y-1 text-sm text-foreground list-disc list-inside">
               <li>Read articles have a <span className="text-muted-foreground font-medium">gray</span> title with no left bar; unread ones have a <span className="text-blue-600 dark:text-blue-400 font-medium">blue</span> title with a blue left bar</li>
+              <li>Journal badges on article cards are <span className="font-medium">colored by publisher</span> — blue for ACS, orange for Elsevier, fuchsia for RSC, green for Wiley, red for AAAS, cyan for MDPI, yellow for Springer, violet for Taylor &amp; Francis, and slate for ASME/IChemE/IOP</li>
+              <li><span className="font-medium">Keyboard shortcut:</span> tap <kbd className="font-mono text-xs bg-muted px-2 py-0.5 rounded">Cmd</kbd> (Mac) or <kbd className="font-mono text-xs bg-muted px-2 py-0.5 rounded">Ctrl</kbd> (Windows/Linux) alone to open the journal-filter dropdown; arrow keys navigate, Enter selects, Escape closes</li>
               <li>A banner appears after 90 minutes reminding you to refresh for the latest articles</li>
               <li>Articles are cached for 20 minutes — switching tabs and back is instant</li>
               <li>The <span className="font-medium">Feed</span> button gently pulses when you're on another tab, as a reminder to return to your articles</li>
