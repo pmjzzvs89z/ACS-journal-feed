@@ -7,6 +7,7 @@ import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import LoginPage from '@/components/auth/LoginPage';
 import ConfirmPage from '@/components/auth/ConfirmPage';
+import { useReadCubeTooltips } from '@/hooks/useReadCubeTooltips';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -18,6 +19,7 @@ const LayoutWrapper = ({ children, currentPageName }) => Layout ?
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isAuthenticated } = useAuth();
+  useReadCubeTooltips();
 
   if (isLoadingAuth) {
     return (

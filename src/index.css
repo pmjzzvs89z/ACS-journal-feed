@@ -129,6 +129,45 @@ button[class*="readcube" i]:hover,
   color: #c026d3 !important;             /* fuchsia-600 (magenta) */
 }
 
+/* Custom tooltip for injected ReadCube (Papers / PDF) buttons.
+   Matches the style + timing of <Tooltip label=... /> used on
+   Save and Share. Text comes from data-rc-tip, which is set by
+   useReadCubeTooltips.js after the extension injects the buttons. */
+[data-rc-tip] {
+  position: relative !important;
+}
+[data-rc-tip]::after {
+  content: attr(data-rc-tip);
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 6px;
+  background: rgb(15 23 42);             /* slate-900 */
+  color: #fff;
+  font-size: 10px;
+  font-weight: 400;
+  line-height: 1.3;
+  padding: 2px 6px;
+  border-radius: 6px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.25);
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.12s ease 0s, visibility 0s linear 0.12s;
+  z-index: 50;
+}
+.dark [data-rc-tip]::after {
+  background: rgb(51 65 85);             /* slate-700 */
+}
+[data-rc-tip]:hover::after {
+  opacity: 1;
+  visibility: visible;
+  /* 500 ms appear delay to match Tooltip default */
+  transition: opacity 0.12s ease 0.5s, visibility 0s linear 0.5s;
+}
+
 /* Custom scrollbar for journal selector */
 .journal-scroll::-webkit-scrollbar {
   width: 6px;
