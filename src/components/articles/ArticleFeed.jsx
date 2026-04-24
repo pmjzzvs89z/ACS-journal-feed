@@ -103,7 +103,7 @@ const GA_HIDE_ON_FAIL_IDS = new Set([
 ].map(j => j.id));
 
 
-export default function ArticleFeed({ articles, failedJournals = [], isLoading, isLoadingJournals = false, loadingProgress, onRefresh, followedCount, savedArticles = [], onSaveToggle, followedJournals = [] }) {
+export default function ArticleFeed({ articles, failedJournals = [], isLoading, isLoadingJournals = false, hasJournalsHint = null, loadingProgress, onRefresh, followedCount, savedArticles = [], onSaveToggle, followedJournals = [] }) {
   const { user } = useAuth();
   const userId = user?.id;
   const [searchParams, setSearchParams] = useSearchParams();
@@ -334,44 +334,59 @@ export default function ArticleFeed({ articles, failedJournals = [], isLoading, 
     return map;
   }, [articles, followedJournals]);
 
+  const welcomeScreen = (
+    <motion.div
+      key="welcome-screen"                 /* stable key: React keeps it mounted across conditional branches */
+      initial={{ opacity: 0 }}              /* only opacity — no y-translate to avoid the layout jump on render */
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.2, ease: 'easeOut' }}
+      className="flex flex-col items-center text-center px-4 pb-20"
+      // 13.46vh ≈ vertically centers the block against the viewport
+      // minus the sticky header. Tuned visually — do not change without
+      // checking both short (no-scroll) and tall viewports.
+      style={{ paddingTop: '13.46vh' }}
+    >
+      <img
+        src="/logo.svg"
+        alt="Literature Tracker"
+        className="w-24 h-24 object-contain mb-6 drop-shadow-lg"
+      />
+      <h3 className="text-welcome sm:text-welcome-lg font-bold text-slate-900 dark:text-white mb-3">
+        Welcome to Literature Tracker
+      </h3>
+      <p className="text-welcome-body text-blue-600 dark:text-blue-400 max-w-xl mb-6 leading-relaxed">
+        This literature tracker allows you to follow any of the hundreds of
+        journals across <span className="text-cyan-500 dark:text-cyan-400">Chemistry</span>,{' '}
+        <span className="text-cyan-500 dark:text-cyan-400">Engineering</span>, and{' '}
+        <span className="text-cyan-500 dark:text-cyan-400">Materials Science</span> — from ACS,
+        RSC, Wiley, Elsevier, Springer Nature, and more.
+      </p>
+      <Link to={createPageUrl('Settings')} className="feed-pulse inline-flex items-center gap-1.5 px-3 py-1 rounded-lg border text-welcome-cta font-semibold transition-colors bg-blue-50/60 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-700 hover:bg-blue-100/60 dark:hover:bg-blue-900/40 shadow-sm">
+        <Settings className="w-4 h-4" />
+        <span>Journal Selector</span>
+      </Link>
+    </motion.div>
+  );
+
+  // While the Supabase followed-journals query is still resolving, use
+  // the cached hint from the previous session to decide what to show:
+  //   - hint === false → show Welcome optimistically (no blank flash)
+  //   - hint === true  → fall through to skeleton cards below
+  //   - hint === null  → brand-new session, show blank (rare)
+  if (isLoadingJournals) {
+    if (hasJournalsHint === false) return welcomeScreen;
+    if (hasJournalsHint === true) {
+      // fall through to the isLoading branch below which renders skeletons
+    } else {
+      return <div />;
+    }
+  }
+
   // First-time users (followed journals confirmed empty) see the Welcome
-  // screen immediately — without flashing skeleton cards while RSS
-  // fetches resolve to nothing. Gate on !isLoadingJournals so existing
-  // users (whose followedJournals haven't loaded yet) don't briefly see
-  // the Welcome screen during the initial Supabase fetch.
-  if (!isLoadingJournals && followedCount === 0) {
-    return (
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: 'easeOut' }}
-        className="flex flex-col items-center text-center px-4 pb-20"
-        // 13.46vh ≈ vertically centers the block against the viewport
-        // minus the sticky header. Tuned visually — do not change without
-        // checking both short (no-scroll) and tall viewports.
-        style={{ paddingTop: '13.46vh' }}
-      >
-        <img
-          src="/logo.svg"
-          alt="Literature Tracker"
-          className="w-24 h-24 object-contain mb-6 drop-shadow-lg"
-        />
-        <h3 className="text-welcome sm:text-welcome-lg font-bold text-slate-900 dark:text-white mb-3">
-          Welcome to Literature Tracker
-        </h3>
-        <p className="text-welcome-body text-blue-600 dark:text-blue-400 max-w-xl mb-6 leading-relaxed">
-          This literature tracker allows you to follow any of the hundreds of
-          journals across <span className="text-emerald-600 dark:text-emerald-400">Chemistry</span>,{' '}
-          <span className="text-emerald-600 dark:text-emerald-400">Engineering</span>, and{' '}
-          <span className="text-emerald-600 dark:text-emerald-400">Materials Science</span> — from ACS,
-          RSC, Wiley, Elsevier, Springer Nature, and more.
-        </p>
-        <Link to={createPageUrl('Settings')} className="feed-pulse inline-flex items-center gap-1.5 px-3 py-1 rounded-lg border text-welcome-cta font-semibold transition-colors bg-blue-50/60 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-700 hover:bg-blue-100/60 dark:hover:bg-blue-900/40 shadow-sm">
-          <Settings className="w-4 h-4" />
-          <span>Journal Selector</span>
-        </Link>
-      </motion.div>
-    );
+  // screen — without flashing skeleton cards while RSS fetches resolve
+  // to nothing.
+  if (followedCount === 0) {
+    return welcomeScreen;
   }
 
   if (isLoading) {

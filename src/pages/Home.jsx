@@ -16,6 +16,32 @@ import { useAuth } from '@/lib/AuthContext';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import { useAutoSave } from '@/hooks/useAutoSave';
 
+// Per-user hint: did the user have followed journals the last time we
+// successfully loaded them? Stored in localStorage so that on refresh
+// we can decide between the Welcome screen and the real feed *before*
+// the Supabase query resolves (which can take ~300–800 ms). This
+// eliminates the blank flash the user sees when refreshing the page.
+const HAS_JOURNALS_KEY_BASE = 'cjf_has_journals_hint';
+
+function readHasJournalsHint(userId) {
+  if (!userId) return null;
+  try {
+    const v = localStorage.getItem(`${HAS_JOURNALS_KEY_BASE}:${userId}`);
+    if (v === 'true') return true;
+    if (v === 'false') return false;
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+function writeHasJournalsHint(userId, hasJournals) {
+  if (!userId) return;
+  try {
+    localStorage.setItem(`${HAS_JOURNALS_KEY_BASE}:${userId}`, String(!!hasJournals));
+  } catch { /* quota — non-critical */ }
+}
+
 export default function Home() {
   const [loadingProgress, setLoadingProgress] = useState({ done: 0, total: 0 });
   const progressSetterRef = useRef(setLoadingProgress);
@@ -77,6 +103,18 @@ export default function Home() {
     staleTime: 10 * 60 * 1000,
     enabled: !!userId,
   });
+
+  // Refresh the "has journals" hint whenever the real fetch resolves,
+  // so a subsequent page load can make the correct decision instantly.
+  useEffect(() => {
+    if (!userId || isLoadingJournals) return;
+    const hasActive = followedJournals.some(j => j.is_active);
+    writeHasJournalsHint(userId, hasActive);
+  }, [userId, isLoadingJournals, followedJournals]);
+
+  // Read the hint from the last successful load — lets us render Welcome
+  // or the feed optimistically during the ~300–800 ms Supabase fetch.
+  const hasJournalsHint = useMemo(() => readHasJournalsHint(userId), [userId]);
 
   // Fetch saved articles — same per-user isolation as above.
   const { data: savedArticles = [], refetch: refetchSaved } = useQuery({
@@ -153,6 +191,15 @@ export default function Home() {
   // On subsequent mounts (navigating back), followedJournals is already cached,
   // so journalQueryKey is stable and the articles cache is served instantly.
   const hasJournalData = followedJournals.length > 0;
+  // Only fetch articles when there's at least one ACTIVE journal. For
+  // users with none, the Welcome screen is all we need — running the
+  // query just to get an empty result back would re-render Home after
+  // Welcome is visible (dataUpdatedAt changes, isLoadingArticles
+  // toggles), which can produce micro-layout-shifts.
+  const hasActiveJournals = useMemo(
+    () => followedJournals.some(j => j.is_active),
+    [followedJournals]
+  );
   const {
     data: feedResult,
     isLoading: isLoadingArticles,
@@ -163,7 +210,7 @@ export default function Home() {
     queryFn: fetchArticlesQuery,
     staleTime: 20 * 60 * 1000,
     gcTime: 30 * 60 * 1000,
-    enabled: hasJournalData || !isLoadingJournals,
+    enabled: hasActiveJournals && (hasJournalData || !isLoadingJournals),
   });
 
   const articles = feedResult?.articles ?? [];
@@ -412,8 +459,10 @@ export default function Home() {
         </div>
       )}
 
-      {/* Last-updated timestamp (feed only) */}
-      {activeTab === 'feed' && dataUpdatedAt && (
+      {/* Last-updated timestamp (feed only, and only when the user
+          has followed journals — otherwise the Welcome screen shows
+          and a "refreshed" timestamp would be meaningless). */}
+      {activeTab === 'feed' && dataUpdatedAt > 0 && activeJournalCount > 0 && (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-3">
           <p className="text-xs text-muted-foreground">
             Feed last refreshed {(() => {
@@ -489,6 +538,7 @@ export default function Home() {
                   failedJournals={failedJournals}
                   isLoading={isLoadingArticles || isLoadingJournals}
                   isLoadingJournals={isLoadingJournals}
+                  hasJournalsHint={hasJournalsHint}
                   loadingProgress={loadingProgress}
                   onRefresh={handleRefresh}
                   followedCount={activeJournalCount}
