@@ -488,6 +488,7 @@ export default function Home() {
                   articles={articles}
                   failedJournals={failedJournals}
                   isLoading={isLoadingArticles || isLoadingJournals}
+                  isLoadingJournals={isLoadingJournals}
                   loadingProgress={loadingProgress}
                   onRefresh={handleRefresh}
                   followedCount={activeJournalCount}
