@@ -41,7 +41,8 @@ Run `npm run lint && npm run typecheck` before committing.
 src/
   api/
     supabaseClient.js       Supabase client (publishable key, safe to commit)
-    entities.js             CRUD: FollowedJournal, SavedArticle, JournalScope, Admin
+    entities.js             CRUD: FollowedJournal, SavedArticle, AutoSaveRules,
+                            DismissedArticle, JournalScope, Admin
   components/
     articles/               ArticleFeed, ArticleCard, SavedFeed, RecommendedFeed,
                             AutoSaveRules, ArticleFilters (with search history),
@@ -55,6 +56,7 @@ src/
     useDarkMode.js          Dark-mode toggle, localStorage-backed
     useAutoSave.js          Auto-save articles matching user rules
     useSharedObserver.js    Singleton IntersectionObserver for large lists
+    useReadCubeTooltips.js  Style ReadCube extension's injected Papers/PDF tooltips
     use-mobile.jsx
   lib/
     AuthContext.jsx         Supabase auth provider + useAuth() hook
@@ -68,15 +70,23 @@ src/
     Guide.jsx               User guide
     AdminPopulateScopes.jsx Admin dashboard (usage analytics)
   utils/
-    fetchRss.js             RSS fetch with timeout + Supabase proxy fallback
+    fetchRss.js             RSS fetch chain: Supabase proxy → corsproxy.io →
+                            CrossRef fallback (IOP only)
     articleMeta.js          extractAbstract, extractImage, buildPdfUrl, getCachedImage
     articleMatch.js         articleMatchesRules (keyword/author OR matching)
     seenArticles.js         Read/unread article tracking (debounced localStorage)
+    dismissedArticles.js    Per-user dismissed-article tracking (Supabase + cache)
+                            so auto-save never re-adds a removed article
+    doiResolver.js          Elsevier PII → DOI lookup via CrossRef, cached forever
     articleMeta.test.js     Vitest tests for articleMeta
     articleMatch.test.js    Vitest tests for articleMatch
   pages.config.js           Auto-generated page → route map
-index.html                  Contains pre-paint theme bootstrap script
+index.html                  Contains pre-paint theme bootstrap script + ReadCube
+                            extension marker (`readcube_extension_enabled` meta)
 vercel.json                 SPA rewrite rule — required for deep-link refresh
+supabase-edge-function-fetch-rss.ts
+                            Standalone copy of the deployed Edge Function source
+                            (deploy via Supabase dashboard; not part of the build)
 ```
 
 ## Routing
@@ -104,21 +114,32 @@ When you need to change…
   defined inline in this one file — there are no separate publisher files)
 - **Publisher colors / labels / order** →
   `src/components/journals/JournalList.jsx`
-  (canonical exports: `PUBLISHER_COLORS`, `PUBLISHER_LABELS`, `PUBLISHER_ORDER`)
+  (canonical exports: `PUBLISHER_COLORS`, `PUBLISHER_LABELS`, `PUBLISHER_ORDER`,
+  helpers `publisherKeyForJournalId`, `publisherColorForJournalId`,
+  `publisherColorForJournalNameOrAbbrev`)
 - **Publisher → journal ID mapping** →
-  `src/components/articles/ArticleFeed.jsx`
-  (`PUBLISHER_ID_MAP`, `publisherColorForJournalId`)
+  `src/components/articles/ArticleFeed.jsx` (`PUBLISHER_ID_MAP`)
 - **Supabase CRUD** → `src/api/entities.js`
 - **Auth state** → `src/lib/AuthContext.jsx` (`useAuth()`)
 - **RSS fetching** → `src/utils/fetchRss.js`
 - **Article metadata helpers** (extractAbstract, extractImage, etc.) →
   `src/utils/articleMeta.js`
 - **Seen/unread article tracking** → `src/utils/seenArticles.js`
+- **Dismissed articles** (auto-save protection) → `src/utils/dismissedArticles.js`
+  (Supabase-backed via `entities.DismissedArticle`, with localStorage cache)
+- **Elsevier PII → DOI resolver** → `src/utils/doiResolver.js`
+  (CrossRef lookup, used by ArticleCard for Elsevier articles missing a DOI)
 - **Auto-save rule matching** → `src/utils/articleMatch.js`
 - **Auto-save hook** → `src/hooks/useAutoSave.js`
 - **Dark-mode toggle** → `src/hooks/useDarkMode.js`
 - **Shared IntersectionObserver** → `src/hooks/useSharedObserver.js`
   (singleton observer for large article lists — avoids 500+ individual observers)
+- **ReadCube extension integration** → marker `<span class="__readcube-library-button"
+  data-doi="...">` in `ArticleCard`, `SavedFeed`, `RecommendedFeed`; tooltip styling
+  via `src/hooks/useReadCubeTooltips.js` and CSS in `src/index.css`
+- **Welcome-screen flash prevention** → `src/pages/Home.jsx` writes a
+  `cjf_has_journals_hint:<userId>` flag; `ArticleFeed` reads it to render the
+  Welcome screen optimistically on refresh
 
 ---
 
@@ -185,14 +206,32 @@ it cannot bleed between accounts on the same browser:
 | Key pattern | Purpose | Managed in |
 |-------------|---------|------------|
 | `cjf_autosave_rules:<userId>` | Auto-save keywords & authors | SavedFeed.jsx, Home.jsx |
+| `cjf_dismissed_articles:<userId>` | Articles user explicitly unsaved (auto-save block-list) | dismissedArticles.js |
+| `cjf_has_journals_hint:<userId>` | Boolean cache of "user has followed journals?" — used to render Welcome instantly on refresh | Home.jsx |
 | `seenArticles:<userId>` | Read/unread article history | ArticleCard.jsx, Home.jsx |
 | `cjf_feed_filters:<userId>` | Feed journal filter selection | ArticleFeed.jsx |
 | `cjf_search_history:<userId>` | Search bar recent terms (max 10) | ArticleFilters.jsx |
+| `cjf_pii_doi_cache` | Elsevier PII → DOI map (immutable; not per-user) | doiResolver.js |
 | `darkMode` | Theme preference (per-browser, not per-user — intentional) | useDarkMode.js |
 
 **Never add a new un-namespaced localStorage key for per-user data.** The
 legacy un-namespaced `cjf_autosave_rules` and `seenArticles` keys are
 purged on mount in SavedFeed.jsx / ArticleCard.jsx — do not reintroduce.
+
+### Supabase tables
+
+Per-user data lives in 4 tables (RLS enforced for all):
+
+| Table | Purpose |
+|-------|---------|
+| `followed_journals` | Which journals each user follows |
+| `saved_articles` | Bookmarked articles |
+| `auto_save_rules` | Single row per user — keywords + authors + enabled flag |
+| `dismissed_articles` | (user_id, article_id) — articles the user explicitly unsaved; auto-save will never re-add these. Created via the `dismissed-articles` migration documented in the conversation history. |
+
+The `fetch-rss` Edge Function source is in `supabase-edge-function-fetch-rss.ts`
+at the project root (deploy via Supabase dashboard → Edge Functions; the file
+is not bundled into the React app).
 
 ### Categories
 Chemistry has 9 subfields. **Catalysis is its own category** — it includes
@@ -223,6 +262,27 @@ J. Catalysis, Catalysts (MDPI), Nature Catalysis, and **Organometallics**
 - **URL-based filters:** the Feed stores its search term and journal
   selection in the URL so that refresh, bookmark, and browser back/forward
   all work. Preserve this behavior when touching feed filters.
+- **JSX `&&` with numeric values** — never write `{count && <X/>}` or
+  `{dataUpdatedAt && <X/>}`. When the value is `0` (a falsy number), JSX
+  renders the literal `"0"` as a text node. Always use an explicit
+  comparison: `{count > 0 && <X/>}`, `{dataUpdatedAt > 0 && <X/>}`. We
+  hit this with React Query's `dataUpdatedAt` (which defaults to `0`).
+- **Auto-save guarantees** — once a user unsaves an article, auto-save
+  rules must never re-add it. Every unsave path (ArticleCard, SavedFeed
+  single, SavedFeed bulk, RecommendedFeed) calls `dismissArticle()` /
+  `dismissArticles()`. `useAutoSave.js` filters candidates against the
+  Supabase-synced dismissed set right before each `create()`.
+- **CrossRef API for Elsevier DOIs** — Elsevier RSS feeds contain a PII
+  (`/pii/S...`) but no DOI. `ArticleCard` calls `resolveDoiFromPii()`
+  which queries `api.crossref.org` and caches the mapping forever in
+  localStorage (`cjf_pii_doi_cache`). The resolved DOI flows through to
+  the visible DOI row, the Share→RIS download, and the ReadCube marker.
+- **Welcome screen on refresh** — `Home.jsx` writes
+  `cjf_has_journals_hint:<userId>` on every successful followed-journals
+  load. On the next page load, `ArticleFeed` reads it synchronously
+  (before Supabase responds) to decide between the Welcome screen and
+  skeleton cards. Don't break this hint mechanism — it eliminates the
+  ~1s "Latest Articles" flash that returning users used to see.
 - **Never force-push `main`.**
 
 ---
