@@ -355,7 +355,7 @@ const JournalSelector = forwardRef(function JournalSelector({ followedJournals, 
       </div>
 
       {/* Static label — indicates the list below is grouped by publisher across categories */}
-      <div className="flex items-center justify-center gap-2 rounded-xl border border-border px-4 py-[0.325rem] text-sm -mb-2 bg-slate-300 dark:bg-[rgb(38,42,56)] text-foreground">
+      <div className="flex items-center justify-center gap-2 rounded-xl border border-border px-4 py-[0.325rem] text-sm -mb-2 bg-slate-400/80 dark:bg-[rgb(48,53,68)] text-foreground">
         <ArrowDown className="w-[1.09rem] h-[1.09rem] flex-shrink-0 text-blue-500 dark:text-blue-500" />
         <span>By Publisher across Categories</span>
         <ArrowDown className="w-[1.09rem] h-[1.09rem] flex-shrink-0 text-blue-500 dark:text-blue-500" />
