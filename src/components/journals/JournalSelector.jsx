@@ -40,7 +40,7 @@ function FilterDropdown({ value, onChange, options, allLabel, style, onOpenChang
         onClick={() => setOpenAndNotify(o => !o)}
         aria-haspopup="listbox"
         aria-expanded={open}
-        className="w-full flex items-center gap-2 rounded-lg border border-border px-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-foreground bg-slate-300 dark:bg-[rgb(38,42,56)]"
+        className="w-full flex items-center gap-2 rounded-lg border border-border px-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-foreground bg-slate-300 hover:bg-slate-400 dark:bg-[rgb(38,42,56)] dark:hover:bg-[rgb(58,64,82)] transition-colors"
         style={{ fontSize: '0.875rem', height: '2.013rem' }}
       >
         <span className="truncate flex-1 text-center">{label}</span>
@@ -355,7 +355,7 @@ const JournalSelector = forwardRef(function JournalSelector({ followedJournals, 
       </div>
 
       {/* Static label — indicates the list below is grouped by publisher across categories */}
-      <div className="flex items-center justify-center gap-2 rounded-xl border border-border px-4 py-[0.325rem] text-sm -mb-2 bg-slate-300 dark:bg-[rgb(38,42,56)] text-foreground">
+      <div className="flex items-center justify-center gap-2 rounded-xl border border-border px-4 py-[0.325rem] text-sm -mb-2 bg-slate-300 hover:bg-slate-400 dark:bg-[rgb(38,42,56)] dark:hover:bg-[rgb(58,64,82)] transition-colors text-foreground">
         <ArrowDown className="w-[1.09rem] h-[1.09rem] flex-shrink-0 text-blue-500 dark:text-blue-500" />
         <span>By Publisher across Categories</span>
         <ArrowDown className="w-[1.09rem] h-[1.09rem] flex-shrink-0 text-blue-500 dark:text-blue-500" />
