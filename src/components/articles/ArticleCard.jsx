@@ -253,7 +253,7 @@ const ArticleCard = React.memo(React.forwardRef(function ArticleCard({ article, 
                 <h3 className={`text-base font-semibold leading-snug mb-2 hover:transition-colors line-clamp-2 ${
                   hasBeenSeen
                     ? 'text-slate-400 dark:text-slate-500 hover:text-slate-500 dark:hover:text-slate-400'
-                    : 'text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-600'
+                    : 'text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-500'
                 }`}>
                   {article.title}
                 </h3>
