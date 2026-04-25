@@ -505,7 +505,7 @@ export default function ArticleFeed({ articles, failedJournals = [], isLoading, 
           <button
             onClick={() => setDismissedFailedKey(failedKey)}
             aria-label="Dismiss"
-            className="flex items-center justify-center text-red-600/80 dark:text-red-500/80 hover:text-red-800 dark:hover:text-red-300 flex-shrink-0"
+            className="self-center flex items-center justify-center text-red-600/80 dark:text-red-500/80 hover:text-red-800 dark:hover:text-red-300 flex-shrink-0"
           >
             <X className="w-4 h-4" />
           </button>
