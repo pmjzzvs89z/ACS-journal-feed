@@ -737,24 +737,29 @@ const PUBLISHER_KEY_BY_PREFIX = [
   // Chemistry root groups (no prefix) — checked via explicit id lookup
 ];
 
+// Precomputed id → publisher-key map. Built once at module load from the
+// root-group chemistry arrays; ArticleFeed has its own map for scope-prefixed
+// ids. Avoids the previous O(n) .find() over ALL_JOURNALS on every badge render.
+const _PUBLISHER_KEY_BY_ID = (() => {
+  const m = new Map();
+  const add = (arr, key) => arr.forEach(j => m.set(j.id, key));
+  add(ACS_JOURNALS, 'acs');
+  add(ELSEVIER_JOURNALS, 'elsevier');
+  add(RSC_JOURNALS, 'rsc');
+  add(WILEY_JOURNALS, 'wiley');
+  add(AAAS_JOURNALS, 'aaas');
+  add(MDPI_JOURNALS, 'mdpi');
+  add(SPRINGER_JOURNALS, 'springer');
+  add(TAYLOR_JOURNALS, 'taylor');
+  return m;
+})();
+
 export function publisherKeyForJournalId(journalId) {
   if (!journalId) return 'other';
   for (const [prefix, key] of PUBLISHER_KEY_BY_PREFIX) {
     if (journalId.startsWith(prefix)) return key;
   }
-  // Root-group chemistry journals — look up in ALL_JOURNALS by id and match
-  // against the publisher-specific arrays.
-  const j = ALL_JOURNALS.find(x => x.id === journalId);
-  if (!j) return 'other';
-  if (ACS_JOURNALS.includes(j)) return 'acs';
-  if (ELSEVIER_JOURNALS.includes(j)) return 'elsevier';
-  if (RSC_JOURNALS.includes(j)) return 'rsc';
-  if (WILEY_JOURNALS.includes(j)) return 'wiley';
-  if (AAAS_JOURNALS.includes(j)) return 'aaas';
-  if (MDPI_JOURNALS.includes(j)) return 'mdpi';
-  if (SPRINGER_JOURNALS.includes(j)) return 'springer';
-  if (TAYLOR_JOURNALS.includes(j)) return 'taylor';
-  return 'other';
+  return _PUBLISHER_KEY_BY_ID.get(journalId) || 'other';
 }
 
 export function publisherColorForJournalId(journalId) {

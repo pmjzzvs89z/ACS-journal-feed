@@ -75,25 +75,20 @@ export function useAutoSave(articles, userId) {
     return () => window.removeEventListener('autosave-rules-changed', handler);
   }, []);
 
-  // Listen for storage events from other tabs — when the user dismisses
-  // articles in another tab, the localStorage change fires here so we can
-  // skip those articles on the next auto-save cycle.
+  // Listen for cross-tab rule changes so auto-save re-evaluates all
+  // articles against the new rules (dismissal changes don't require a
+  // re-evaluation — the dismissed-set check at save time already blocks
+  // dismissed articles from being re-added, so wiping processedRef on
+  // dismissal just burns CPU).
   useEffect(() => {
     const storageHandler = (e) => {
       if (!e.key) return;
-      if (e.key.startsWith('cjf_dismissed_articles:') || e.key.startsWith('cjf_autosave_rules:')) {
+      if (e.key.startsWith('cjf_autosave_rules:')) {
         processedRef.current = new Set();
       }
     };
-    // Same-tab dismissals dispatch a custom event (storage events only fire
-    // across tabs, not within the tab that wrote to localStorage).
-    const sameTabHandler = () => { processedRef.current = new Set(); };
     window.addEventListener('storage', storageHandler);
-    window.addEventListener('dismissed-articles-changed', sameTabHandler);
-    return () => {
-      window.removeEventListener('storage', storageHandler);
-      window.removeEventListener('dismissed-articles-changed', sameTabHandler);
-    };
+    return () => window.removeEventListener('storage', storageHandler);
   }, []);
 
   useEffect(() => {

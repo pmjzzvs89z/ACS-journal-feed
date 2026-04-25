@@ -147,10 +147,13 @@ async function fetchCrossRefFallback(rssUrl) {
   return { status: 'ok', items };
 }
 
+// Single module-scope DOMParser — avoids allocating a new instance per RSS parse.
+const _domParser = typeof DOMParser !== 'undefined' ? new DOMParser() : null;
+
 function parseRssXml(xml) {
   try {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(xml, 'text/xml');
+    if (!_domParser) return [];
+    const doc = _domParser.parseFromString(xml, 'text/xml');
     const items = [];
 
     // Dublin Core namespace URI

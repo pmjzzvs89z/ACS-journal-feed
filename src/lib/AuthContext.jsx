@@ -10,12 +10,9 @@ export const AuthProvider = ({ children }) => {
   const [isLoadingAuth, setIsLoadingAuth] = useState(true);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      setIsAuthenticated(!!session);
-      setIsLoadingAuth(false);
-    });
-
+    // onAuthStateChange fires INITIAL_SESSION immediately on subscribe with
+    // the restored session from localStorage, so we don't need a separate
+    // getSession() call on mount — it's just a duplicate state update.
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
       setIsAuthenticated(!!session);

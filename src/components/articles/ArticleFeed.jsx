@@ -202,13 +202,32 @@ export default function ArticleFeed({ articles, failedJournals = [], isLoading, 
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  // Accumulate image failures in a ref and flush to state every ~300ms so
+  // a burst of staggered 404s (which each trigger `handleImageFail`) causes
+  // at most one re-filter pass instead of N. Without this, the `filtered`
+  // memo rebuilds on every single image failure, visibly stuttering the
+  // feed when many GA URLs 404 at once.
+  const pendingFailedRef = useRef(new Set());
+  const failedFlushTimerRef = useRef(null);
+  useEffect(() => () => {
+    if (failedFlushTimerRef.current) clearTimeout(failedFlushTimerRef.current);
+  }, []);
   const handleImageFail = React.useCallback((articleId) => {
-    setFailedImageIds(prev => {
-      if (prev.has(articleId)) return prev;
-      const next = new Set(prev);
-      next.add(articleId);
-      return next;
-    });
+    if (pendingFailedRef.current.has(articleId)) return;
+    pendingFailedRef.current.add(articleId);
+    if (failedFlushTimerRef.current) return;
+    failedFlushTimerRef.current = setTimeout(() => {
+      failedFlushTimerRef.current = null;
+      const pending = pendingFailedRef.current;
+      if (pending.size === 0) return;
+      pendingFailedRef.current = new Set();
+      setFailedImageIds(prev => {
+        let added = false;
+        const next = new Set(prev);
+        pending.forEach(id => { if (!next.has(id)) { next.add(id); added = true; } });
+        return added ? next : prev;
+      });
+    }, 300);
   }, []);
 
   const handleResetArticles = () => {

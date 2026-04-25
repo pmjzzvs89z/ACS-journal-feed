@@ -117,15 +117,17 @@ export function dismissArticles(userId, articleLinks) {
       if (idx !== -1) arr.splice(idx, 1);
     } else {
       existing.add(link);
+      toPersistOnServer.push(link);
     }
     arr.push(link);
-    toPersistOnServer.push(link);
   }
   persist(userId, arr);
   notifyChanged();
-  entities.DismissedArticle.addMany(toPersistOnServer).catch((e) => {
-    if (import.meta.env.DEV) console.warn('[dismissedArticles] server addMany failed:', e?.message || e);
-  });
+  if (toPersistOnServer.length > 0) {
+    entities.DismissedArticle.addMany(toPersistOnServer).catch((e) => {
+      if (import.meta.env.DEV) console.warn('[dismissedArticles] server addMany failed:', e?.message || e);
+    });
+  }
 }
 
 /** Check whether an article link was previously dismissed. */

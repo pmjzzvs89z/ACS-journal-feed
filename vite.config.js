@@ -9,13 +9,9 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
-  test: {
-    environment: 'jsdom',
-    globals: true,
-    include: ['src/**/*.test.{js,jsx}'],
-    setupFiles: [],
-  },
   build: {
+    // No source maps in prod — smaller dist, nothing shipped to users.
+    sourcemap: false,
     // Split the 855 KB monolith into cacheable vendor chunks so a React
     // patch release doesn't bust the cache for the entire app. Priority:
     // react-dom is by far the heaviest import, then framer-motion, then

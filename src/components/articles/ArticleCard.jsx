@@ -32,6 +32,14 @@ const ArticleCard = React.memo(React.forwardRef(function ArticleCard({ article, 
 
   const articleRef = React.useRef(null);
   const wasEverVisibleRef = React.useRef(false);
+  // Tracks mount state so the save/unsave promise chain doesn't call
+  // setState after the user navigates away (React logs a warning, and
+  // onSaveToggle can fire on a dead parent).
+  const isMountedRef = React.useRef(true);
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => { isMountedRef.current = false; };
+  }, []);
 
   const abstractText = extractAbstract(article);
   const imageUrl = cachedImageUrl !== undefined ? cachedImageUrl : extractImage(article);
@@ -59,7 +67,9 @@ const ArticleCard = React.memo(React.forwardRef(function ArticleCard({ article, 
   useEffect(() => {
     if (!pii) return;
     if (article.doi) return;                         // already have one
-    if (resolvedDoi) return;                         // already resolved
+    // resolvedDoi can be: DOI string (resolved), '' (confirmed not-found —
+    // negative cache hit), or null (unknown). Only re-run the fetch when null.
+    if (resolvedDoi !== null) return;
     let cancelled = false;
     resolveDoiFromPii(pii).then(d => {
       if (!cancelled && d) setResolvedDoi(d);
@@ -149,13 +159,20 @@ const ArticleCard = React.memo(React.forwardRef(function ArticleCard({ article, 
         });
 
     promise
-      .then(() => { if (onSaveToggle) onSaveToggle(); })
+      .then(() => {
+        if (!isMountedRef.current) return;
+        if (onSaveToggle) onSaveToggle();
+      })
       .catch((err) => {
         if (import.meta.env.DEV) console.error('Failed to save/unsave article:', err);
+        if (!isMountedRef.current) return;
         setOptimisticSaved(null); // revert to server state
         showToast('Something went wrong');
       })
-      .finally(() => setSaving(false));
+      .finally(() => {
+        if (!isMountedRef.current) return;
+        setSaving(false);
+      });
   };
 
   const formatDate = (dateString) => {

@@ -1,5 +1,5 @@
 // @ts-nocheck — see ArticleCard for rationale
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Bookmark, Trash2, ExternalLink, BookOpen, Calendar, Users, Download, ChevronDown, Zap } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -267,17 +267,37 @@ export default function SavedFeed({ savedArticles, onRefresh, articles = [] }) {
     return () => { cancelled = true; };
   }, [userId]);
 
+  // Debounced Supabase upsert — rapid chip add/remove/toggle coalesces
+  // into one network round-trip. Local cache + the in-app custom event
+  // still fire synchronously so the UI and auto-save hook stay instant.
+  const upsertTimerRef = useRef(null);
+  const pendingUpsertRef = useRef(null);
+  useEffect(() => () => {
+    if (upsertTimerRef.current) {
+      clearTimeout(upsertTimerRef.current);
+      // Fire any pending write on unmount so changes aren't lost.
+      if (pendingUpsertRef.current && userId) {
+        entities.AutoSaveRules.upsert(pendingUpsertRef.current).catch(() => {});
+      }
+    }
+  }, [userId]);
+
   const handleRulesChange = useCallback((newRules) => {
     setRulesState(newRules);
     cacheRules(userId, newRules);
     // Notify useAutoSave hook so the green dot updates instantly
     window.dispatchEvent(new CustomEvent('autosave-rules-changed', { detail: newRules }));
-    // Persist to Supabase in the background
-    if (userId) {
-      entities.AutoSaveRules.upsert(newRules).catch((err) => {
+    if (!userId) return;
+    pendingUpsertRef.current = newRules;
+    if (upsertTimerRef.current) clearTimeout(upsertTimerRef.current);
+    upsertTimerRef.current = setTimeout(() => {
+      const toSend = pendingUpsertRef.current;
+      pendingUpsertRef.current = null;
+      upsertTimerRef.current = null;
+      entities.AutoSaveRules.upsert(toSend).catch((err) => {
         if (import.meta.env.DEV) console.error('[AutoSaveRules] upsert failed:', err);
       });
-    }
+    }, 400);
   }, [userId]);
 
   const toggleSelect = (id) => {

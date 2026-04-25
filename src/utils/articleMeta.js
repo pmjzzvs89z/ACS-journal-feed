@@ -157,7 +157,13 @@ const _imageCache = new Map();
 const IMAGE_CACHE_MAX = 5000;
 export function getCachedImage(article) {
   const key = article.link;
-  if (_imageCache.has(key)) return _imageCache.get(key);
+  if (_imageCache.has(key)) {
+    // Re-promote to most-recently-used so hot entries aren't evicted.
+    const val = _imageCache.get(key);
+    _imageCache.delete(key);
+    _imageCache.set(key, val);
+    return val;
+  }
   if (_imageCache.size >= IMAGE_CACHE_MAX) {
     const firstKey = _imageCache.keys().next().value;
     _imageCache.delete(firstKey);
