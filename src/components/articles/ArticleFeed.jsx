@@ -396,8 +396,11 @@ export default function ArticleFeed({ articles, failedJournals = [], isLoading, 
 
   // First-time users (followed journals confirmed empty) see the Welcome
   // screen — without flashing skeleton cards while RSS fetches resolve
-  // to nothing.
-  if (followedCount === 0) {
+  // to nothing. Gated on !isLoadingJournals so returning users with
+  // hasJournalsHint=true don't briefly hit this branch (followedJournals
+  // defaults to [] while the Supabase query resolves, which would
+  // otherwise show Welcome for ~500ms before the feed appears).
+  if (!isLoadingJournals && followedCount === 0) {
     return welcomeScreen;
   }
 
