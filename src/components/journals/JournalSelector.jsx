@@ -40,7 +40,7 @@ function FilterDropdown({ value, onChange, options, allLabel, style, onOpenChang
         onClick={() => setOpenAndNotify(o => !o)}
         aria-haspopup="listbox"
         aria-expanded={open}
-        className="w-full flex items-center gap-2 rounded-lg border border-border px-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-foreground bg-slate-300 hover:bg-slate-400 dark:bg-[rgb(38,42,56)] dark:hover:bg-[rgb(58,64,82)] transition-colors"
+        className="w-full flex items-center gap-2 rounded-lg border border-border px-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-muted-foreground hover:text-foreground bg-slate-300 hover:bg-slate-400/80 dark:bg-[rgb(38,42,56)] dark:hover:bg-[rgb(48,53,68)] transition-colors"
         style={{ fontSize: '0.875rem', height: '2.013rem' }}
       >
         <span className="truncate flex-1 text-center">{label}</span>
@@ -293,7 +293,7 @@ const JournalSelector = forwardRef(function JournalSelector({ followedJournals, 
             "flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-lg text-sm font-medium transition-all",
             activeField === 'chemistry'
               ? "bg-card shadow text-blue-700 dark:text-blue-400 border border-blue-100 dark:border-blue-800"
-              : "text-muted-foreground hover:text-foreground"
+              : "text-muted-foreground hover:text-foreground hover:bg-slate-400/80 dark:hover:bg-[rgb(48,53,68)]"
           )}
         >
           <FlaskConical className="w-3.5 h-3.5 flex-shrink-0" />
@@ -305,7 +305,7 @@ const JournalSelector = forwardRef(function JournalSelector({ followedJournals, 
             "flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-lg text-sm font-medium transition-all",
             activeField === 'engineering'
               ? "bg-card shadow text-red-700 dark:text-red-400 border border-red-100 dark:border-red-800"
-              : "text-muted-foreground hover:text-foreground"
+              : "text-muted-foreground hover:text-foreground hover:bg-slate-400/80 dark:hover:bg-[rgb(48,53,68)]"
           )}
         >
           <Cog className="w-3.5 h-3.5 flex-shrink-0" />
@@ -317,7 +317,7 @@ const JournalSelector = forwardRef(function JournalSelector({ followedJournals, 
             "flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-lg text-sm font-medium transition-all",
             activeField === 'materials'
               ? "bg-card shadow text-emerald-700 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-800"
-              : "text-muted-foreground hover:text-foreground"
+              : "text-muted-foreground hover:text-foreground hover:bg-slate-400/80 dark:hover:bg-[rgb(48,53,68)]"
           )}
         >
           <Layers className="w-3.5 h-3.5 flex-shrink-0" />
@@ -355,7 +355,7 @@ const JournalSelector = forwardRef(function JournalSelector({ followedJournals, 
       </div>
 
       {/* Static label — indicates the list below is grouped by publisher across categories */}
-      <div className="flex items-center justify-center gap-2 rounded-xl border border-border px-4 py-[0.325rem] text-sm -mb-2 bg-slate-300 hover:bg-slate-400 dark:bg-[rgb(38,42,56)] dark:hover:bg-[rgb(58,64,82)] transition-colors text-foreground">
+      <div className="flex items-center justify-center gap-2 rounded-xl border border-border px-4 py-[0.325rem] text-sm -mb-2 bg-slate-300 dark:bg-[rgb(38,42,56)] text-foreground">
         <ArrowDown className="w-[1.09rem] h-[1.09rem] flex-shrink-0 text-blue-500 dark:text-blue-500" />
         <span>By Publisher across Categories</span>
         <ArrowDown className="w-[1.09rem] h-[1.09rem] flex-shrink-0 text-blue-500 dark:text-blue-500" />
