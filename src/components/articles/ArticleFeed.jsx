@@ -2,7 +2,7 @@
 import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Inbox, Settings, ArrowUp, AlertTriangle, RefreshCw } from 'lucide-react';
+import { Inbox, Settings, ArrowUp, AlertTriangle, RefreshCw, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { createPageUrl } from '@/utils';
 import ArticleCard from './ArticleCard';
@@ -171,6 +171,18 @@ export default function ArticleFeed({ articles, failedJournals = [], isLoading, 
   const PAGE_SIZE = 30;
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const sentinelRef = useRef(null);
+
+  // Failed-feeds banner: auto-dismiss after 60s, also dismissible by user.
+  // Keyed off the failure list so a fresh set of failures re-shows the banner.
+  const failedKey = failedJournals.join('|');
+  const [dismissedFailedKey, setDismissedFailedKey] = useState('');
+  useEffect(() => {
+    if (!failedKey) return;
+    setDismissedFailedKey('');
+    const t = setTimeout(() => setDismissedFailedKey(failedKey), 60000);
+    return () => clearTimeout(t);
+  }, [failedKey]);
+  const showFailedBanner = failedJournals.length > 0 && dismissedFailedKey !== failedKey;
 
   // O(1) lookup for saved articles instead of .find() per card
   const savedMap = useMemo(() => {
@@ -471,8 +483,9 @@ export default function ArticleFeed({ articles, failedJournals = [], isLoading, 
         </div>
       </div>
 
-      {/* Per-journal failure banner — visible when some feeds failed */}
-      {failedJournals.length > 0 && !isLoading && (
+      {/* Per-journal failure banner — visible when some feeds failed.
+          Auto-dismisses after 60s; user can also dismiss with the X button. */}
+      {showFailedBanner && !isLoading && (
         <div className="flex items-start gap-3 mb-4 bg-red-50 dark:bg-red-900/20 border border-red-300 dark:border-red-700 rounded-xl px-4 py-3 text-sm text-red-600 dark:text-red-500">
           <AlertTriangle className="w-4 h-4 mt-0.5 flex-shrink-0" />
           <div className="flex-1 min-w-0">
@@ -488,6 +501,13 @@ export default function ArticleFeed({ articles, failedJournals = [], isLoading, 
           >
             <RefreshCw className="w-3.5 h-3.5" />
             Retry
+          </button>
+          <button
+            onClick={() => setDismissedFailedKey(failedKey)}
+            aria-label="Dismiss"
+            className="flex items-center justify-center text-red-600/80 dark:text-red-500/80 hover:text-red-800 dark:hover:text-red-300 flex-shrink-0"
+          >
+            <X className="w-4 h-4" />
           </button>
         </div>
       )}

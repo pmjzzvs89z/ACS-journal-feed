@@ -447,7 +447,7 @@ const JournalSelector = forwardRef(function JournalSelector({ followedJournals, 
                   onClick={() => togglePublisher(publisher.id)}
                   className="w-full flex items-center gap-3 px-4 py-[0.325rem] transition-colors"
                   style={{ backgroundColor: `${publisher.color}10` }}
-                  onMouseEnter={e => { e.currentTarget.style.backgroundColor = `${publisher.color}1a`; }}
+                  onMouseEnter={e => { e.currentTarget.style.backgroundColor = `${publisher.color}38`; }}
                   onMouseLeave={e => { e.currentTarget.style.backgroundColor = `${publisher.color}10`; }}
                 >
                   <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: publisher.color }} />

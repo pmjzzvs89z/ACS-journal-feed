@@ -99,7 +99,7 @@ export default function ArticleFilters({ filters, onChange }) {
 
   return (
     <div className="mb-6" ref={wrapRef}>
-      <div className="bg-card rounded-2xl border-card border-slate-400/80 dark:border-slate-600 shadow-sm overflow-hidden">
+      <div className="bg-card rounded-xl border-card border-slate-400/80 dark:border-slate-600 shadow-sm overflow-hidden">
         <div className="flex items-center gap-2 px-4 py-2">
           <Search className="w-4 h-4 text-muted-foreground flex-shrink-0" />
           <Input
