@@ -1,22 +1,53 @@
 # Supabase Email Templates — Literature Tracker
 
-Ready-to-paste HTML for the four Supabase auth email templates. All four
-share the same visual style: white card on light gray background, blue
-brand button, footer line. Email-client safe (table layout, inline
-styles, no external CSS, no JavaScript).
+Branded HTML for the four Supabase auth emails. Each template includes
+the Literature Tracker atom logo, brand-blue button, friendly copy, and
+custom footer (replaces Supabase's default "powered by Supabase" line).
 
-## Where to paste
+The logo image is hosted on your live site (`/apple-touch-icon.png`),
+so the same domain Vercel serves your app from also serves the logo —
+no separate hosting step needed.
 
-1. **Supabase dashboard** → your project → **Authentication** → **Email Templates**
-2. For each template, paste the HTML into the **Message body** field and
-   the matching subject line into the **Subject** field.
-3. After all four are saved, set the sender name once:
-   **Authentication** → **Settings** (or **Email** subsection) →
-   **Sender Name**: `Literature Tracker`
+---
 
-> Tip: send yourself a real test email after each save (e.g. trigger a
-> password reset to your own account) to confirm the layout renders
-> correctly in Gmail, Outlook, and Apple Mail.
+## Step-by-step: applying the templates
+
+### Step 1 — Set the sender identity (one-time)
+
+1. Go to **Authentication → Settings** (or **Email**, depending on
+   your dashboard version) at:
+   https://supabase.com/dashboard/project/fvjvcxvgxoloyfvchfof/auth/providers
+
+   Look for **SMTP Settings** or **Email**.
+
+2. If you're staying on Supabase's built-in mail (free tier, 2/hr cap):
+   - **Sender Name:** `Literature Tracker`
+   - **Sender email:** leave at the default (Supabase will use its own
+     `noreply@mail.app.supabase.io` — you can't change this without
+     custom SMTP)
+
+3. If you set up Resend later, update Sender email to
+   `noreply@literature-tracker.com`.
+
+### Step 2 — Paste each of the four templates below
+
+Open https://supabase.com/dashboard/project/fvjvcxvgxoloyfvchfof/auth/templates
+
+For each template:
+1. Paste the **Subject** into the Subject field
+2. Paste the **HTML** into the Message body field (replacing the entire
+   default content — the "powered by Supabase ⚡" footer goes away
+   automatically when you do this)
+3. Click Save
+
+### Step 3 — Test
+
+Trigger a password-reset to your own email. Confirm:
+- From: "Literature Tracker"
+- Subject: "Reset your Literature Tracker password"
+- Logo image at top (may need to click "show images" in Gmail)
+- Branded button + footer
+- No mention of "Supabase"
 
 ---
 
@@ -32,23 +63,21 @@ styles, no external CSS, no JavaScript).
     <td align="center">
       <table width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;background-color:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.06);">
         <tr>
-          <td style="padding:32px 32px 8px;">
-            <div style="font-size:13px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:#2563eb;">Literature Tracker</div>
+          <td align="center" style="padding:32px 32px 8px;">
+            <img src="https://literature-tracker.com/apple-touch-icon.png" alt="Literature Tracker" width="56" height="56" style="display:block;width:56px;height:56px;border:0;outline:none;text-decoration:none;border-radius:12px;" />
+            <div style="margin-top:12px;font-size:18px;font-weight:700;color:#0f172a;letter-spacing:-0.01em;">Literature Tracker</div>
           </td>
         </tr>
         <tr>
-          <td style="padding:8px 32px 16px;">
-            <h1 style="margin:0 0 12px;font-size:22px;line-height:1.3;color:#0f172a;font-weight:700;">Confirm your email address</h1>
-            <p style="margin:0 0 16px;font-size:15px;line-height:1.55;color:#334155;">
-              Welcome to <strong>Literature Tracker</strong> — your home for following the latest journal articles in chemistry, engineering, and materials science.
-            </p>
-            <p style="margin:0 0 24px;font-size:15px;line-height:1.55;color:#334155;">
-              Click the button below to confirm your email and start selecting journals to follow.
+          <td style="padding:24px 32px 8px;">
+            <h1 style="margin:0 0 12px;font-size:22px;line-height:1.3;color:#0f172a;font-weight:700;text-align:center;">Confirm your email address</h1>
+            <p style="margin:0 0 16px;font-size:15px;line-height:1.55;color:#334155;text-align:center;">
+              Welcome! Confirm your email to start following the latest journal articles in chemistry, engineering, and materials science.
             </p>
           </td>
         </tr>
         <tr>
-          <td align="center" style="padding:0 32px 32px;">
+          <td align="center" style="padding:16px 32px 32px;">
             <a href="{{ .ConfirmationURL }}" style="display:inline-block;background-color:#2563eb;color:#ffffff;text-decoration:none;font-weight:600;font-size:15px;padding:12px 28px;border-radius:8px;">Confirm email</a>
           </td>
         </tr>
@@ -68,7 +97,7 @@ styles, no external CSS, no JavaScript).
               Didn't sign up for Literature Tracker? You can safely ignore this email.
             </p>
             <p style="margin:0;font-size:12px;line-height:1.5;color:#94a3b8;">
-              Literature Tracker · <a href="https://literature-tracker.com" style="color:#94a3b8;text-decoration:underline;">literature-tracker.com</a>
+              <a href="https://literature-tracker.com" style="color:#94a3b8;text-decoration:underline;">literature-tracker.com</a>
             </p>
           </td>
         </tr>
@@ -92,23 +121,24 @@ styles, no external CSS, no JavaScript).
     <td align="center">
       <table width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;background-color:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.06);">
         <tr>
-          <td style="padding:32px 32px 8px;">
-            <div style="font-size:13px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:#2563eb;">Literature Tracker</div>
+          <td align="center" style="padding:32px 32px 8px;">
+            <img src="https://literature-tracker.com/apple-touch-icon.png" alt="Literature Tracker" width="56" height="56" style="display:block;width:56px;height:56px;border:0;outline:none;text-decoration:none;border-radius:12px;" />
+            <div style="margin-top:12px;font-size:18px;font-weight:700;color:#0f172a;letter-spacing:-0.01em;">Literature Tracker</div>
           </td>
         </tr>
         <tr>
-          <td style="padding:8px 32px 16px;">
-            <h1 style="margin:0 0 12px;font-size:22px;line-height:1.3;color:#0f172a;font-weight:700;">Reset your password</h1>
-            <p style="margin:0 0 16px;font-size:15px;line-height:1.55;color:#334155;">
-              We received a request to reset the password for your <strong>Literature Tracker</strong> account.
+          <td style="padding:24px 32px 8px;">
+            <h1 style="margin:0 0 12px;font-size:22px;line-height:1.3;color:#0f172a;font-weight:700;text-align:center;">Reset your password</h1>
+            <p style="margin:0 0 16px;font-size:15px;line-height:1.55;color:#334155;text-align:center;">
+              We received a request to reset the password for your Literature Tracker account.
             </p>
-            <p style="margin:0 0 24px;font-size:15px;line-height:1.55;color:#334155;">
-              Click below to choose a new password. The link is valid for one hour.
+            <p style="margin:0 0 16px;font-size:15px;line-height:1.55;color:#334155;text-align:center;">
+              Click below to choose a new password.
             </p>
           </td>
         </tr>
         <tr>
-          <td align="center" style="padding:0 32px 32px;">
+          <td align="center" style="padding:16px 32px 32px;">
             <a href="{{ .ConfirmationURL }}" style="display:inline-block;background-color:#2563eb;color:#ffffff;text-decoration:none;font-weight:600;font-size:15px;padding:12px 28px;border-radius:8px;">Reset password</a>
           </td>
         </tr>
@@ -128,7 +158,7 @@ styles, no external CSS, no JavaScript).
               If you didn't request a password reset, you can ignore this email — your password will stay the same.
             </p>
             <p style="margin:0;font-size:12px;line-height:1.5;color:#94a3b8;">
-              Literature Tracker · <a href="https://literature-tracker.com" style="color:#94a3b8;text-decoration:underline;">literature-tracker.com</a>
+              <a href="https://literature-tracker.com" style="color:#94a3b8;text-decoration:underline;">literature-tracker.com</a>
             </p>
           </td>
         </tr>
@@ -152,20 +182,21 @@ styles, no external CSS, no JavaScript).
     <td align="center">
       <table width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;background-color:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.06);">
         <tr>
-          <td style="padding:32px 32px 8px;">
-            <div style="font-size:13px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:#2563eb;">Literature Tracker</div>
+          <td align="center" style="padding:32px 32px 8px;">
+            <img src="https://literature-tracker.com/apple-touch-icon.png" alt="Literature Tracker" width="56" height="56" style="display:block;width:56px;height:56px;border:0;outline:none;text-decoration:none;border-radius:12px;" />
+            <div style="margin-top:12px;font-size:18px;font-weight:700;color:#0f172a;letter-spacing:-0.01em;">Literature Tracker</div>
           </td>
         </tr>
         <tr>
-          <td style="padding:8px 32px 16px;">
-            <h1 style="margin:0 0 12px;font-size:22px;line-height:1.3;color:#0f172a;font-weight:700;">Sign in to Literature Tracker</h1>
-            <p style="margin:0 0 24px;font-size:15px;line-height:1.55;color:#334155;">
-              Click the button below to sign in. This link is valid for one hour and can only be used once.
+          <td style="padding:24px 32px 8px;">
+            <h1 style="margin:0 0 12px;font-size:22px;line-height:1.3;color:#0f172a;font-weight:700;text-align:center;">Sign in to Literature Tracker</h1>
+            <p style="margin:0 0 16px;font-size:15px;line-height:1.55;color:#334155;text-align:center;">
+              Click below to sign in. This link is valid for one hour and can only be used once.
             </p>
           </td>
         </tr>
         <tr>
-          <td align="center" style="padding:0 32px 32px;">
+          <td align="center" style="padding:16px 32px 32px;">
             <a href="{{ .ConfirmationURL }}" style="display:inline-block;background-color:#2563eb;color:#ffffff;text-decoration:none;font-weight:600;font-size:15px;padding:12px 28px;border-radius:8px;">Sign in</a>
           </td>
         </tr>
@@ -185,7 +216,7 @@ styles, no external CSS, no JavaScript).
               If you didn't request this email, you can safely ignore it.
             </p>
             <p style="margin:0;font-size:12px;line-height:1.5;color:#94a3b8;">
-              Literature Tracker · <a href="https://literature-tracker.com" style="color:#94a3b8;text-decoration:underline;">literature-tracker.com</a>
+              <a href="https://literature-tracker.com" style="color:#94a3b8;text-decoration:underline;">literature-tracker.com</a>
             </p>
           </td>
         </tr>
@@ -209,23 +240,24 @@ styles, no external CSS, no JavaScript).
     <td align="center">
       <table width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;background-color:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.06);">
         <tr>
-          <td style="padding:32px 32px 8px;">
-            <div style="font-size:13px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:#2563eb;">Literature Tracker</div>
+          <td align="center" style="padding:32px 32px 8px;">
+            <img src="https://literature-tracker.com/apple-touch-icon.png" alt="Literature Tracker" width="56" height="56" style="display:block;width:56px;height:56px;border:0;outline:none;text-decoration:none;border-radius:12px;" />
+            <div style="margin-top:12px;font-size:18px;font-weight:700;color:#0f172a;letter-spacing:-0.01em;">Literature Tracker</div>
           </td>
         </tr>
         <tr>
-          <td style="padding:8px 32px 16px;">
-            <h1 style="margin:0 0 12px;font-size:22px;line-height:1.3;color:#0f172a;font-weight:700;">Confirm your new email</h1>
-            <p style="margin:0 0 16px;font-size:15px;line-height:1.55;color:#334155;">
-              We received a request to change the email address on your <strong>Literature Tracker</strong> account.
+          <td style="padding:24px 32px 8px;">
+            <h1 style="margin:0 0 12px;font-size:22px;line-height:1.3;color:#0f172a;font-weight:700;text-align:center;">Confirm your new email</h1>
+            <p style="margin:0 0 16px;font-size:15px;line-height:1.55;color:#334155;text-align:center;">
+              We received a request to change the email address on your Literature Tracker account.
             </p>
-            <p style="margin:0 0 24px;font-size:15px;line-height:1.55;color:#334155;">
+            <p style="margin:0 0 16px;font-size:15px;line-height:1.55;color:#334155;text-align:center;">
               Click below to confirm the change.
             </p>
           </td>
         </tr>
         <tr>
-          <td align="center" style="padding:0 32px 32px;">
+          <td align="center" style="padding:16px 32px 32px;">
             <a href="{{ .ConfirmationURL }}" style="display:inline-block;background-color:#2563eb;color:#ffffff;text-decoration:none;font-weight:600;font-size:15px;padding:12px 28px;border-radius:8px;">Confirm new email</a>
           </td>
         </tr>
@@ -245,7 +277,7 @@ styles, no external CSS, no JavaScript).
               If you didn't request this change, ignore this email — your account email will stay the same.
             </p>
             <p style="margin:0;font-size:12px;line-height:1.5;color:#94a3b8;">
-              Literature Tracker · <a href="https://literature-tracker.com" style="color:#94a3b8;text-decoration:underline;">literature-tracker.com</a>
+              <a href="https://literature-tracker.com" style="color:#94a3b8;text-decoration:underline;">literature-tracker.com</a>
             </p>
           </td>
         </tr>
@@ -257,18 +289,36 @@ styles, no external CSS, no JavaScript).
 
 ---
 
-## Design notes
+## What changes vs. the default Supabase email
 
-- **Colors:** primary blue `#2563eb` matches the app's `text-blue-600` brand color. Background `#f1f5f9` is `slate-100`. Card uses pure white for max contrast in any client.
-- **Typography:** system font stack — picks SF Pro on macOS/iOS, Segoe UI on Windows, and falls back through Helvetica/Arial. No web fonts (most clients block them anyway).
-- **Layout:** nested `<table>`s with inline styles. This is the gold standard for cross-client compatibility (Gmail, Outlook desktop, Apple Mail, mobile clients all render this consistently).
-- **Width:** capped at 560px so it stays readable on mobile without zooming.
-- **Buttons:** padding-based, no images. Even if the recipient's client blocks images by default, the button still renders.
-- **Fallback link:** always shown in plain text below the button so corporate email clients that strip HTML buttons (or paranoid users who don't trust buttons) can still complete the action.
-- **Footer:** muted gray (`#94a3b8` = slate-400) with disclaimer line + branded sign-off.
+| Element | Default (what you saw) | After applying these templates |
+|---|---|---|
+| Sender name | "Supabase Auth" | "Literature Tracker" |
+| Subject | "Reset Your Password" | "Reset your Literature Tracker password" |
+| Logo | none | atom icon at top |
+| Branding text | none | "Literature Tracker" wordmark |
+| Body text | "Follow this link…" | Friendly explanatory copy |
+| Button | plain blue underline link | rounded blue button matching app |
+| Footer | "powered by Supabase ⚡" + "Opt out" | "literature-tracker.com" + ignore-if-unwanted note |
 
-## Things you might want to tweak later
+## Notes about the logo image
 
-- Add a small logo image at the top — host the PNG somewhere stable (Supabase storage, your domain, or imgur), reference with `<img src="...">`. Keep alt text. Don't rely on it rendering — keep the text "LITERATURE TRACKER" eyebrow as a fallback.
-- Switch to a colored gradient header band if you want more visual identity.
-- Add a "Tips" line in the welcome email: "Your first step: pick journals to follow at literature-tracker.com/Settings".
+- Hosted at `https://literature-tracker.com/apple-touch-icon.png` — the
+  same image used as your app's iOS home-screen icon, so it's already
+  served by Vercel.
+- Some email clients (Gmail web, Outlook) **block external images by
+  default**. The recipient may need to click "Show images" once. After
+  that, Gmail remembers the choice for future emails from your sender.
+- The "Literature Tracker" wordmark text below the image is the
+  fallback — if the image is blocked, the wordmark still conveys
+  branding.
+- The image has `border-radius:12px` for a rounded-square look matching
+  the app's iOS icon style.
+
+## Sender domain (the `From` address)
+
+While on Supabase's built-in email, the From address will look like
+`noreply@mail.app.supabase.io` regardless of what you set. To get
+`from: noreply@literature-tracker.com`, you need to configure custom
+SMTP — Resend is the recommended path (3000 emails/month free,
+~10 min to set up).
