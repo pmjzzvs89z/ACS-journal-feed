@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { BookOpen, CheckCircle, Loader2 } from 'lucide-react';
+import { CheckCircle, Loader2 } from 'lucide-react';
 import { supabase } from '@/api/supabaseClient';
 
 export default function ConfirmPage() {
@@ -52,12 +52,15 @@ export default function ConfirmPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-card to-muted dark:from-slate-950 dark:via-slate-900 dark:to-slate-900 flex items-center justify-center p-4">
       <div className="w-full max-w-sm text-center">
-        {/* Logo */}
+        {/* Logo block — matches LoginPage / ResetPasswordPage exactly */}
         <div className="flex flex-col items-center mb-8">
-          <div className="w-14 h-14 rounded-2xl bg-blue-600 flex items-center justify-center mb-4 shadow-lg">
-            <BookOpen className="w-7 h-7 text-white" />
-          </div>
+          <img
+            src="/logo.svg"
+            alt="Literature Tracker"
+            className="w-16 h-16 object-contain mb-4"
+          />
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Literature Tracker</h1>
+          <p className="text-sm text-muted-foreground mt-1">Confirm your account</p>
         </div>
 
         {/* Confirmation card */}
