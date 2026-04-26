@@ -7,6 +7,7 @@ import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import LoginPage from '@/components/auth/LoginPage';
 import ConfirmPage from '@/components/auth/ConfirmPage';
+import ResetPasswordPage from '@/components/auth/ResetPasswordPage';
 import { useReadCubeTooltips } from '@/hooks/useReadCubeTooltips';
 
 const { Pages, Layout, mainPage } = pagesConfig;
@@ -63,6 +64,7 @@ function App() {
         <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
           <Routes>
             <Route path="/confirm" element={<ConfirmPage />} />
+            <Route path="/reset-password" element={<ResetPasswordPage />} />
             <Route path="/*" element={<AuthenticatedApp />} />
           </Routes>
         </Router>
