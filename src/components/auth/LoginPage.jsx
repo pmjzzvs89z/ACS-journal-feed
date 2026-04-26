@@ -169,7 +169,7 @@ export default function LoginPage() {
             {isLogin && !isForgotPassword && (
               <button
                 onClick={() => switchMode('forgot')}
-                className="block w-full text-xs text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 hover:underline"
+                className="block w-full text-xs text-slate-600 dark:text-white hover:text-slate-800 dark:hover:text-slate-200 hover:underline"
               >
                 Forgot your password?
               </button>

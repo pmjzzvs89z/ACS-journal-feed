@@ -366,7 +366,7 @@ export default function ArticleFeed({ articles, failedJournals = [], isLoading, 
       <h3 className="text-welcome sm:text-welcome-lg font-bold text-slate-900 dark:text-white mb-3">
         Welcome to Literature Tracker
       </h3>
-      <p className="text-welcome-body text-blue-600 dark:text-blue-400 max-w-xl mb-6 leading-relaxed">
+      <p className="text-welcome-body text-blue-500 dark:text-blue-300 max-w-xl mb-6 leading-relaxed">
         This literature tracker allows you to follow any of the hundreds of
         journals across <span className="text-cyan-500 dark:text-cyan-400">Chemistry</span>,{' '}
         <span className="text-cyan-500 dark:text-cyan-400">Engineering</span>, and{' '}
