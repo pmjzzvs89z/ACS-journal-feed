@@ -6,8 +6,12 @@
 // Lives OUTSIDE the auth gate (see App.jsx) because the recovery session is
 // not the user's normal logged-in session — landing here should always show
 // the new-password form, never the app shell.
+//
+// Visual design intentionally mirrors LoginPage.jsx — same gradient
+// background, logo block, card style, inputs, buttons, dark-mode toggle —
+// so users perceive a single unified auth flow.
 import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/api/supabaseClient';
 import { Loader2, Moon, Sun, CheckCircle } from 'lucide-react';
 import { useDarkMode } from '@/hooks/useDarkMode';
@@ -72,7 +76,13 @@ export default function ResetPasswordPage() {
     setIsLoading(true);
     try {
       const { error: updateErr } = await supabase.auth.updateUser({ password });
-      if (updateErr) throw updateErr;
+      if (updateErr) {
+        // Supabase blocks "same password as old" by default. This is a
+        // low-friction app — treat that case as success so a user who
+        // forgot the password and re-types the original isn't stuck.
+        const isSamePassword = /same(\s+|_)?password|different from the old/i.test(updateErr.message || '');
+        if (!isSamePassword) throw updateErr;
+      }
       setSuccess(true);
       // Sign out so the user explicitly logs in with the new password —
       // otherwise the recovery session would just drop them straight into
@@ -87,97 +97,106 @@ export default function ResetPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
-      <div className="absolute top-4 right-4">
+    <div className="min-h-screen bg-gradient-to-br from-background via-card to-muted dark:from-slate-950 dark:via-slate-900 dark:to-slate-900 flex items-center justify-center p-4">
+      {/* Dark mode toggle — same position/style as LoginPage */}
+      <div className="fixed top-4 right-4">
         <Tooltip label={isDark ? 'Switch to light mode' : 'Switch to dark mode'} delay={500}>
           <button
             onClick={toggleDark}
+            className="w-9 h-9 rounded-lg border flex items-center justify-center transition-colors bg-card/80 border-border text-muted-foreground hover:bg-accent"
             aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-            className="flex items-center justify-center w-10 h-10 rounded-lg border bg-slate-200/80 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700 hover:bg-slate-300/80 dark:hover:bg-slate-700"
           >
-            {isDark ? <Sun className="w-5 h-5 text-orange-400" /> : <Moon className="w-5 h-5 text-blue-500" />}
+            {isDark ? <Sun className="w-4 h-4 text-orange-400" /> : <Moon className="w-4 h-4 text-blue-500" />}
           </button>
         </Tooltip>
       </div>
 
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">Literature Tracker</h1>
-          <p className="text-slate-600 dark:text-slate-400">Reset your password</p>
+      <div className="w-full max-w-sm">
+        {/* Logo block — same as LoginPage */}
+        <div className="flex flex-col items-center mb-8">
+          <img
+            src="/logo.svg"
+            alt="Literature Tracker"
+            className="w-16 h-16 object-contain mb-4"
+          />
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Literature Tracker</h1>
+          <p className="text-sm text-muted-foreground mt-1">Reset your password</p>
         </div>
 
-        <div className="bg-card border-container border-border rounded-2xl p-8 shadow-lg">
+        {/* Card — same as LoginPage */}
+        <div className="bg-card rounded-2xl border-container border-border shadow-sm p-6">
           {checkingSession ? (
             <div className="flex flex-col items-center gap-3 py-6">
-              <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
-              <p className="text-sm text-slate-600 dark:text-slate-400">Verifying reset link…</p>
+              <Loader2 className="w-6 h-6 animate-spin text-blue-500" />
+              <p className="text-sm text-muted-foreground">Verifying reset link…</p>
             </div>
           ) : !hasRecoverySession ? (
             <div className="text-center space-y-4">
-              <h2 className="text-xl font-semibold text-slate-900 dark:text-white">Link invalid or expired</h2>
-              <p className="text-sm text-slate-600 dark:text-slate-400">
+              <h2 className="text-lg font-semibold text-foreground">Link invalid or expired</h2>
+              <p className="text-sm text-muted-foreground">
                 This reset link is no longer valid. Please request a new one from the login page.
               </p>
-              <Link
-                to="/"
-                className="inline-block px-4 py-2 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition-colors"
+              <button
+                onClick={() => navigate('/')}
+                className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition-colors"
               >
                 Back to sign in
-              </Link>
+              </button>
             </div>
           ) : success ? (
-            <div className="text-center space-y-4">
+            <div className="text-center space-y-4 py-2">
               <CheckCircle className="w-12 h-12 mx-auto text-emerald-500" />
-              <h2 className="text-xl font-semibold text-slate-900 dark:text-white">Password updated</h2>
-              <p className="text-sm text-slate-600 dark:text-slate-400">
+              <h2 className="text-lg font-semibold text-foreground">Password updated</h2>
+              <p className="text-sm text-muted-foreground">
                 Redirecting you to sign in with your new password…
               </p>
             </div>
           ) : (
             <>
-              <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-6 text-center">
+              <h2 className="text-lg font-semibold text-foreground mb-6 text-center">
                 Choose a new password
               </h2>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 block mb-1">
                     New password
                   </label>
                   <input
                     type="password"
                     value={password}
                     onChange={e => setPassword(e.target.value)}
+                    placeholder="••••••••"
                     required
                     minLength={6}
                     autoComplete="new-password"
-                    className="w-full px-3 py-2 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-card text-foreground"
                   />
                 </div>
+
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 block mb-1">
                     Confirm new password
                   </label>
                   <input
                     type="password"
                     value={confirmPassword}
                     onChange={e => setConfirmPassword(e.target.value)}
+                    placeholder="••••••••"
                     required
                     minLength={6}
                     autoComplete="new-password"
-                    className="w-full px-3 py-2 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-card text-foreground"
                   />
                 </div>
 
                 {error && (
-                  <div className="px-3 py-2 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-sm text-red-600 dark:text-red-400">
-                    {error}
-                  </div>
+                  <p className="text-xs text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/30 px-3 py-2 rounded-lg">{error}</p>
                 )}
 
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+                  className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition-colors flex items-center justify-center gap-2 disabled:opacity-60"
                 >
                   {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
                   {isLoading ? 'Updating…' : 'Update password'}
