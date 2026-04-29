@@ -540,20 +540,24 @@ export default function ArticleFeed({ articles, failedJournals = [], isLoading, 
       />
 
       <div className="space-y-4">
-        <AnimatePresence mode="popLayout">
-          {visibleArticles.map((article, index) => (
-            <ArticleCard
-              key={`${article.journalId}-${article.link}`}
-              article={article}
-              index={index}
-              savedRecord={savedMap.get(article.link)}
-              onSaveToggle={onSaveToggle}
-              resetKey={resetKey}
-              onImageFail={GA_HIDE_ON_FAIL_IDS.has(article.journalId) ? handleImageFail : undefined}
-              cachedImageUrl={getCachedImage(article)}
-            />
-          ))}
-        </AnimatePresence>
+        {/* No AnimatePresence wrapper — cards have no entry/exit animation
+            per the CLAUDE.md hard rule. popLayout mode added layout-tracking
+            overhead that delayed unmount/mount by an animation tick, which
+            in turn delayed the ReadCube extension's MutationObserver from
+            scanning new DOI markers (visible as a ~500ms lag before the
+            "Papers / PDF" buttons reappeared on filter change). */}
+        {visibleArticles.map((article, index) => (
+          <ArticleCard
+            key={`${article.journalId}-${article.link}`}
+            article={article}
+            index={index}
+            savedRecord={savedMap.get(article.link)}
+            onSaveToggle={onSaveToggle}
+            resetKey={resetKey}
+            onImageFail={GA_HIDE_ON_FAIL_IDS.has(article.journalId) ? handleImageFail : undefined}
+            cachedImageUrl={getCachedImage(article)}
+          />
+        ))}
         {/* Sentinel for infinite scroll */}
         {hasMore && <div ref={sentinelRef} className="h-4" />}
       </div>
